@@ -1,0 +1,17 @@
+# Python build and cache files
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Local tooling state
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local configuration and private fitness data
+.env
+data/private/
