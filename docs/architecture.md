@@ -46,6 +46,17 @@ policy. These deterministic outputs are distinct from future personalized/adapti
 recommendations. If protein and fat cannot fit within a target, the policy raises an explicit
 error instead of producing negative carbohydrates or silently changing inputs.
 
+## Daily Observation Boundary
+
+`UserProfile` represents relatively stable user settings and a selected goal. `DailyObservation`
+represents partial measurements captured for one calendar date. Its optional fields preserve the
+distinction between missing (`None`) and an observed zero; it does not fill, infer, or derive
+values.
+
+Daily observations remain upstream of trend, data-quality, adaptive-estimation, and modelling
+layers. They do not reconcile nutrition totals or reject future dates, because those behaviours
+would introduce assumptions about logging and the current clock into the domain model.
+
 Future adaptive estimation, predictive models, recommendation policy, storage, and an API
 will remain separate layers. They must consume the core through typed inputs and outputs,
 not embed calculation rules themselves.

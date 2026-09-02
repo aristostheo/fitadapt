@@ -1,5 +1,6 @@
 """Typed domain models for FitAdapt."""
 
+from fitadapt.domain.observation import DailyObservation, ObservationValidationError
 from fitadapt.domain.profile import (
     ActivityLevel,
     Goal,
@@ -10,7 +11,9 @@ from fitadapt.domain.profile import (
 
 __all__ = [
     "ActivityLevel",
+    "DailyObservation",
     "Goal",
+    "ObservationValidationError",
     "ProfileValidationError",
     "SexForMifflinEquation",
     "UserProfile",

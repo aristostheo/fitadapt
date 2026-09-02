@@ -16,6 +16,7 @@ from fitadapt.baseline.targets import (
     calculate_calorie_target,
     calculate_daily_calorie_adjustment,
 )
+from fitadapt.domain.observation import DailyObservation, ObservationValidationError
 from fitadapt.domain.profile import (
     ActivityLevel,
     Goal,
@@ -31,10 +32,12 @@ __all__ = [
     "ActivityLevel",
     "BaselineEnergyEstimate",
     "CalorieTargetEstimate",
+    "DailyObservation",
     "ENERGY_EQUIVALENT_POLICY_VERSION",
     "Goal",
     "MACRO_POLICY_VERSION",
     "MacroPolicyInfeasibleError",
+    "ObservationValidationError",
     "ProfileValidationError",
     "SexForMifflinEquation",
     "UserProfile",

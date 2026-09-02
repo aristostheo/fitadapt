@@ -1,8 +1,9 @@
 """Validated profile inputs for deterministic FitAdapt calculations."""
 
-import math
 from dataclasses import dataclass
 from enum import Enum, StrEnum
+
+from fitadapt.domain._validation import validate_finite_number
 
 
 class ProfileValidationError(ValueError):
@@ -122,15 +123,11 @@ def _validate_finite_measurement(
 
 
 def _validate_finite_number(value: float, field_name: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ProfileValidationError(
-            f"{field_name} must be a finite number, not a boolean or text value."
-        )
-
-    value_as_float = float(value)
-    if not math.isfinite(value_as_float):
-        raise ProfileValidationError(f"{field_name} must be finite, not NaN or infinity.")
-    return value_as_float
+    return validate_finite_number(
+        value,
+        field_name=field_name,
+        error_type=ProfileValidationError,
+    )
 
 
 def _validate_enum(value: Enum, expected_type: type[Enum], field_name: str) -> None:

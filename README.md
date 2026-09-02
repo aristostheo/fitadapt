@@ -11,6 +11,22 @@ V0.1 currently includes typed profile validation plus deterministic REE, baselin
 target, and macro-allocation calculations. Adaptive estimation, machine learning, personal
 datasets, persistence, APIs, and recommendations remain out of scope until later checkpoints.
 
+## Daily Observations
+
+`UserProfile` holds relatively stable settings and a selected goal. `DailyObservation` holds
+partial measurements recorded for one calendar date. It does not derive trends, data-quality
+scores, or recommendations.
+
+For observation fields, `None` means missing or unknown; numeric zero means an observed zero.
+For example, `steps=None` means no step data was recorded, while `steps=0` means zero steps were
+recorded. Partial nutrition is valid: calories and any subset of macros may be recorded without
+forcing macro calories to reconcile with logged intake. Food labels, fibre, alcohol, rounding, and
+incomplete logging can all create differences.
+
+The domain model accepts future dates because time-relative checks require a clock and belong in
+an ingestion/API layer. Personal fitness data must remain local and must not be committed to this
+repository.
+
 The baseline uses rough population-level activity assumptions. It is intended as a starting
 point; a future adaptive estimator will use reliable longitudinal observations to personalize
 the estimate.
