@@ -13,9 +13,10 @@ Versioned deterministic baseline calculations
 Transparent baseline estimate and assumptions
 ```
 
-The next checkpoints will add typed domain models, then pure functions for BMR, activity
-adjustment, calorie targets, and macro targets. Those functions will preserve unrounded
-values while calculating and round only public results.
+The `UserProfile` domain model validates its inputs before they reach any calculation code.
+The next checkpoints will add pure functions for BMR, activity adjustment, calorie targets,
+and macro targets. Those functions will preserve unrounded values while calculating and round
+only public results.
 
 Future adaptive estimation, predictive models, recommendation policy, storage, and an API
 will remain separate layers. They must consume the core through typed inputs and outputs,

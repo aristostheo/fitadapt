@@ -16,10 +16,6 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-# Checkpoint 1 contains no importable package yet; checkpoint 2 will remove this setting.
-package = false
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"

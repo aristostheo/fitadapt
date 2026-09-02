@@ -58,5 +58,5 @@ uv run pytest
 
 ## Status
 
-Checkpoint 1 establishes repository tooling and the V0.1 specification. No calculation
-engine has been implemented yet.
+Checkpoint 2 adds a typed, validated `UserProfile` domain model. No BMR, TDEE, calorie, or
+macro calculation engine has been implemented yet.
