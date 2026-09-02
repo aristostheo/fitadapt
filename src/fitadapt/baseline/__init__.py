@@ -1,4 +1,4 @@
-"""FitAdapt's framework-independent fitness-intelligence core."""
+"""Deterministic baseline energy calculations."""
 
 from fitadapt.baseline.energy import (
     ACTIVITY_MULTIPLIERS,
@@ -8,24 +8,12 @@ from fitadapt.baseline.energy import (
     calculate_baseline_energy,
     calculate_mifflin_st_jeor_ree,
 )
-from fitadapt.domain.profile import (
-    ActivityLevel,
-    Goal,
-    ProfileValidationError,
-    SexForMifflinEquation,
-    UserProfile,
-)
 
 __all__ = [
     "ACTIVITY_MULTIPLIERS",
     "ACTIVITY_POLICY_VERSION",
     "REE_FORMULA_VERSION",
-    "ActivityLevel",
     "BaselineEnergyEstimate",
-    "Goal",
-    "ProfileValidationError",
-    "SexForMifflinEquation",
-    "UserProfile",
     "calculate_baseline_energy",
     "calculate_mifflin_st_jeor_ree",
 ]

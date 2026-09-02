@@ -9,7 +9,7 @@ from fitadapt.domain.profile import (
     ActivityLevel,
     Goal,
     ProfileValidationError,
-    SexForBmr,
+    SexForMifflinEquation,
     UserProfile,
 )
 
@@ -20,7 +20,7 @@ def make_profile(**overrides: object) -> UserProfile:
         "age_years": 30,
         "height_cm": 180.0,
         "weight_kg": 100.0,
-        "sex_for_bmr": SexForBmr.MALE,
+        "sex_for_mifflin_equation": SexForMifflinEquation.MALE,
         "activity_level": ActivityLevel.MODERATELY_ACTIVE,
         "goal": Goal.MAINTAIN,
         "requested_weekly_change_kg": 0.0,
@@ -188,7 +188,7 @@ def test_rejects_booleans_for_numeric_fields(field_name: str, value: bool) -> No
 @pytest.mark.parametrize(
     ("field_name", "value"),
     [
-        ("sex_for_bmr", "male"),
+        ("sex_for_mifflin_equation", "male"),
         ("activity_level", "active"),
         ("goal", "cut"),
     ],

@@ -4,7 +4,7 @@ from fitadapt.domain.profile import (
     ActivityLevel,
     Goal,
     ProfileValidationError,
-    SexForBmr,
+    SexForMifflinEquation,
     UserProfile,
 )
 
@@ -12,6 +12,6 @@ __all__ = [
     "ActivityLevel",
     "Goal",
     "ProfileValidationError",
-    "SexForBmr",
+    "SexForMifflinEquation",
     "UserProfile",
 ]

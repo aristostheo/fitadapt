@@ -9,8 +9,8 @@ class ProfileValidationError(ValueError):
     """Raised when a user profile falls outside FitAdapt's supported input contract."""
 
 
-class SexForBmr(StrEnum):
-    """Values required by the selected Mifflin-St Jeor BMR equation."""
+class SexForMifflinEquation(StrEnum):
+    """Values required by the selected Mifflin-St Jeor REE equation."""
 
     FEMALE = "female"
     MALE = "male"
@@ -56,7 +56,7 @@ class UserProfile:
     age_years: int
     height_cm: float
     weight_kg: float
-    sex_for_bmr: SexForBmr
+    sex_for_mifflin_equation: SexForMifflinEquation
     activity_level: ActivityLevel
     goal: Goal
     requested_weekly_change_kg: float
@@ -78,7 +78,11 @@ class UserProfile:
             maximum=MAXIMUM_WEIGHT_KG,
             unit="kg",
         )
-        _validate_enum(self.sex_for_bmr, SexForBmr, "sex_for_bmr")
+        _validate_enum(
+            self.sex_for_mifflin_equation,
+            SexForMifflinEquation,
+            "sex_for_mifflin_equation",
+        )
         _validate_enum(self.activity_level, ActivityLevel, "activity_level")
         _validate_enum(self.goal, Goal, "goal")
         requested_weekly_change_kg = _validate_finite_number(
