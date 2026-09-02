@@ -8,6 +8,14 @@ from fitadapt.baseline.energy import (
     calculate_baseline_energy,
     calculate_mifflin_st_jeor_ree,
 )
+from fitadapt.baseline.targets import (
+    ENERGY_EQUIVALENT_POLICY_VERSION,
+    MACRO_POLICY_VERSION,
+    CalorieTargetEstimate,
+    MacroPolicyInfeasibleError,
+    calculate_calorie_target,
+    calculate_daily_calorie_adjustment,
+)
 from fitadapt.domain.profile import (
     ActivityLevel,
     Goal,
@@ -22,10 +30,16 @@ __all__ = [
     "REE_FORMULA_VERSION",
     "ActivityLevel",
     "BaselineEnergyEstimate",
+    "CalorieTargetEstimate",
+    "ENERGY_EQUIVALENT_POLICY_VERSION",
     "Goal",
+    "MACRO_POLICY_VERSION",
+    "MacroPolicyInfeasibleError",
     "ProfileValidationError",
     "SexForMifflinEquation",
     "UserProfile",
     "calculate_baseline_energy",
+    "calculate_calorie_target",
+    "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
 ]
