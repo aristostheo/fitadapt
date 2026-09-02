@@ -27,6 +27,30 @@ The domain model accepts future dates because time-relative checks require a clo
 an ingestion/API layer. Personal fitness data must remain local and must not be committed to this
 repository.
 
+## Synthetic Histories
+
+Synthetic histories are in-memory development and test data, never evidence that a future model
+works for real people. Each generated day separates hidden simulation truth from a noisy, partial
+`DailyObservation`:
+
+```text
+Simulation configuration
+          -> hidden daily truth
+          -> noise and missingness
+          -> DailyObservation or no observation
+```
+
+Truth stores a start-of-day body weight, intake, expenditure, balance, weight change, steps, and
+exercise. Observations add normal measurement/logging noise and independently apply weight,
+nutrition, and activity missingness. Missing fields remain `None`; an all-missing day uses
+`observation=None`.
+
+`SyntheticHistoryConfig.seed` creates a NumPy `default_rng` generator, so the same configuration
+reproduces exactly the same history. The initial `synthetic_history_v1` policy uses a simple
+linear energy-balance model, `7,700 kcal/kg` daily weight-change approximation, and documented
+per-step/exercise contributions. It excludes physiology such as metabolic adaptation and body
+composition, so synthetic results cannot establish real-world accuracy.
+
 The baseline uses rough population-level activity assumptions. It is intended as a starting
 point; a future adaptive estimator will use reliable longitudinal observations to personalize
 the estimate.

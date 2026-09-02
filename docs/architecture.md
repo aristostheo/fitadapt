@@ -57,6 +57,22 @@ Daily observations remain upstream of trend, data-quality, adaptive-estimation, 
 layers. They do not reconcile nutrition totals or reject future dates, because those behaviours
 would introduce assumptions about logging and the current clock into the domain model.
 
+## Synthetic Data Boundary
+
+Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:
+
+```text
+Simulation configuration
+          -> hidden daily truth
+          -> noise and missingness
+          -> DailyObservation or no observation
+```
+
+`SyntheticHistory` retains hidden truth for evaluation, while future estimators must consume only
+the noisy observations. A seed-scoped NumPy generator makes results reproducible. The simulator is
+deliberately linear and does not model metabolic adaptation, body composition, or other complex
+physiology.
+
 Future adaptive estimation, predictive models, recommendation policy, storage, and an API
 will remain separate layers. They must consume the core through typed inputs and outputs,
 not embed calculation rules themselves.

@@ -24,6 +24,12 @@ from fitadapt.domain.profile import (
     SexForMifflinEquation,
     UserProfile,
 )
+from fitadapt.synthetic.history import (
+    SyntheticConfigurationError,
+    SyntheticHistory,
+    SyntheticHistoryConfig,
+    generate_synthetic_history,
+)
 
 __all__ = [
     "ACTIVITY_MULTIPLIERS",
@@ -40,9 +46,13 @@ __all__ = [
     "ObservationValidationError",
     "ProfileValidationError",
     "SexForMifflinEquation",
+    "SyntheticConfigurationError",
+    "SyntheticHistory",
+    "SyntheticHistoryConfig",
     "UserProfile",
     "calculate_baseline_energy",
     "calculate_calorie_target",
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
+    "generate_synthetic_history",
 ]
