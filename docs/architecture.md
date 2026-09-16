@@ -57,6 +57,12 @@ Daily observations remain upstream of trend, data-quality, adaptive-estimation, 
 layers. They do not reconcile nutrition totals or reject future dates, because those behaviours
 would introduce assumptions about logging and the current clock into the domain model.
 
+## Calendar Trend Boundary
+
+The analysis layer reindexes observations onto continuous calendar dates, calculates trailing-only
+rolling features, and reports completeness with all calendar days as denominators. It does not
+impute values, predict outcomes, or personalize estimates.
+
 ## Synthetic Data Boundary
 
 Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:

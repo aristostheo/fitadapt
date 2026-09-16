@@ -1,5 +1,6 @@
 """FitAdapt's framework-independent fitness-intelligence core."""
 
+from fitadapt.analysis.trends import TrendAnalysisConfig, analyze_observation_trends
 from fitadapt.baseline.energy import (
     ACTIVITY_MULTIPLIERS,
     ACTIVITY_POLICY_VERSION,
@@ -49,10 +50,12 @@ __all__ = [
     "SyntheticConfigurationError",
     "SyntheticHistory",
     "SyntheticHistoryConfig",
+    "TrendAnalysisConfig",
     "UserProfile",
     "calculate_baseline_energy",
     "calculate_calorie_target",
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
     "generate_synthetic_history",
+    "analyze_observation_trends",
 ]

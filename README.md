@@ -27,6 +27,13 @@ The domain model accepts future dates because time-relative checks require a clo
 an ingestion/API layer. Personal fitness data must remain local and must not be committed to this
 repository.
 
+## Calendar Trends
+
+Trend analysis turns submitted observations into a continuous calendar-day timeline. Missing dates
+remain visible, so a seven-day window means the current date and prior six calendar dates, not the
+last seven logged entries. Trailing means require four observations by default and never use future
+data. Raw daily weight is noisy; these descriptive features are not personalized predictions.
+
 ## Synthetic Histories
 
 Synthetic histories are in-memory development and test data, never evidence that a future model
