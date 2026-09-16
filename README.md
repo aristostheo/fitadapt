@@ -9,8 +9,15 @@ expenditure.
 
 V0.1 includes typed profile validation, deterministic REE/baseline TDEE, calorie targets, macro
 allocation, calendar-aware trends, adaptive TDEE estimation, synthetic histories, and
-synthetic-only estimator evaluation. Machine learning, personal datasets, persistence, APIs, and
-recommendations remain out of scope.
+synthetic-only estimator evaluation, and a synthetic-only weight-change ML benchmark. Personal
+datasets, persistence, APIs, and recommendations remain out of scope.
+
+## Weight-Change ML Experiment
+
+The synthetic-only ML experiment predicts true seven-calendar-day weight change from features
+available at a cutoff date. It builds observation-derived features, splits complete synthetic
+histories into train/validation/test groups, fits preprocessing on training data only, and compares
+dummy, linear, Ridge, and random-forest regressors. See [`docs/weight-change-ml.md`](docs/weight-change-ml.md).
 
 ## Daily Observations
 

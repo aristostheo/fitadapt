@@ -97,6 +97,19 @@ Hidden truth must never enter production trend or adaptive estimation. Baseline-
 use every synthetic truth date; paired baseline and adaptive metrics use the same adaptive-eligible
 dates. This boundary supports controlled synthetic evaluation, not real-world validation.
 
+## Synthetic ML Boundary
+
+```text
+Synthetic histories
+    -> observation-only feature construction
+    -> grouped train / validation / test split
+    -> train-only preprocessing
+    -> baseline and ML model comparison
+    -> held-out test evaluation
+```
+
+Hidden truth supplies future labels and evaluation targets only. It is never a feature.
+
 ## Synthetic Data Boundary
 
 Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:
