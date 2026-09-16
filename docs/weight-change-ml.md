@@ -26,3 +26,5 @@ print(result.dummy_test_metrics.mean_absolute_error_kg)
 ```
 
 This is synthetic-only experimentation, not clinical validation or real-world predictive evidence.
+The selected model can be interpreted without exposing a deployable estimator; see
+[`model-interpretation.md`](model-interpretation.md).

@@ -19,6 +19,10 @@ available at a cutoff date. It builds observation-derived features, splits compl
 histories into train/validation/test groups, fits preprocessing on training data only, and compares
 dummy, linear, Ridge, and random-forest regressors. See [`docs/weight-change-ml.md`](docs/weight-change-ml.md).
 
+The selected validation winner also has synthetic-only coefficient, validation-permutation, and
+held-out residual diagnostics. These are non-causal and do not modify targets or recommendations;
+see [`docs/model-interpretation.md`](docs/model-interpretation.md).
+
 ## Daily Observations
 
 `UserProfile` holds relatively stable settings and a selected goal. `DailyObservation` holds

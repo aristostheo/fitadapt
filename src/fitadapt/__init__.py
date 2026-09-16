@@ -39,6 +39,11 @@ from fitadapt.evaluation.tdee import (
     evaluate_tdee_estimators,
     run_tdee_benchmark_suite,
 )
+from fitadapt.ml.interpretation import (
+    WeightChangeInterpretationConfig,
+    WeightChangeInterpretationResult,
+    run_weight_change_interpretation,
+)
 from fitadapt.ml.weight_change import (
     WeightChangeMlConfig,
     build_synthetic_weight_change_dataset,
@@ -81,6 +86,8 @@ __all__ = [
     "TrendAnalysisConfig",
     "UserProfile",
     "WeightChangeMlConfig",
+    "WeightChangeInterpretationConfig",
+    "WeightChangeInterpretationResult",
     "calculate_baseline_energy",
     "calculate_calorie_target",
     "calculate_daily_calorie_adjustment",
@@ -91,6 +98,7 @@ __all__ = [
     "generate_synthetic_history",
     "run_tdee_benchmark_suite",
     "run_weight_change_benchmark",
+    "run_weight_change_interpretation",
     "analyze_observation_trends",
     "estimate_adaptive_tdee",
 ]

@@ -110,6 +110,16 @@ Synthetic histories
 
 Hidden truth supplies future labels and evaluation targets only. It is never a feature.
 
+```text
+Selected validation winner
+    -> standardized coefficient extraction
+    -> validation permutation importance
+    -> held-out test residual diagnostics
+```
+
+Validation supports selection and permutation diagnostics; held-out test data supports residual
+diagnostics only. Interpretation never changes recommendations or user targets.
+
 ## Synthetic Data Boundary
 
 Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:
