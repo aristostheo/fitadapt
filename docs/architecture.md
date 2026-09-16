@@ -26,8 +26,8 @@ adjusted by a rough population-level activity multiplier. Goal and requested wee
 validated profile inputs but do not affect energy estimates until the calorie-target checkpoint.
 
 The activity multipliers are intentionally isolated from the REE formula because they represent
-a separate, weaker static assumption. Future adaptive estimation should improve on these
-population-level assumptions using reliable longitudinal observations.
+a separate, weaker static assumption. The adaptive-estimation layer is intended to improve on
+these population-level assumptions using reliable longitudinal observations.
 
 The target layer composes, rather than copies, `BaselineEnergyEstimate`:
 
@@ -42,9 +42,9 @@ Validated profile
 ```
 
 It uses a versioned `7,700 kcal/kg` planning approximation and a separate, versioned macro
-policy. These deterministic outputs are distinct from future personalized/adaptive estimates and
-recommendations. If protein and fat cannot fit within a target, the policy raises an explicit
-error instead of producing negative carbohydrates or silently changing inputs.
+policy. These deterministic outputs are distinct from personalized/adaptive estimates and
+recommendations. If protein and fat cannot fit within a target, the policy raises an explicit error
+instead of producing negative carbohydrates or silently changing inputs.
 
 ## Daily Observation Boundary
 
@@ -63,6 +63,22 @@ The analysis layer reindexes observations onto continuous calendar dates, calcul
 rolling features, and reports completeness with all calendar days as denominators. It does not
 impute values, predict outcomes, or personalize estimates.
 
+## Current Calculation Paths
+
+```text
+UserProfile
+    -> baseline REE/TDEE
+    -> baseline calorie and macro targets
+
+DailyObservation history
+    -> calendar-aware trends
+    -> adaptive TDEE estimate
+```
+
+The adaptive result is an observed-data estimate only. It does not overwrite the baseline estimate,
+change calorie or macro targets, or generate recommendations. Future layers include evaluation,
+predictive models, recommendation policy, storage, and APIs.
+
 ## Synthetic Data Boundary
 
 Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:
@@ -79,9 +95,9 @@ the noisy observations. A seed-scoped NumPy generator makes results reproducible
 deliberately linear and does not model metabolic adaptation, body composition, or other complex
 physiology.
 
-Future adaptive estimation, predictive models, recommendation policy, storage, and an API
-will remain separate layers. They must consume the core through typed inputs and outputs,
-not embed calculation rules themselves.
+Future evaluation, predictive models, recommendation policy, storage, and API layers will remain
+separate. They must consume the core through typed inputs and outputs, not embed calculation rules
+themselves.
 
 ## Data and privacy boundary
 

@@ -34,6 +34,13 @@ remain visible, so a seven-day window means the current date and prior six calen
 last seven logged entries. Trailing means require four observations by default and never use future
 data. Raw daily weight is noisy; these descriptive features are not personalized predictions.
 
+## Adaptive TDEE
+
+Adaptive TDEE uses observed intake trends and windowed weight change: daily balance is weight
+change times `7,700 / window days`, and estimated TDEE is intake minus that balance. Weight loss
+therefore raises inferred expenditure above intake; gain lowers it. Recent eligible daily estimates
+are aggregated with a median and MAD spread metric, not a confidence interval or medical claim.
+
 ## Synthetic Histories
 
 Synthetic histories are in-memory development and test data, never evidence that a future model

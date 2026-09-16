@@ -1,5 +1,6 @@
 """FitAdapt's framework-independent fitness-intelligence core."""
 
+from fitadapt.adaptive.tdee import AdaptiveTdeeConfig, estimate_adaptive_tdee
 from fitadapt.analysis.trends import TrendAnalysisConfig, analyze_observation_trends
 from fitadapt.baseline.energy import (
     ACTIVITY_MULTIPLIERS,
@@ -37,6 +38,7 @@ __all__ = [
     "ACTIVITY_POLICY_VERSION",
     "REE_FORMULA_VERSION",
     "ActivityLevel",
+    "AdaptiveTdeeConfig",
     "BaselineEnergyEstimate",
     "CalorieTargetEstimate",
     "DailyObservation",
@@ -58,4 +60,5 @@ __all__ = [
     "calculate_mifflin_st_jeor_ree",
     "generate_synthetic_history",
     "analyze_observation_trends",
+    "estimate_adaptive_tdee",
 ]
