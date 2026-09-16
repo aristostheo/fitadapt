@@ -75,9 +75,25 @@ DailyObservation history
     -> adaptive TDEE estimate
 ```
 
-The adaptive result is an observed-data estimate only. It does not overwrite the baseline estimate,
-change calorie or macro targets, or generate recommendations. Future layers include predictive
-models, recommendation policy, storage, and APIs.
+The adaptive result is an observed-data estimate only. It does not overwrite the baseline estimate
+or change baseline calorie or macro targets. The recommendation layer composes baseline, trend, and
+adaptive outputs behind an eligibility gate without mutating any of them.
+
+## HTTP Adapter Boundary
+
+Checkpoint 13 adds a stateless adapter outside the domain packages:
+
+```text
+HTTP JSON
+   -> Pydantic transport schemas
+   -> domain objects and existing engine functions
+   -> explicit response schemas
+   -> HTTP JSON
+```
+
+FastAPI contains no fitness formulas and stores no profile or observation data. Domain packages do
+not depend on FastAPI or Pydantic, and API failures do not mutate engine state. The synthetic ML
+benchmark and interpretation modules are not called by any API endpoint.
 
 ## Synthetic Evaluation Boundary
 
@@ -145,8 +161,8 @@ the noisy observations. A seed-scoped NumPy generator makes results reproducible
 deliberately linear and does not model metabolic adaptation, body composition, or other complex
 physiology.
 
-Future predictive models, recommendation policy, storage, and API layers will remain separate.
-They must consume the core through typed inputs and outputs, not embed calculation rules themselves.
+Future predictive models, storage, authentication, and client-integration layers must remain
+separate and consume the core through typed inputs and outputs, not embed calculation rules.
 
 ## Data and privacy boundary
 

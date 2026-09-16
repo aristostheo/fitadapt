@@ -2,6 +2,7 @@
 
 from fitadapt.adaptive.tdee import AdaptiveTdeeConfig, estimate_adaptive_tdee
 from fitadapt.analysis.trends import TrendAnalysisConfig, analyze_observation_trends
+from fitadapt.api.app import create_app
 from fitadapt.baseline.energy import (
     ACTIVITY_MULTIPLIERS,
     ACTIVITY_POLICY_VERSION,
@@ -94,6 +95,7 @@ __all__ = [
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
     "calculate_tdee_error_metrics",
+    "create_app",
     "build_synthetic_weight_change_dataset",
     "evaluate_tdee_estimators",
     "generate_synthetic_history",

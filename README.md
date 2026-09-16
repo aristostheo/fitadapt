@@ -8,9 +8,24 @@ expenditure.
 ## V0.1 scope
 
 V0.1 includes typed profile validation, deterministic REE/baseline TDEE, calorie targets, macro
-allocation, calendar-aware trends, adaptive TDEE estimation, synthetic histories, and
-synthetic-only estimator evaluation, and a synthetic-only weight-change ML benchmark. Personal
-datasets, persistence, APIs, and recommendations remain out of scope.
+allocation, calendar-aware trends, adaptive TDEE estimation, conservative calorie recommendations,
+and a small typed HTTP API. Personal datasets and persistence remain out of scope.
+
+## HTTP API
+
+Checkpoint 13 exposes the existing engine through a stateless FastAPI adapter. It supports baseline
+targets, trends, adaptive TDEE, and conservative calorie recommendations without storing submitted
+profiles or observations. Recommendations are decision support only, not medical or nutritional
+treatment, and do not use the synthetic ML benchmark or interpretation modules.
+
+Run it locally with:
+
+```bash
+uv run uvicorn fitadapt.api.app:app --reload
+```
+
+Swagger UI is available at `http://127.0.0.1:8000/docs`. See [`docs/api.md`](docs/api.md) for the
+complete contract and request examples.
 
 ## Weight-Change ML Experiment
 
