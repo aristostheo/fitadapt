@@ -10,7 +10,7 @@ from fitadapt.domain._validation import validate_finite_number
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import MAXIMUM_WEIGHT_KG, MINIMUM_WEIGHT_KG
 
-SIMULATION_POLICY_VERSION = "synthetic_history_v1"
+SIMULATION_POLICY_VERSION = "synthetic_history_v2"
 CALORIES_PER_STEP = 0.04
 CALORIES_PER_STRENGTH_TRAINING_MINUTE = 6.0
 CALORIES_PER_CARDIO_MINUTE = 8.0
@@ -20,7 +20,9 @@ SIMULATION_ASSUMPTIONS = (
     "True body weight is stored at the start of each simulated day.",
     "Daily weight change is energy balance divided by 7,700 kcal/kg.",
     "Intake and steps use normal noise and are clamped at zero.",
-    "Observed scale weight, logged intake, and steps include independent normal noise.",
+    "Logged intake adds signed systematic bias and independent zero-mean random error before "
+    "zero clamping.",
+    "Observed scale weight and steps include independent normal noise.",
     "Missingness is applied after hidden truth is generated for each observation category.",
     "Observed scale weight is clamped to the supported DailyObservation weight range.",
 )
@@ -48,6 +50,7 @@ class SyntheticHistoryConfig:
     cardio_probability: float = 0.25
     cardio_minutes: float = 30.0
     scale_weight_noise_standard_deviation_kg: float = 0.4
+    calorie_logging_bias_kcal: float = 0.0
     calorie_logging_error_standard_deviation_kcal: float = 100.0
     steps_observation_noise_standard_deviation: float = 500.0
     missing_weight_probability: float = 0.15
@@ -112,6 +115,11 @@ class SyntheticHistoryConfig:
             field_name="scale_weight_noise_standard_deviation_kg",
             minimum=0.0,
         )
+        calorie_logging_bias_kcal = validate_finite_number(
+            self.calorie_logging_bias_kcal,
+            field_name="calorie_logging_bias_kcal",
+            error_type=SyntheticConfigurationError,
+        )
         calorie_logging_error_standard_deviation_kcal = _validate_number_at_least(
             self.calorie_logging_error_standard_deviation_kcal,
             field_name="calorie_logging_error_standard_deviation_kcal",
@@ -147,6 +155,7 @@ class SyntheticHistoryConfig:
             ("cardio_probability", cardio_probability),
             ("cardio_minutes", cardio_minutes),
             ("scale_weight_noise_standard_deviation_kg", scale_weight_noise_standard_deviation_kg),
+            ("calorie_logging_bias_kcal", calorie_logging_bias_kcal),
             (
                 "calorie_logging_error_standard_deviation_kcal",
                 calorie_logging_error_standard_deviation_kcal,
@@ -277,6 +286,7 @@ def _generate_observation(
         energy_intake_kcal = max(
             0.0,
             truth.true_energy_intake_kcal
+            + config.calorie_logging_bias_kcal
             + float(rng.normal(0.0, config.calorie_logging_error_standard_deviation_kcal)),
         )
 

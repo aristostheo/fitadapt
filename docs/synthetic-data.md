@@ -13,15 +13,22 @@ weight, noisy logged intake, and noisy steps. Missingness is applied only after 
 An observation field of `None` means the value is missing. Numeric zero remains an observed zero.
 When weight, nutrition, and activity are all missing, the day stores no `DailyObservation`.
 
-## Version 1 Assumptions
+## Version 2 Assumptions
 
 - Expenditure equals base expenditure plus `0.04 kcal/step`, `6 kcal/strength minute`, and
   `8 kcal/cardio minute`.
 - True daily weight change equals energy balance divided by `7,700 kcal/kg`.
 - Intake and steps use normal sampling and are clamped at zero.
-- Scale weight, logged intake, and observed steps use independent normal noise.
+- Scale weight and observed steps use independent normal noise. Logged intake adds the configured
+  signed systematic `calorie_logging_bias_kcal` plus independent zero-mean random logging error,
+  then clamps the combined result at zero.
 - Observed scale weight is clamped to the supported observation weight range.
 - A seeded `numpy.random.default_rng` generator makes each configuration reproducible.
+
+`synthetic_history_v2` adds signed systematic `calorie_logging_bias_kcal`; it is intentionally
+distinct from random logging noise. Positive values model overreporting and negative values model
+underreporting. The observed intake remains non-negative because the combined truth, bias, and
+random-error value is clamped at zero.
 
 This deliberately simple policy excludes metabolic adaptation, body composition, hormonal cycles,
 and nonlinear energy dynamics. It exists to test data handling and estimator recovery against

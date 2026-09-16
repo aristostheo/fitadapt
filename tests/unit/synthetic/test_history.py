@@ -189,6 +189,58 @@ def test_zero_noise_matches_observed_and_true_values() -> None:
         assert day.observation.steps == day.truth.true_steps
 
 
+def test_signed_logging_bias_is_applied_without_random_error() -> None:
+    positive = generate_synthetic_history(
+        make_config(
+            calorie_logging_bias_kcal=150.0,
+            calorie_logging_error_standard_deviation_kcal=0.0,
+            missing_nutrition_probability=0.0,
+        )
+    )
+    negative = generate_synthetic_history(
+        make_config(
+            calorie_logging_bias_kcal=-150.0,
+            calorie_logging_error_standard_deviation_kcal=0.0,
+            missing_nutrition_probability=0.0,
+        )
+    )
+
+    assert all(
+        day.observation is not None
+        and day.observation.energy_intake_kcal
+        == pytest.approx(day.truth.true_energy_intake_kcal + 150.0)
+        for day in positive.days
+    )
+    assert all(
+        day.observation is not None
+        and day.observation.energy_intake_kcal
+        == pytest.approx(day.truth.true_energy_intake_kcal - 150.0)
+        for day in negative.days
+    )
+
+
+def test_zero_logging_bias_preserves_existing_observed_intake_behavior() -> None:
+    default_history = generate_synthetic_history(make_config())
+    explicit_zero_history = generate_synthetic_history(make_config(calorie_logging_bias_kcal=0.0))
+
+    assert default_history == explicit_zero_history
+
+
+def test_negative_logging_bias_is_clamped_to_non_negative_observed_intake() -> None:
+    history = generate_synthetic_history(
+        make_config(
+            calorie_logging_bias_kcal=-10_000.0,
+            calorie_logging_error_standard_deviation_kcal=0.0,
+            missing_nutrition_probability=0.0,
+        )
+    )
+
+    assert all(
+        day.observation is not None and day.observation.energy_intake_kcal == 0.0
+        for day in history.days
+    )
+
+
 def test_logged_intake_never_becomes_negative() -> None:
     history = generate_synthetic_history(
         make_config(calorie_logging_error_standard_deviation_kcal=10000.0)
@@ -221,6 +273,27 @@ def test_logged_intake_never_becomes_negative() -> None:
 def test_rejects_invalid_configuration(field_name: str, value: object) -> None:
     with pytest.raises(SyntheticConfigurationError, match=field_name):
         make_config(**{field_name: value})
+
+
+@pytest.mark.parametrize("value", [True, "100", math.nan, math.inf, -math.inf])
+def test_rejects_invalid_logging_bias(value: object) -> None:
+    with pytest.raises(SyntheticConfigurationError, match="calorie_logging_bias_kcal"):
+        make_config(calorie_logging_bias_kcal=value)
+
+
+def test_logging_bias_normalizes_integer_input_and_reproducibility_includes_bias() -> None:
+    config = make_config(calorie_logging_bias_kcal=100)
+
+    assert config.calorie_logging_bias_kcal == 100.0
+    assert type(config.calorie_logging_bias_kcal) is float
+    assert generate_synthetic_history(config) == generate_synthetic_history(config)
+
+
+def test_logging_bias_is_recorded_under_the_version_2_simulation_policy() -> None:
+    history = generate_synthetic_history(make_config(calorie_logging_bias_kcal=25.0))
+
+    assert history.simulation_policy_version == "synthetic_history_v2"
+    assert any("systematic bias" in assumption for assumption in history.assumptions)
 
 
 @pytest.mark.parametrize(

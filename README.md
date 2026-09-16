@@ -7,9 +7,10 @@ expenditure.
 
 ## V0.1 scope
 
-V0.1 currently includes typed profile validation plus deterministic REE, baseline TDEE, calorie
-target, and macro-allocation calculations. Adaptive estimation, machine learning, personal
-datasets, persistence, APIs, and recommendations remain out of scope until later checkpoints.
+V0.1 includes typed profile validation, deterministic REE/baseline TDEE, calorie targets, macro
+allocation, calendar-aware trends, adaptive TDEE estimation, synthetic histories, and
+synthetic-only estimator evaluation. Machine learning, personal datasets, persistence, APIs, and
+recommendations remain out of scope.
 
 ## Daily Observations
 
@@ -60,14 +61,13 @@ nutrition, and activity missingness. Missing fields remain `None`; an all-missin
 `observation=None`.
 
 `SyntheticHistoryConfig.seed` creates a NumPy `default_rng` generator, so the same configuration
-reproduces exactly the same history. The initial `synthetic_history_v1` policy uses a simple
+reproduces exactly the same history. The current `synthetic_history_v2` policy uses a simple
 linear energy-balance model, `7,700 kcal/kg` daily weight-change approximation, and documented
 per-step/exercise contributions. It excludes physiology such as metabolic adaptation and body
 composition, so synthetic results cannot establish real-world accuracy.
 
-The baseline uses rough population-level activity assumptions. It is intended as a starting
-point; a future adaptive estimator will use reliable longitudinal observations to personalize
-the estimate.
+The baseline uses rough population-level activity assumptions. It is intended as a starting point;
+the adaptive estimator uses reliable longitudinal observations to personalize an observed estimate.
 
 ## Calculation contract
 
@@ -104,9 +104,9 @@ claim that the formulas immediately cease to apply outside those ages.
   | Very active | 1.725 |
   | Extra active | 1.900 |
 
-These multipliers are rough population-level categories and one of the weakest assumptions
-in the static baseline, not precise measurements. A later adaptive estimator is intended to
-improve on them.
+These multipliers are rough population-level categories and one of the weakest assumptions in the
+static baseline, not precise measurements. The adaptive estimator is intended to improve on them
+when reliable longitudinal observations are available.
 
 ```text
 Validated UserProfile -> Mifflin-St Jeor REE -> activity multiplier -> baseline TDEE
@@ -147,7 +147,20 @@ No universal calorie floor is applied. If a target cannot fund the required prot
 policy, FitAdapt raises `MacroPolicyInfeasibleError` instead of returning negative carbohydrates,
 changing the target, or silently altering the requested rate.
 
-## Planned later assumptions
+## Synthetic Evaluation
+
+The evaluation layer compares static baseline TDEE on all synthetic days and then compares both
+baseline and adaptive estimates on the exact dates where adaptive daily estimates are eligible.
+This paired comparison avoids attributing adaptive warm-up or missing-data exclusions to estimator
+accuracy. It reports MAE, RMSE, mean error (`prediction - truth`), adaptive coverage, and the
+percentage paired-MAE improvement when baseline paired MAE is nonzero.
+
+The deterministic benchmark suite includes clean, noisy, missing-data, underreporting,
+overreporting, and baseline-mismatch scenarios. It measures recovery inside a deliberately simple
+synthetic world only; it is not evidence of clinical or real-world accuracy. See
+[`docs/tdee-evaluation.md`](docs/tdee-evaluation.md) for formulas, scenarios, and an example.
+
+## Policy limitations
 
 - Energy conversion: approximately `7,700 kcal/kg`, versioned as an explicit assumption.
   Actual weight change is not perfectly linear.
@@ -171,5 +184,5 @@ uv run pytest
 
 ## Status
 
-Checkpoint 4 adds deterministic calorie targets and macro allocation on top of the static energy
-baseline. Adaptive estimation and recommendations have not been implemented yet.
+Checkpoint 9 adds reproducible synthetic TDEE evaluation and benchmark scenarios. Evaluation does
+not change baseline targets or create recommendations.

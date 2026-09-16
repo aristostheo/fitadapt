@@ -76,8 +76,26 @@ DailyObservation history
 ```
 
 The adaptive result is an observed-data estimate only. It does not overwrite the baseline estimate,
-change calorie or macro targets, or generate recommendations. Future layers include evaluation,
-predictive models, recommendation policy, storage, and APIs.
+change calorie or macro targets, or generate recommendations. Future layers include predictive
+models, recommendation policy, storage, and APIs.
+
+## Synthetic Evaluation Boundary
+
+The evaluation layer is the only non-test layer permitted to compare production estimates with
+synthetic hidden truth. It builds trends and adaptive estimates from `DailyObservation` values
+only, then aligns eligible adaptive estimates to hidden truth by exact `datetime.date` afterward.
+
+```text
+Profile -> static baseline -----------------+
+                                             +-> evaluation metrics
+Observations -> trends -> adaptive TDEE -----+
+                                             |
+Synthetic hidden truth ----------------------+
+```
+
+Hidden truth must never enter production trend or adaptive estimation. Baseline-all-days metrics
+use every synthetic truth date; paired baseline and adaptive metrics use the same adaptive-eligible
+dates. This boundary supports controlled synthetic evaluation, not real-world validation.
 
 ## Synthetic Data Boundary
 
@@ -95,9 +113,8 @@ the noisy observations. A seed-scoped NumPy generator makes results reproducible
 deliberately linear and does not model metabolic adaptation, body composition, or other complex
 physiology.
 
-Future evaluation, predictive models, recommendation policy, storage, and API layers will remain
-separate. They must consume the core through typed inputs and outputs, not embed calculation rules
-themselves.
+Future predictive models, recommendation policy, storage, and API layers will remain separate.
+They must consume the core through typed inputs and outputs, not embed calculation rules themselves.
 
 ## Data and privacy boundary
 
