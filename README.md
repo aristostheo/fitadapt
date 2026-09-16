@@ -23,6 +23,13 @@ The selected validation winner also has synthetic-only coefficient, validation-p
 held-out residual diagnostics. These are non-causal and do not modify targets or recommendations;
 see [`docs/model-interpretation.md`](docs/model-interpretation.md).
 
+## Calorie Recommendations
+
+`recommend_calorie_adjustment(profile, observations)` composes baseline targets, calendar trends,
+and adaptive TDEE behind a conservative evidence gate. It returns insufficient data, hold, or a
+small explainable adjustment without mutating the profile or baseline target. See
+[`docs/calorie-recommendations.md`](docs/calorie-recommendations.md).
+
 ## Daily Observations
 
 `UserProfile` holds relatively stable settings and a selected goal. `DailyObservation` holds

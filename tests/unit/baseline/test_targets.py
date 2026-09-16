@@ -20,6 +20,7 @@ from fitadapt.baseline.targets import (
     MacroPolicyInfeasibleError,
     calculate_calorie_target,
     calculate_daily_calorie_adjustment,
+    minimum_macro_calories_kcal_per_day,
 )
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
 
@@ -220,3 +221,17 @@ def test_policy_constants_contain_approved_values() -> None:
 
 def test_result_uses_the_public_estimate_type() -> None:
     assert isinstance(calculate_calorie_target(make_profile()), CalorieTargetEstimate)
+
+
+def test_minimum_macro_calories_reuses_existing_policy_without_mutating_profile() -> None:
+    profile = make_profile(weight_kg=80.0)
+    snapshot = profile
+
+    minimum = minimum_macro_calories_kcal_per_day(profile)
+
+    assert minimum == pytest.approx(80.0 * 1.6 * 4.0 + 80.0 * 0.6 * 9.0)
+    assert minimum == pytest.approx(
+        80.0 * PROTEIN_GRAMS_PER_KG_BODY_WEIGHT * PROTEIN_KCAL_PER_GRAM
+        + 80.0 * FAT_GRAMS_PER_KG_BODY_WEIGHT * FAT_KCAL_PER_GRAM
+    )
+    assert profile == snapshot

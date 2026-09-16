@@ -49,6 +49,7 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.recommendation.calories import recommend_calorie_adjustment
 from fitadapt.synthetic.history import (
     SyntheticConfigurationError,
     SyntheticHistory,
@@ -99,6 +100,7 @@ __all__ = [
     "run_tdee_benchmark_suite",
     "run_weight_change_benchmark",
     "run_weight_change_interpretation",
+    "recommend_calorie_adjustment",
     "analyze_observation_trends",
     "estimate_adaptive_tdee",
 ]

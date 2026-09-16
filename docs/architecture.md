@@ -120,6 +120,15 @@ Selected validation winner
 Validation supports selection and permutation diagnostics; held-out test data supports residual
 diagnostics only. Interpretation never changes recommendations or user targets.
 
+```text
+profile + observations
+        -> baseline + trends + adaptive estimate
+        -> eligibility gate
+        -> hold / small explainable adjustment / insufficient evidence
+```
+
+Recommendations compose upstream outputs and never mutate or replace them.
+
 ## Synthetic Data Boundary
 
 Synthetic generation is an in-memory test/development layer, not a source of real-world evidence:

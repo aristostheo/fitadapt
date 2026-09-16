@@ -92,3 +92,10 @@ def _calculate_carbohydrate_allocation(remaining_calories: float) -> float:
     if remaining_calories < 0:
         remaining_calories = 0.0
     return remaining_calories / CARBOHYDRATE_KCAL_PER_GRAM
+
+
+def minimum_macro_calories_kcal_per_day(profile: UserProfile) -> float:
+    """Return the existing policy's protein-and-fat minimum energy requirement."""
+    protein_g_per_day = profile.weight_kg * PROTEIN_GRAMS_PER_KG_BODY_WEIGHT
+    fat_g_per_day = profile.weight_kg * FAT_GRAMS_PER_KG_BODY_WEIGHT
+    return protein_g_per_day * PROTEIN_KCAL_PER_GRAM + fat_g_per_day * FAT_KCAL_PER_GRAM
