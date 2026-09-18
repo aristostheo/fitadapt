@@ -67,6 +67,14 @@ aggregate TDEE, MAD, and assumptions. The recommendation response contains the f
 recommendation contract, including ordered reasons and `null` actionable outputs when evidence or
 safety gates fail.
 
+Run the supplied non-identifying recommendation example with:
+
+```bash
+curl -X POST http://127.0.0.1:8000/v1/recommendations/calories \
+  -H 'content-type: application/json' \
+  --data @examples/recommendation_request.json
+```
+
 ## Errors
 
 Malformed JSON and transport-schema failures use FastAPI's standard deterministic `422` validation

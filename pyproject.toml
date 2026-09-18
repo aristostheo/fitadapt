@@ -1,9 +1,14 @@
 [project]
 name = "fitadapt"
 version = "0.1.0"
-description = "A transparent foundation for personalized fitness intelligence."
+description = "Transparent, reproducible fitness-intelligence decision-support engine."
 readme = "README.md"
 requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+urls = { Repository = "https://github.com/aristostheo/fitadapt", Documentation = "https://github.com/aristostheo/fitadapt/tree/main/docs" }
 dependencies = [
     "fastapi>=0.141.1",
     "numpy>=2.5.2",
@@ -16,6 +21,7 @@ dependencies = [
 dev = [
     "httpx>=0.28.1",
     "pytest>=8.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.6",
 ]
 
@@ -26,6 +32,14 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+
+[tool.coverage.run]
+branch = true
+source = ["fitadapt"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
 
 [tool.ruff]
 line-length = 100

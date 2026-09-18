@@ -1,221 +1,89 @@
 # FitAdapt
 
-FitAdapt is a standalone, transparent fitness-intelligence engine. It currently produces a
-deterministic REE, static baseline TDEE estimate, calorie target, and macro allocation. It is
-not medical advice and does not make guarantees about body-weight change or true energy
-expenditure.
+[![CI](https://github.com/aristostheo/fitadapt/actions/workflows/ci.yml/badge.svg)](https://github.com/aristostheo/fitadapt/actions/workflows/ci.yml)
 
-## V0.1 scope
+FitAdapt is a transparent fitness-intelligence engine that combines deterministic baseline calculations, longitudinal trend analysis, adaptive energy-expenditure estimation, synthetic evaluation, leakage-safe ML experimentation, conservative recommendations, and a stateless FastAPI interface.
 
-V0.1 includes typed profile validation, deterministic REE/baseline TDEE, calorie targets, macro
-allocation, calendar-aware trends, adaptive TDEE estimation, conservative calorie recommendations,
-and a small typed HTTP API. Personal datasets and persistence remain out of scope.
+## What It Does
 
-## HTTP API
+FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, calendar-aware trends, adaptive observed-data TDEE, and a conservative eligibility-gated recommendation policy. Synthetic histories support evaluation and ML experiments only; FastAPI is a typed adapter with no formulas or persistence.
 
-Checkpoint 13 exposes the existing engine through a stateless FastAPI adapter. It supports baseline
-targets, trends, adaptive TDEE, and conservative calorie recommendations without storing submitted
-profiles or observations. Recommendations are decision support only, not medical or nutritional
-treatment, and do not use the synthetic ML benchmark or interpretation modules.
+| Layer | Role |
+| --- | --- |
+| Baseline | Deterministic REE, activity-adjusted TDEE, calorie and macro targets. |
+| Adaptive | Intake and weight-trend observed-data approximation. |
+| Research | Fixed-seed synthetic evaluation and leakage-safe ML benchmark. |
+| Recommendations | Conservative decision support; never automatically applied. |
+| API | Stateless typed adapter; no stored user data. |
 
-Run it locally with:
+## Fixed-Seed Synthetic Results
+
+Adaptive TDEE paired MAE results (`kcal/day`):
+
+| Scenario | Eligible dates | Adaptive MAE | Paired MAE change |
+| --- | ---: | ---: | ---: |
+| Clean constant expenditure | 47 | 0.000 | 100.000% |
+| Noisy observations | 47 | 249.005 | 39.191% |
+| Missing data | 34 | 241.287 | 41.493% |
+| Calorie underreporting | 47 | 250.000 | 63.181% |
+| Calorie overreporting | 47 | 250.000 | -400.000% |
+| Baseline mismatch | 47 | 0.000 | 100.000% |
+
+The complete-history ML split is `18 / 6 / 6`. Selected `linear` validation MAE is `0.175475` kg, versus dummy `0.405652`, Ridge `0.175525`, and random forest `0.310848`; held-out MAE/RMSE/R² are `0.159362 / 0.200325 / 0.716630` (dummy MAE `0.369595`). These are synthetic-only results, not claims about real people. Leading permutation diagnostics are window weight change (`0.11913`) and trailing intake (`0.09338`); correlated features make these non-causal.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    P[Profile + daily observations] --> B[Baseline / trends / adaptive TDEE]
+    B --> E[Eligibility and recommendation policy]
+    E --> A[Typed API response]
+    F[FastAPI adapter] -. no formulas .-> B
+    E -. does not mutate .-> B
+```
+
+```mermaid
+flowchart TD
+    S[Synthetic histories] --> D[Evaluation dataset]
+    D --> G[Group-aware train / validation / test split]
+    G --> M[Model comparison and interpretation]
+    T[Synthetic truth] -. labels and evaluation only .-> D
+    M -. not used .-> R[Recommendation endpoint]
+```
+
+## Quick Start
+
+Python 3.12 and [uv](https://docs.astral.sh/uv/) are required.
 
 ```bash
-uv run uvicorn fitadapt.api.app:app --reload
-```
-
-Swagger UI is available at `http://127.0.0.1:8000/docs`. See [`docs/api.md`](docs/api.md) for the
-complete contract and request examples.
-
-## Weight-Change ML Experiment
-
-The synthetic-only ML experiment predicts true seven-calendar-day weight change from features
-available at a cutoff date. It builds observation-derived features, splits complete synthetic
-histories into train/validation/test groups, fits preprocessing on training data only, and compares
-dummy, linear, Ridge, and random-forest regressors. See [`docs/weight-change-ml.md`](docs/weight-change-ml.md).
-
-The selected validation winner also has synthetic-only coefficient, validation-permutation, and
-held-out residual diagnostics. These are non-causal and do not modify targets or recommendations;
-see [`docs/model-interpretation.md`](docs/model-interpretation.md).
-
-## Calorie Recommendations
-
-`recommend_calorie_adjustment(profile, observations)` composes baseline targets, calendar trends,
-and adaptive TDEE behind a conservative evidence gate. It returns insufficient data, hold, or a
-small explainable adjustment without mutating the profile or baseline target. See
-[`docs/calorie-recommendations.md`](docs/calorie-recommendations.md).
-
-## Daily Observations
-
-`UserProfile` holds relatively stable settings and a selected goal. `DailyObservation` holds
-partial measurements recorded for one calendar date. It does not derive trends, data-quality
-scores, or recommendations.
-
-For observation fields, `None` means missing or unknown; numeric zero means an observed zero.
-For example, `steps=None` means no step data was recorded, while `steps=0` means zero steps were
-recorded. Partial nutrition is valid: calories and any subset of macros may be recorded without
-forcing macro calories to reconcile with logged intake. Food labels, fibre, alcohol, rounding, and
-incomplete logging can all create differences.
-
-The domain model accepts future dates because time-relative checks require a clock and belong in
-an ingestion/API layer. Personal fitness data must remain local and must not be committed to this
-repository.
-
-## Calendar Trends
-
-Trend analysis turns submitted observations into a continuous calendar-day timeline. Missing dates
-remain visible, so a seven-day window means the current date and prior six calendar dates, not the
-last seven logged entries. Trailing means require four observations by default and never use future
-data. Raw daily weight is noisy; these descriptive features are not personalized predictions.
-
-## Adaptive TDEE
-
-Adaptive TDEE uses observed intake trends and windowed weight change: daily balance is weight
-change times `7,700 / window days`, and estimated TDEE is intake minus that balance. Weight loss
-therefore raises inferred expenditure above intake; gain lowers it. Recent eligible daily estimates
-are aggregated with a median and MAD spread metric, not a confidence interval or medical claim.
-
-## Synthetic Histories
-
-Synthetic histories are in-memory development and test data, never evidence that a future model
-works for real people. Each generated day separates hidden simulation truth from a noisy, partial
-`DailyObservation`:
-
-```text
-Simulation configuration
-          -> hidden daily truth
-          -> noise and missingness
-          -> DailyObservation or no observation
-```
-
-Truth stores a start-of-day body weight, intake, expenditure, balance, weight change, steps, and
-exercise. Observations add normal measurement/logging noise and independently apply weight,
-nutrition, and activity missingness. Missing fields remain `None`; an all-missing day uses
-`observation=None`.
-
-`SyntheticHistoryConfig.seed` creates a NumPy `default_rng` generator, so the same configuration
-reproduces exactly the same history. The current `synthetic_history_v2` policy uses a simple
-linear energy-balance model, `7,700 kcal/kg` daily weight-change approximation, and documented
-per-step/exercise contributions. It excludes physiology such as metabolic adaptation and body
-composition, so synthetic results cannot establish real-world accuracy.
-
-The baseline uses rough population-level activity assumptions. It is intended as a starting point;
-the adaptive estimator uses reliable longitudinal observations to personalize an observed estimate.
-
-## Calculation contract
-
-The core calculation will require `requested_weekly_change_kg` explicitly:
-
-- Cut: strictly negative and no less than `-0.75%` of body weight per week.
-- Maintain: exactly `0`.
-- Gain: strictly positive and no greater than `+0.5%` of body weight per week.
-
-The calculated daily calorie adjustment follows the same signed convention: negative for a
-deficit, zero for maintenance, and positive for a surplus. A future interface may suggest
-starting examples of `-0.5%` per week for a cut and `+0.25%` per week for a gain, but the
-V0.1 engine will not silently provide defaults.
-
-V0.1 accepts adults ages 18 through 80. This is a current product-scope limitation, not a
-claim that the formulas immediately cease to apply outside those ages.
-
-## Static energy baseline
-
-- REE is estimated with Mifflin-St Jeor, versioned as `mifflin_st_jeor_v1`:
-  `10 * weight_kg + 6.25 * height_cm - 5 * age_years`, then `+5` for the equation's male
-  input or `-161` for its female input. It is an estimate, not a direct measurement. The
-  source is Mifflin et al., ["A new predictive equation for resting energy expenditure in
-  healthy individuals"](https://pubmed.ncbi.nlm.nih.gov/2305711/), *American Journal of
-  Clinical Nutrition*, 1990; 51(2):241-247.
-- TDEE is the estimated REE multiplied by an activity multiplier from the separate
-  `activity_multipliers_v1` policy:
-
-  | Activity level | Multiplier |
-  | --- | ---: |
-  | Sedentary | 1.200 |
-  | Lightly active | 1.375 |
-  | Moderately active | 1.550 |
-  | Very active | 1.725 |
-  | Extra active | 1.900 |
-
-These multipliers are rough population-level categories and one of the weakest assumptions in the
-static baseline, not precise measurements. The adaptive estimator is intended to improve on them
-when reliable longitudinal observations are available.
-
-```text
-Validated UserProfile -> Mifflin-St Jeor REE -> activity multiplier -> baseline TDEE
-```
-
-`goal` and `requested_weekly_change_kg` are intentionally not used by the static REE/TDEE
-calculation. They are used by the calorie-target policy below.
-
-## Calorie Target And Macros
-
-The `energy_equivalent_7700_v1` policy converts signed weekly change to a daily adjustment:
-
-```text
-daily adjustment = requested_weekly_change_kg * 7,700 / 7
-target calories = estimated TDEE + daily adjustment
-```
-
-`7,700 kcal/kg` is a simplified planning approximation, not a fixed physiological law or a
-guarantee. Short-term scale change is affected by water, glycogen, digestive contents, and other
-factors.
-
-The `baseline_macros_v1` policy allocates `1.6 g/kg/day` protein and a `0.6 g/kg/day` fat floor
-from total body weight, then assigns all remaining target energy to carbohydrates. Protein and
-carbohydrates use `4 kcal/g`; fat uses `9 kcal/g`. This is a transparent initial allocation, not
-an optimized macro prescription. Future policies may consider goal, preference, body composition,
-training, adherence, or user-selected constraints.
-
-```text
-Validated UserProfile
-    -> estimated REE and baseline TDEE
-    -> signed daily calorie adjustment
-    -> daily calorie target
-    -> protein and fat allocation
-    -> remaining calories assigned to carbohydrates
-```
-
-No universal calorie floor is applied. If a target cannot fund the required protein and fat
-policy, FitAdapt raises `MacroPolicyInfeasibleError` instead of returning negative carbohydrates,
-changing the target, or silently altering the requested rate.
-
-## Synthetic Evaluation
-
-The evaluation layer compares static baseline TDEE on all synthetic days and then compares both
-baseline and adaptive estimates on the exact dates where adaptive daily estimates are eligible.
-This paired comparison avoids attributing adaptive warm-up or missing-data exclusions to estimator
-accuracy. It reports MAE, RMSE, mean error (`prediction - truth`), adaptive coverage, and the
-percentage paired-MAE improvement when baseline paired MAE is nonzero.
-
-The deterministic benchmark suite includes clean, noisy, missing-data, underreporting,
-overreporting, and baseline-mismatch scenarios. It measures recovery inside a deliberately simple
-synthetic world only; it is not evidence of clinical or real-world accuracy. See
-[`docs/tdee-evaluation.md`](docs/tdee-evaluation.md) for formulas, scenarios, and an example.
-
-## Policy limitations
-
-- Energy conversion: approximately `7,700 kcal/kg`, versioned as an explicit assumption.
-  Actual weight change is not perfectly linear.
-- Macros: a versioned policy using `1.6 g/kg/day` protein, a `0.6 g/kg/day` fat floor, and
-  carbohydrates from the remaining calories. Total body weight is an imperfect basis across
-  different body-composition ranges and may change in a later policy version.
-
-If a calorie target cannot accommodate the protein and fat policy, the engine will return a
-clear macro-policy-infeasible error rather than creating negative carbohydrate targets.
-
-## Setup
-
-FitAdapt targets Python 3.12 and uses [uv](https://docs.astral.sh/uv/) for environment and
-dependency management. After installing uv:
-
-```bash
-uv sync --group dev
-uv run ruff check .
+uv sync
+uv run python examples/demo.py
 uv run pytest
 ```
 
-## Status
+Technology: Python 3.12, NumPy, pandas, scikit-learn, FastAPI, Pydantic, pytest, Ruff, and uv.
 
-Checkpoint 9 adds reproducible synthetic TDEE evaluation and benchmark scenarios. Evaluation does
-not change baseline targets or create recommendations.
+## API
+
+```bash
+uv run uvicorn fitadapt.api.app:app --reload
+curl http://127.0.0.1:8000/health
+curl -X POST http://127.0.0.1:8000/v1/baseline -H 'content-type: application/json' --data @examples/baseline_request.json
+```
+
+Swagger is at `http://127.0.0.1:8000/docs`; see [API documentation](docs/api.md) and the [recommendation request](examples/recommendation_request.json).
+
+## Responsible Use
+
+FitAdapt is decision support, not medical treatment. It has no clinical validation and is sensitive to logging bias, scale noise, water/glycogen change, and the Mifflin-St Jeor sex-category limitation. Synthetic benchmarks do not establish real-world accuracy. The API stores no data; personal fitness data must not be committed. Multi-user use requires authentication and authorization, and outputs must not be automatically applied.
+
+## Documentation
+
+- [Architecture](docs/architecture.md), [baseline ADR](docs/decisions/0001-v0.1-baseline-policy.md)
+- [Synthetic data](docs/synthetic-data.md), [trends](docs/trend-analysis.md), [adaptive TDEE](docs/adaptive-tdee.md)
+- [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
+- [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
+
+## Roadmap
+
+Real-world evaluation, storage, authentication, client integration, and license selection remain release work.
