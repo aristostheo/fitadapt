@@ -24,6 +24,10 @@ uninstalled source-tree import uses the deterministic fallback `0+uninstalled`.
 `fastapi` and `uvicorn` are runtime dependencies because the latter serves the application.
 `httpx` is a development dependency used only by the FastAPI integration-test client.
 
+## Browser CORS
+
+The local standalone client is allowed from `http://localhost:5173` and `http://127.0.0.1:5173` only. Set `FITADAPT_CORS_ORIGINS` to a comma-separated explicit allowlist for another environment. Wildcard origins and credentials are not enabled.
+
 ## Endpoints
 
 | Method | Path | Purpose |

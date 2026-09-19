@@ -95,6 +95,12 @@ FastAPI contains no fitness formulas and stores no profile or observation data. 
 not depend on FastAPI or Pydantic, and API failures do not mutate engine state. The synthetic ML
 benchmark and interpretation modules are not called by any API endpoint.
 
+```text
+React browser client -> FastAPI JSON adapter -> typed domain engine
+```
+
+The standalone React client keeps session-only form state and never duplicates calculations; the API remains the validation and calculation boundary.
+
 ## Synthetic Evaluation Boundary
 
 The evaluation layer is the only non-test layer permitted to compare production estimates with

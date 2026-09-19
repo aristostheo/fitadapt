@@ -25,3 +25,21 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run python -c "from fitadapt.api.app import app; print(app.title, app.version)"
       - run: uv build
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - working-directory: web
+        run: npm ci
+      - working-directory: web
+        run: npm run lint
+      - working-directory: web
+        run: npm run test -- --run
+      - working-directory: web
+        run: npm run build

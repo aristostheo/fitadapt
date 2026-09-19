@@ -65,6 +65,10 @@ Technology: Python 3.12, NumPy, pandas, scikit-learn, FastAPI, Pydantic, pytest,
 
 ## API
 
+## Standalone Web App
+
+Run the FastAPI service, then start the React/Vite client from [`web/`](web/README.md). The client uses session-only state, fictional sample history, and the public HTTP API; it is not the future main fitness-app integration.
+
 ```bash
 uv run uvicorn fitadapt.api.app:app --reload
 curl http://127.0.0.1:8000/health

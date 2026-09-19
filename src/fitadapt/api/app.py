@@ -1,8 +1,10 @@
 """Stateless FastAPI adapter over FitAdapt's existing domain functions."""
 
+import os
 from importlib.metadata import PackageNotFoundError, version
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from fitadapt.adaptive.tdee import estimate_adaptive_tdee
 from fitadapt.analysis.trends import analyze_observation_trends
@@ -43,6 +45,21 @@ ERROR_RESPONSES = {
     500: {"model": ErrorResponse, "description": "Opaque unexpected server error."},
 }
 
+DEFAULT_CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
+
+
+def cors_origins(value: str | None = None) -> tuple[str, ...]:
+    """Return deterministic, explicit browser origins without wildcard access."""
+    configured = os.environ.get("FITADAPT_CORS_ORIGINS") if value is None else value
+    if not configured:
+        return DEFAULT_CORS_ORIGINS
+    origins = tuple(
+        dict.fromkeys(origin.strip() for origin in configured.split(",") if origin.strip())
+    )
+    if "*" in origins:
+        raise ValueError("FITADAPT_CORS_ORIGINS must not contain wildcard origins.")
+    return origins
+
 
 def create_app() -> FastAPI:
     """Create a fresh, state-free FitAdapt HTTP application."""
@@ -50,6 +67,13 @@ def create_app() -> FastAPI:
         title="FitAdapt API",
         version=_package_version(),
         description="Typed, stateless HTTP access to FitAdapt's transparent fitness engine.",
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins(),
+        allow_credentials=False,
+        allow_methods=("GET", "POST"),
+        allow_headers=("Content-Type",),
     )
     install_error_handlers(app)
 
