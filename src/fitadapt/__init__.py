@@ -50,6 +50,15 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.personalization.lifecycle import (
+    PERSONALIZATION_LIFECYCLE_POLICY_VERSION,
+    PersonalizationLifecycleConfig,
+    PersonalizationLifecycleError,
+    PersonalizationLifecycleResult,
+    PersonalizationRequirement,
+    PersonalizationStage,
+    assess_personalization_lifecycle,
+)
 from fitadapt.personalization.macros import (
     MACRO_PLAN_POLICY_VERSION,
     MacroCalorieSource,
@@ -81,6 +90,7 @@ __all__ = [
     "Goal",
     "MACRO_POLICY_VERSION",
     "MACRO_PLAN_POLICY_VERSION",
+    "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "MacroCalorieSource",
     "MacroPlanInfeasibleError",
     "MacroPolicyInfeasibleError",
@@ -90,6 +100,11 @@ __all__ = [
     "ObservationValidationError",
     "ProfileValidationError",
     "PersonalizedMacroPlan",
+    "PersonalizationLifecycleConfig",
+    "PersonalizationLifecycleError",
+    "PersonalizationLifecycleResult",
+    "PersonalizationRequirement",
+    "PersonalizationStage",
     "SexForMifflinEquation",
     "SyntheticConfigurationError",
     "SyntheticHistory",
@@ -112,6 +127,7 @@ __all__ = [
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
     "calculate_personalized_macro_plan",
+    "assess_personalization_lifecycle",
     "calculate_tdee_error_metrics",
     "create_app",
     "build_synthetic_weight_change_dataset",

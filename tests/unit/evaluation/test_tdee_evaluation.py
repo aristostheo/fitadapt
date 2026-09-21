@@ -229,6 +229,25 @@ def test_benchmark_definitions_are_unique_ordered_and_reproducible_with_provenan
     )
 
 
+def test_fixed_seed_adaptive_benchmark_metrics_remain_numerically_stable() -> None:
+    suite = run_tdee_benchmark_suite()
+    expected = {
+        "clean_constant_expenditure": (47, 0.0, 100.0),
+        "noisy_observations": (47, 249.00469064168774, 39.19128762525057),
+        "missing_data": (34, 241.28732595438754, 41.49275355197495),
+        "calorie_underreporting": (47, 250.0, 63.18114874816697),
+        "calorie_overreporting": (47, 250.0, -400.0),
+        "baseline_mismatch": (47, 0.0, 100.0),
+    }
+
+    for item in suite.scenario_results:
+        count, mae, improvement = expected[item.scenario.name]
+        assert len(item.evaluation.adaptive_eligible_dates) == count
+        actual_mae = item.evaluation.paired_adaptive_metrics.mean_absolute_error_kcal_per_day
+        assert actual_mae == pytest.approx(mae, abs=1e-9)
+        assert item.evaluation.percentage_mae_improvement == pytest.approx(improvement, abs=1e-9)
+
+
 def test_public_models_are_immutable_and_values_are_plain_python_types() -> None:
     result = evaluate_tdee_estimators(profile(), generate_synthetic_history(history_config()))
     suite = run_tdee_benchmark_suite()

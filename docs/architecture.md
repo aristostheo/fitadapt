@@ -79,6 +79,22 @@ The adaptive result is an observed-data estimate only. It does not overwrite the
 or change baseline calorie or macro targets. The recommendation layer composes baseline, trend, and
 adaptive outputs behind an eligibility gate without mutating any of them.
 
+## Personalization Lifecycle Boundary
+
+The lifecycle is a separate readiness/status composition. It recalculates existing calendar trends
+and adaptive estimates from the complete supplied history, then reports `baseline`, `calibrating`,
+`early_personalized`, or `personalized` evidence without adding a new calculation formula:
+
+```text
+UserProfile + DailyObservation history
+    -> calendar trends + adaptive TDEE
+    -> lifecycle readiness, requirements, and evidence counts
+```
+
+It does not manufacture an early aggregate, assign a confidence score, change macro preferences,
+or mutate the baseline, trends, adaptive result, recommendation, profile, or observation history.
+The FastAPI lifecycle route remains stateless; callers resupply their history for each assessment.
+
 ## Preference Macro Boundary
 
 `NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the

@@ -18,17 +18,21 @@ from fitadapt.api.schemas import (
     CalorieRecommendationResponse,
     ErrorResponse,
     HealthResponse,
+    PersonalizationLifecycleRequest,
+    PersonalizationLifecycleResponse,
     PersonalizedMacroPlanRequest,
     PersonalizedMacroPlanResponse,
     TrendsRequest,
     TrendsResponse,
     map_adaptive_tdee,
     map_baseline,
+    map_personalization_lifecycle,
     map_personalized_macro_plan,
     map_recommendation,
     map_trends,
 )
 from fitadapt.baseline.targets import calculate_calorie_target
+from fitadapt.personalization.lifecycle import assess_personalization_lifecycle
 from fitadapt.personalization.macros import calculate_personalized_macro_plan
 from fitadapt.recommendation.calories import (
     RECOMMENDATION_POLICY_VERSION,
@@ -152,6 +156,24 @@ def create_app() -> FastAPI:
                 request.calorie_target_kcal_per_day,
                 request.calorie_source,
                 request.preferences.to_domain(),
+            )
+        )
+
+    @app.post(
+        "/v1/personalization/status",
+        response_model=PersonalizationLifecycleResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def personalization_status(
+        request: PersonalizationLifecycleRequest,
+    ) -> PersonalizationLifecycleResponse:
+        return map_personalization_lifecycle(
+            assess_personalization_lifecycle(
+                request.profile.to_domain(),
+                tuple(item.to_domain() for item in request.observations),
+                None if request.lifecycle_config is None else request.lifecycle_config.to_domain(),
+                None if request.trend_config is None else request.trend_config.to_domain(),
+                None if request.adaptive_config is None else request.adaptive_config.to_domain(),
             )
         )
 

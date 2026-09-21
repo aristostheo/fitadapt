@@ -34,6 +34,7 @@ def test_openapi_and_swagger_expose_versioned_routes() -> None:
         "/v1/adaptive-tdee",
         "/v1/recommendations/calories",
         "/v1/macros/personalized",
+        "/v1/personalization/status",
     } <= set(openapi.json()["paths"])
     assert client.get("/docs").status_code == 200
 
@@ -51,7 +52,13 @@ def test_openapi_uses_enum_response_schemas_and_documents_error_responses() -> N
     assert schemas["CalorieRecommendationResponse"]["properties"]["reasons"]["items"] == {
         "$ref": "#/components/schemas/RecommendationReason"
     }
-    for path in ("/v1/baseline", "/v1/trends", "/v1/adaptive-tdee", "/v1/recommendations/calories"):
+    for path in (
+        "/v1/baseline",
+        "/v1/trends",
+        "/v1/adaptive-tdee",
+        "/v1/recommendations/calories",
+        "/v1/personalization/status",
+    ):
         responses = openapi["paths"][path]["post"]["responses"]
         assert {"400", "422", "500"} <= set(responses)
         assert responses["400"]["content"]["application/json"]["schema"] == {

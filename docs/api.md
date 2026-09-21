@@ -3,7 +3,7 @@
 ## Purpose
 
 The FitAdapt API is a small, stateless FastAPI adapter over the existing domain engine. It exposes
-baseline targets, calendar-aware trends, adaptive TDEE, and conservative calorie recommendations.
+baseline targets, calendar-aware trends, adaptive TDEE, lifecycle readiness, and conservative calorie recommendations.
 It stores no submitted profile or observation data, contains no fitness formulas, and is not a
 clinical, medical, or nutritional treatment service. Synthetic ML benchmarks and model
 interpretation are not used by recommendation endpoints.
@@ -38,6 +38,7 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 | `POST` | `/v1/adaptive-tdee` | Trend-derived daily and aggregate adaptive TDEE. |
 | `POST` | `/v1/recommendations/calories` | Conservative, evidence-gated calorie adjustment. |
 | `POST` | `/v1/macros/personalized` | Explicit V1 macro plan for supplied baseline or personalized calories. |
+| `POST` | `/v1/personalization/status` | Recomputed evidence stage and next data-logging requirements. |
 
 All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `NaN`, and infinity
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements
@@ -79,6 +80,14 @@ g/kg/day and fat-percentage fields. Its result records full-precision macro ener
 the strategy/source, `preference_macros_v1`, and assumptions. It does not change existing V0.1
 baseline macros or infer preferences from adaptive estimates or ML.
 
+`POST /v1/personalization/status` accepts the same strict profile and observation transport models
+as the analysis endpoints, with optional `trend_config`, `adaptive_config`, and
+`lifecycle_config`. It reports one of `baseline`, `calibrating`, `early_personalized`, or
+`personalized`; ordered requirements; calendar/count/completeness evidence; eligible and required
+adaptive-estimate counts; optional aggregate adaptive TDEE and MAD; policy versions; and
+assumptions. It recomputes status from the full submitted history, does not create a confidence
+score or premature TDEE estimate, and does not alter recommendations, macro plans, or stored data.
+
 Run the supplied non-identifying recommendation example with:
 
 ```bash
@@ -99,7 +108,7 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
 `adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
-`macro_plan_infeasible`, and `recommendation_error`. Unexpected failures
+`macro_plan_infeasible`, `recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
 return `500` with `internal_server_error` and no implementation details.
 
 ## Non-Goals

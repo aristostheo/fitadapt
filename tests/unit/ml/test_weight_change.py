@@ -132,6 +132,31 @@ def test_metrics_and_benchmark_results_are_plain_and_deterministic() -> None:
     assert run_weight_change_benchmark() == run_weight_change_benchmark()
 
 
+def test_fixed_seed_weight_change_benchmark_metrics_remain_numerically_stable() -> None:
+    benchmark = run_weight_change_benchmark()
+    validation_mae = {
+        item.name: item.validation_metrics.mean_absolute_error_kg
+        for item in benchmark.validation_results
+    }
+
+    assert validation_mae == pytest.approx(
+        {
+            "dummy": 0.4056515704455869,
+            "linear": 0.1754746982639198,
+            "ridge": 0.1755246637379011,
+            "random_forest": 0.3108484378962086,
+        },
+        abs=1e-12,
+    )
+    assert benchmark.selected_model_name == "linear"
+    assert benchmark.selected_model_test_metrics.mean_absolute_error_kg == pytest.approx(
+        0.15936169044550574, abs=1e-12
+    )
+    assert benchmark.dummy_test_metrics.mean_absolute_error_kg == pytest.approx(
+        0.36959480434531605, abs=1e-12
+    )
+
+
 def test_train_only_imputation_selection_and_public_immutability() -> None:
     pipeline = _pipelines(WeightChangeMlConfig(ridge_alpha=2.0, random_forest_estimators=9))[1][1]
     pipeline.named_steps["imputer"].fit(np.array([[1.0, np.nan], [3.0, np.nan]]))

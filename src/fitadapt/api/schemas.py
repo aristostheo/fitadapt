@@ -21,6 +21,12 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.lifecycle import (
+    PersonalizationLifecycleConfig,
+    PersonalizationLifecycleResult,
+    PersonalizationRequirement,
+    PersonalizationStage,
+)
 from fitadapt.personalization.macros import (
     MacroCalorieSource,
     MacroStrategy,
@@ -161,6 +167,23 @@ class RecommendationConfigRequest(NumericRequestModel):
         return CalorieRecommendationConfig(**self.model_dump())
 
 
+class PersonalizationLifecycleConfigRequest(NumericRequestModel):
+    numeric_fields = frozenset(
+        {
+            "minimum_calendar_history_days",
+            "minimum_weight_completeness",
+            "minimum_intake_completeness",
+        }
+    )
+    integer_fields = frozenset({"minimum_calendar_history_days"})
+    minimum_calendar_history_days: int = 14
+    minimum_weight_completeness: float = 0.7
+    minimum_intake_completeness: float = 0.7
+
+    def to_domain(self) -> PersonalizationLifecycleConfig:
+        return PersonalizationLifecycleConfig(**self.model_dump())
+
+
 class BaselineRequest(ApiModel):
     profile: ProfileRequest
 
@@ -177,6 +200,11 @@ class AdaptiveTdeeRequest(TrendsRequest):
 class CalorieRecommendationRequest(AdaptiveTdeeRequest):
     profile: ProfileRequest
     recommendation_config: RecommendationConfigRequest | None = None
+
+
+class PersonalizationLifecycleRequest(AdaptiveTdeeRequest):
+    profile: ProfileRequest
+    lifecycle_config: PersonalizationLifecycleConfigRequest | None = None
 
 
 class NutritionPreferencesRequest(NumericRequestModel):
@@ -334,6 +362,24 @@ class PersonalizedMacroPlanResponse(ApiModel):
     fat_kcal_per_day: float
     carbohydrate_kcal_per_day: float
     macro_policy_version: str
+    assumptions: tuple[str, ...]
+
+
+class PersonalizationLifecycleResponse(ApiModel):
+    stage: PersonalizationStage
+    requirements: tuple[PersonalizationRequirement, ...]
+    calendar_history_days: int
+    weight_observation_count: int
+    intake_observation_count: int
+    weight_completeness: float
+    intake_completeness: float
+    eligible_adaptive_estimate_count: int
+    required_eligible_estimate_count: int
+    adaptive_tdee_kcal_per_day: float | None
+    median_absolute_deviation_kcal_per_day: float | None
+    lifecycle_policy_version: str
+    trend_policy_version: str
+    adaptive_policy_version: str
     assumptions: tuple[str, ...]
 
 
@@ -498,5 +544,27 @@ def map_personalized_macro_plan(result: PersonalizedMacroPlan) -> PersonalizedMa
         fat_kcal_per_day=result.fat_kcal_per_day,
         carbohydrate_kcal_per_day=result.carbohydrate_kcal_per_day,
         macro_policy_version=result.macro_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_personalization_lifecycle(
+    result: PersonalizationLifecycleResult,
+) -> PersonalizationLifecycleResponse:
+    return PersonalizationLifecycleResponse(
+        stage=result.stage,
+        requirements=result.requirements,
+        calendar_history_days=result.calendar_history_days,
+        weight_observation_count=result.weight_observation_count,
+        intake_observation_count=result.intake_observation_count,
+        weight_completeness=result.weight_completeness,
+        intake_completeness=result.intake_completeness,
+        eligible_adaptive_estimate_count=result.eligible_adaptive_estimate_count,
+        required_eligible_estimate_count=result.required_eligible_estimate_count,
+        adaptive_tdee_kcal_per_day=result.adaptive_tdee_kcal_per_day,
+        median_absolute_deviation_kcal_per_day=result.median_absolute_deviation_kcal_per_day,
+        lifecycle_policy_version=result.lifecycle_policy_version,
+        trend_policy_version=result.trend_policy_version,
+        adaptive_policy_version=result.adaptive_policy_version,
         assumptions=result.assumptions,
     )
