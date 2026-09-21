@@ -79,6 +79,21 @@ The adaptive result is an observed-data estimate only. It does not overwrite the
 or change baseline calorie or macro targets. The recommendation layer composes baseline, trend, and
 adaptive outputs behind an eligibility gate without mutating any of them.
 
+## Preference Macro Boundary
+
+`NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the
+profile, while explicit strategy choices remain in the personalization package. The macro allocator
+accepts a caller-supplied calorie target and an explicit `baseline` or `personalized` source:
+
+```text
+UserProfile + NutritionPreferences + supplied calorie target
+    -> preference_macros_v1
+    -> PersonalizedMacroPlan
+```
+
+It does not call adaptive TDEE, overwrite V0.1 baseline macros, infer preferences from physiology,
+or mutate recommendation outputs. The existing baseline macro contract is retained unchanged.
+
 ## HTTP Adapter Boundary
 
 Checkpoint 13 adds a stateless adapter outside the domain packages:

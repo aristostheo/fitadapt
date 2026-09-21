@@ -21,6 +21,12 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.macros import (
+    MacroCalorieSource,
+    MacroStrategy,
+    NutritionPreferences,
+    PersonalizedMacroPlan,
+)
 from fitadapt.recommendation.calories import (
     CalorieRecommendation,
     CalorieRecommendationConfig,
@@ -173,6 +179,26 @@ class CalorieRecommendationRequest(AdaptiveTdeeRequest):
     recommendation_config: RecommendationConfigRequest | None = None
 
 
+class NutritionPreferencesRequest(NumericRequestModel):
+    numeric_fields = frozenset({"custom_protein_g_per_kg", "custom_fat_percentage"})
+
+    macro_strategy: MacroStrategy
+    custom_protein_g_per_kg: float | None = None
+    custom_fat_percentage: float | None = None
+
+    def to_domain(self) -> NutritionPreferences:
+        return NutritionPreferences(**self.model_dump())
+
+
+class PersonalizedMacroPlanRequest(NumericRequestModel):
+    numeric_fields = frozenset({"calorie_target_kcal_per_day"})
+
+    profile: ProfileRequest
+    preferences: NutritionPreferencesRequest
+    calorie_target_kcal_per_day: float
+    calorie_source: MacroCalorieSource
+
+
 class BaselineEnergyResponse(ApiModel):
     estimated_ree_kcal_per_day: float
     activity_level: ActivityLevel
@@ -291,6 +317,23 @@ class CalorieRecommendationResponse(ApiModel):
     trend_policy_version: str
     adaptive_policy_version: str
     energy_equivalent_policy_version: str
+    assumptions: tuple[str, ...]
+
+
+class PersonalizedMacroPlanResponse(ApiModel):
+    calorie_target_kcal_per_day: float
+    calorie_source: MacroCalorieSource
+    strategy: MacroStrategy
+    body_weight_kg: float
+    protein_g_per_kg: float
+    fat_percentage: float
+    protein_g_per_day: float
+    fat_g_per_day: float
+    carbohydrate_g_per_day: float
+    protein_kcal_per_day: float
+    fat_kcal_per_day: float
+    carbohydrate_kcal_per_day: float
+    macro_policy_version: str
     assumptions: tuple[str, ...]
 
 
@@ -436,5 +479,24 @@ def map_recommendation(result: CalorieRecommendation) -> CalorieRecommendationRe
         trend_policy_version=result.trend_policy_version,
         adaptive_policy_version=result.adaptive_policy_version,
         energy_equivalent_policy_version=result.energy_equivalent_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_personalized_macro_plan(result: PersonalizedMacroPlan) -> PersonalizedMacroPlanResponse:
+    return PersonalizedMacroPlanResponse(
+        calorie_target_kcal_per_day=result.calorie_target_kcal_per_day,
+        calorie_source=result.calorie_source,
+        strategy=result.strategy,
+        body_weight_kg=result.body_weight_kg,
+        protein_g_per_kg=result.protein_g_per_kg,
+        fat_percentage=result.fat_percentage,
+        protein_g_per_day=result.protein_g_per_day,
+        fat_g_per_day=result.fat_g_per_day,
+        carbohydrate_g_per_day=result.carbohydrate_g_per_day,
+        protein_kcal_per_day=result.protein_kcal_per_day,
+        fat_kcal_per_day=result.fat_kcal_per_day,
+        carbohydrate_kcal_per_day=result.carbohydrate_kcal_per_day,
+        macro_policy_version=result.macro_policy_version,
         assumptions=result.assumptions,
     )

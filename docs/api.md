@@ -37,6 +37,7 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 | `POST` | `/v1/trends` | Calendar-day rolling trends and data quality. |
 | `POST` | `/v1/adaptive-tdee` | Trend-derived daily and aggregate adaptive TDEE. |
 | `POST` | `/v1/recommendations/calories` | Conservative, evidence-gated calorie adjustment. |
+| `POST` | `/v1/macros/personalized` | Explicit V1 macro plan for supplied baseline or personalized calories. |
 
 All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `NaN`, and infinity
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements
@@ -71,6 +72,13 @@ aggregate TDEE, MAD, and assumptions. The recommendation response contains the f
 recommendation contract, including ordered reasons and `null` actionable outputs when evidence or
 safety gates fail.
 
+`POST /v1/macros/personalized` accepts a profile, `calorie_target_kcal_per_day`, `calorie_source`
+(`baseline` or `personalized`), and explicit nutrition preferences. Strategy values are `balanced`,
+`higher_carb`, `higher_fat`, `higher_protein`, and `custom`; custom plans require both protein
+g/kg/day and fat-percentage fields. Its result records full-precision macro energy reconciliation,
+the strategy/source, `preference_macros_v1`, and assumptions. It does not change existing V0.1
+baseline macros or infer preferences from adaptive estimates or ML.
+
 Run the supplied non-identifying recommendation example with:
 
 ```bash
@@ -90,11 +98,12 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 ```
 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
-`adaptive_tdee_error`, `macro_policy_infeasible`, and `recommendation_error`. Unexpected failures
+`adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
+`macro_plan_infeasible`, and `recommendation_error`. Unexpected failures
 return `500` with `internal_server_error` and no implementation details.
 
 ## Non-Goals
 
-There is no persistence, authentication, authorization, CORS policy, database, deployment setup,
-or ML inference endpoint in this checkpoint. Future work must validate recommendation behavior with
+There is no persistence, authentication, authorization, database, deployment setup, or ML inference
+endpoint in this checkpoint. Future work must validate recommendation behavior with
 real-world evidence before use beyond transparent decision support.

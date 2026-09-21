@@ -50,6 +50,16 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.personalization.macros import (
+    MACRO_PLAN_POLICY_VERSION,
+    MacroCalorieSource,
+    MacroPlanInfeasibleError,
+    MacroStrategy,
+    NutritionPreferences,
+    NutritionPreferencesError,
+    PersonalizedMacroPlan,
+    calculate_personalized_macro_plan,
+)
 from fitadapt.recommendation.calories import recommend_calorie_adjustment
 from fitadapt.synthetic.history import (
     SyntheticConfigurationError,
@@ -70,9 +80,16 @@ __all__ = [
     "ENERGY_EQUIVALENT_POLICY_VERSION",
     "Goal",
     "MACRO_POLICY_VERSION",
+    "MACRO_PLAN_POLICY_VERSION",
+    "MacroCalorieSource",
+    "MacroPlanInfeasibleError",
     "MacroPolicyInfeasibleError",
+    "MacroStrategy",
+    "NutritionPreferences",
+    "NutritionPreferencesError",
     "ObservationValidationError",
     "ProfileValidationError",
+    "PersonalizedMacroPlan",
     "SexForMifflinEquation",
     "SyntheticConfigurationError",
     "SyntheticHistory",
@@ -94,6 +111,7 @@ __all__ = [
     "calculate_calorie_target",
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
+    "calculate_personalized_macro_plan",
     "calculate_tdee_error_metrics",
     "create_app",
     "build_synthetic_weight_change_dataset",

@@ -6,7 +6,7 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 
 ## What It Does
 
-FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, calendar-aware trends, adaptive observed-data TDEE, and a conservative eligibility-gated recommendation policy. Synthetic histories support evaluation and ML experiments only; FastAPI is a typed adapter with no formulas or persistence.
+FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans, calendar-aware trends, adaptive observed-data TDEE, and a conservative eligibility-gated recommendation policy. Synthetic histories support evaluation and ML experiments only; FastAPI is a typed adapter with no formulas or persistence.
 
 | Layer | Role |
 | --- | --- |
@@ -14,6 +14,7 @@ FitAdapt keeps explainable decision support separate from research: versioned RE
 | Adaptive | Intake and weight-trend observed-data approximation. |
 | Research | Fixed-seed synthetic evaluation and leakage-safe ML benchmark. |
 | Recommendations | Conservative decision support; never automatically applied. |
+| Personalization | Explicit V1 macro strategies over caller-supplied baseline or personalized calories. |
 | API | Stateless typed adapter; no stored user data. |
 
 ## Fixed-Seed Synthetic Results
@@ -87,6 +88,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Synthetic data](docs/synthetic-data.md), [trends](docs/trend-analysis.md), [adaptive TDEE](docs/adaptive-tdee.md)
 - [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
+- [Personalized macro plans](docs/personalized-macros.md)
 
 ## Roadmap
 
