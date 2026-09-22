@@ -6,7 +6,7 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 
 ## What It Does
 
-FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans, calendar-aware trends, adaptive observed-data TDEE, a status-only personalization lifecycle, and a conservative eligibility-gated recommendation policy. Synthetic histories support evaluation and ML experiments only; FastAPI is a typed adapter with no formulas or persistence.
+FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans, calendar-aware trends, adaptive observed-data TDEE, a status-only personalization lifecycle, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. Synthetic histories support evaluation and ML experiments only; FastAPI is a typed adapter with no formulas or persistence.
 
 | Layer | Role |
 | --- | --- |
@@ -14,7 +14,7 @@ FitAdapt keeps explainable decision support separate from research: versioned RE
 | Adaptive | Intake and weight-trend observed-data approximation. |
 | Research | Fixed-seed synthetic evaluation and leakage-safe ML benchmark. |
 | Recommendations | Conservative decision support; never automatically applied. |
-| Personalization | Evidence-based lifecycle readiness plus explicit V1 macro strategies over caller-supplied calories. |
+| Personalization | Lifecycle readiness, proposed per-entry plans, and explicit V1 macro strategies. |
 | API | Stateless typed adapter; no stored user data. |
 
 ## Fixed-Seed Synthetic Results
@@ -38,6 +38,7 @@ The complete-history ML split is `18 / 6 / 6`. Selected `linear` validation MAE 
 flowchart TD
     P[Profile + daily observations] --> B[Baseline / trends / adaptive TDEE]
     B --> L[Lifecycle readiness status]
+    L --> Q[Entry-by-entry proposed plan]
     B --> E[Eligibility and recommendation policy]
     E --> A[Typed API response]
     F[FastAPI adapter] -. no formulas .-> B
@@ -89,7 +90,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Synthetic data](docs/synthetic-data.md), [trends](docs/trend-analysis.md), [adaptive TDEE](docs/adaptive-tdee.md)
 - [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
-- [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized macro plans](docs/personalized-macros.md)
+- [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized planning](docs/personalized-planning.md), [personalized macro plans](docs/personalized-macros.md)
 
 ## Roadmap
 

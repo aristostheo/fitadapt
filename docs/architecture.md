@@ -95,6 +95,24 @@ It does not manufacture an early aggregate, assign a confidence score, change ma
 or mutate the baseline, trends, adaptive result, recommendation, profile, or observation history.
 The FastAPI lifecycle route remains stateless; callers resupply their history for each assessment.
 
+## Entry-By-Entry Planning Boundary
+
+The planning layer composes existing output for every chronological submitted-observation prefix:
+
+```text
+UserProfile + observations through one entry + NutritionPreferences
+    -> baseline target + lifecycle + recommendation
+    -> selected baseline or actionable personalized target
+    -> preference-driven macro plan
+```
+
+It creates no new REE, TDEE, calorie-adjustment, lifecycle, smoothing, or macro formulas. Before
+an existing adaptive aggregate can responsibly support an actionable recommendation, planning uses
+the baseline target. A personalized lifecycle with an unavailable or unsafe recommendation also
+falls back explicitly to baseline while retaining recommendation reasons. Future observations cannot
+change earlier snapshots, and the layer remains stateless. API and frontend integration are future
+boundaries.
+
 ## Preference Macro Boundary
 
 `NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the

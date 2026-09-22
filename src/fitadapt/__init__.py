@@ -69,6 +69,15 @@ from fitadapt.personalization.macros import (
     PersonalizedMacroPlan,
     calculate_personalized_macro_plan,
 )
+from fitadapt.personalization.planning import (
+    PERSONALIZED_PLANNING_POLICY_VERSION,
+    PersonalizedPlanningError,
+    PersonalizedPlanProgression,
+    PersonalizedPlanSnapshot,
+    PlanCalorieBasis,
+    build_personalized_plan_progression,
+    build_personalized_plan_snapshot,
+)
 from fitadapt.recommendation.calories import recommend_calorie_adjustment
 from fitadapt.synthetic.history import (
     SyntheticConfigurationError,
@@ -91,6 +100,7 @@ __all__ = [
     "MACRO_POLICY_VERSION",
     "MACRO_PLAN_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
+    "PERSONALIZED_PLANNING_POLICY_VERSION",
     "MacroCalorieSource",
     "MacroPlanInfeasibleError",
     "MacroPolicyInfeasibleError",
@@ -100,11 +110,15 @@ __all__ = [
     "ObservationValidationError",
     "ProfileValidationError",
     "PersonalizedMacroPlan",
+    "PersonalizedPlanProgression",
+    "PersonalizedPlanSnapshot",
+    "PersonalizedPlanningError",
     "PersonalizationLifecycleConfig",
     "PersonalizationLifecycleError",
     "PersonalizationLifecycleResult",
     "PersonalizationRequirement",
     "PersonalizationStage",
+    "PlanCalorieBasis",
     "SexForMifflinEquation",
     "SyntheticConfigurationError",
     "SyntheticHistory",
@@ -127,6 +141,8 @@ __all__ = [
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
     "calculate_personalized_macro_plan",
+    "build_personalized_plan_progression",
+    "build_personalized_plan_snapshot",
     "assess_personalization_lifecycle",
     "calculate_tdee_error_metrics",
     "create_app",
