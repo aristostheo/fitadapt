@@ -1,5 +1,11 @@
 """Explicit nutrition-preference and macro-planning contracts."""
 
+from fitadapt.personalization.intelligence import (
+    PROFILE_INTELLIGENCE_POLICY_VERSION,
+    ProfileIntelligenceError,
+    ProfileIntelligenceResult,
+    analyze_profile_intelligence,
+)
 from fitadapt.personalization.lifecycle import (
     PERSONALIZATION_LIFECYCLE_POLICY_VERSION,
     PersonalizationLifecycleConfig,
@@ -33,6 +39,7 @@ __all__ = [
     "MACRO_PLAN_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "PERSONALIZED_PLANNING_POLICY_VERSION",
+    "PROFILE_INTELLIGENCE_POLICY_VERSION",
     "MacroCalorieSource",
     "MacroPlanInfeasibleError",
     "MacroStrategy",
@@ -42,6 +49,8 @@ __all__ = [
     "PersonalizedPlanProgression",
     "PersonalizedPlanSnapshot",
     "PersonalizedPlanningError",
+    "ProfileIntelligenceError",
+    "ProfileIntelligenceResult",
     "PersonalizationLifecycleConfig",
     "PersonalizationLifecycleError",
     "PersonalizationLifecycleResult",
@@ -49,6 +58,7 @@ __all__ = [
     "PersonalizationStage",
     "PlanCalorieBasis",
     "assess_personalization_lifecycle",
+    "analyze_profile_intelligence",
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",
     "calculate_personalized_macro_plan",

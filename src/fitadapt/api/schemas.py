@@ -4,7 +4,7 @@ import math
 from datetime import date
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, StrictBool, field_validator
 
 from fitadapt.adaptive.tdee import (
     AdaptiveTdeeConfig,
@@ -21,6 +21,7 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.intelligence import ProfileIntelligenceResult
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
     PersonalizationLifecycleResult,
@@ -32,6 +33,11 @@ from fitadapt.personalization.macros import (
     MacroStrategy,
     NutritionPreferences,
     PersonalizedMacroPlan,
+)
+from fitadapt.personalization.planning import (
+    PersonalizedPlanProgression,
+    PersonalizedPlanSnapshot,
+    PlanCalorieBasis,
 )
 from fitadapt.recommendation.calories import (
     CalorieRecommendation,
@@ -227,6 +233,15 @@ class PersonalizedMacroPlanRequest(NumericRequestModel):
     calorie_source: MacroCalorieSource
 
 
+class ProfileIntelligenceRequest(ApiModel):
+    """Main client request using existing engine defaults and strict progression opt-in."""
+
+    profile: ProfileRequest
+    observations: list[ObservationRequest]
+    nutrition_preferences: NutritionPreferencesRequest
+    include_plan_progression: StrictBool = False
+
+
 class BaselineEnergyResponse(ApiModel):
     estimated_ree_kcal_per_day: float
     activity_level: ActivityLevel
@@ -380,6 +395,55 @@ class PersonalizationLifecycleResponse(ApiModel):
     lifecycle_policy_version: str
     trend_policy_version: str
     adaptive_policy_version: str
+    assumptions: tuple[str, ...]
+
+
+class PersonalizedPlanSnapshotResponse(ApiModel):
+    as_of_date: date | None
+    lifecycle_stage: PersonalizationStage
+    lifecycle_requirements: tuple[PersonalizationRequirement, ...]
+    calorie_basis: PlanCalorieBasis
+    baseline_calorie_target_kcal_per_day: float
+    selected_calorie_target_kcal_per_day: float
+    previous_selected_calorie_target_kcal_per_day: float | None
+    change_from_previous_snapshot_kcal_per_day: float | None
+    adaptive_tdee_kcal_per_day: float | None
+    adaptive_median_absolute_deviation_kcal_per_day: float | None
+    eligible_adaptive_estimate_count: int
+    recommendation_status: RecommendationStatus
+    recommendation_reasons: tuple[RecommendationReason, ...]
+    raw_recommendation_adjustment_kcal_per_day: float | None
+    limited_recommendation_adjustment_kcal_per_day: float | None
+    macro_plan: PersonalizedMacroPlanResponse
+    planning_policy_version: str
+    baseline_energy_formula_version: str
+    baseline_activity_policy_version: str
+    baseline_energy_equivalent_policy_version: str
+    baseline_macro_policy_version: str
+    lifecycle_policy_version: str
+    trend_policy_version: str
+    adaptive_policy_version: str
+    recommendation_policy_version: str
+    personalized_macro_policy_version: str
+    assumptions: tuple[str, ...]
+
+
+class PersonalizedPlanProgressionResponse(ApiModel):
+    snapshots: tuple[PersonalizedPlanSnapshotResponse, ...]
+    submitted_observation_count: int
+    planning_policy_version: str
+    assumptions: tuple[str, ...]
+
+
+class ProfileIntelligenceResponse(ApiModel):
+    policy_version: str
+    baseline: BaselineResponse
+    trends: TrendsResponse
+    adaptive_tdee: AdaptiveTdeeResponse
+    lifecycle: PersonalizationLifecycleResponse
+    recommendation: CalorieRecommendationResponse
+    latest_plan: PersonalizedPlanSnapshotResponse
+    plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
 
@@ -566,5 +630,76 @@ def map_personalization_lifecycle(
         lifecycle_policy_version=result.lifecycle_policy_version,
         trend_policy_version=result.trend_policy_version,
         adaptive_policy_version=result.adaptive_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_personalized_plan_snapshot(
+    result: PersonalizedPlanSnapshot,
+) -> PersonalizedPlanSnapshotResponse:
+    return PersonalizedPlanSnapshotResponse(
+        as_of_date=result.as_of_date,
+        lifecycle_stage=result.lifecycle_stage,
+        lifecycle_requirements=result.lifecycle_requirements,
+        calorie_basis=result.calorie_basis,
+        baseline_calorie_target_kcal_per_day=result.baseline_calorie_target_kcal_per_day,
+        selected_calorie_target_kcal_per_day=result.selected_calorie_target_kcal_per_day,
+        previous_selected_calorie_target_kcal_per_day=result.previous_selected_calorie_target_kcal_per_day,
+        change_from_previous_snapshot_kcal_per_day=result.change_from_previous_snapshot_kcal_per_day,
+        adaptive_tdee_kcal_per_day=result.adaptive_tdee_kcal_per_day,
+        adaptive_median_absolute_deviation_kcal_per_day=(
+            result.adaptive_median_absolute_deviation_kcal_per_day
+        ),
+        eligible_adaptive_estimate_count=result.eligible_adaptive_estimate_count,
+        recommendation_status=result.recommendation_status,
+        recommendation_reasons=result.recommendation_reasons,
+        raw_recommendation_adjustment_kcal_per_day=(
+            result.raw_recommendation_adjustment_kcal_per_day
+        ),
+        limited_recommendation_adjustment_kcal_per_day=(
+            result.limited_recommendation_adjustment_kcal_per_day
+        ),
+        macro_plan=map_personalized_macro_plan(result.macro_plan),
+        planning_policy_version=result.planning_policy_version,
+        baseline_energy_formula_version=result.baseline_energy_formula_version,
+        baseline_activity_policy_version=result.baseline_activity_policy_version,
+        baseline_energy_equivalent_policy_version=(
+            result.baseline_energy_equivalent_policy_version
+        ),
+        baseline_macro_policy_version=result.baseline_macro_policy_version,
+        lifecycle_policy_version=result.lifecycle_policy_version,
+        trend_policy_version=result.trend_policy_version,
+        adaptive_policy_version=result.adaptive_policy_version,
+        recommendation_policy_version=result.recommendation_policy_version,
+        personalized_macro_policy_version=result.personalized_macro_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_personalized_plan_progression(
+    result: PersonalizedPlanProgression,
+) -> PersonalizedPlanProgressionResponse:
+    return PersonalizedPlanProgressionResponse(
+        snapshots=tuple(map_personalized_plan_snapshot(item) for item in result.snapshots),
+        submitted_observation_count=result.submitted_observation_count,
+        planning_policy_version=result.planning_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntelligenceResponse:
+    return ProfileIntelligenceResponse(
+        policy_version=result.policy_version,
+        baseline=map_baseline(result.baseline),
+        trends=map_trends(result.trends),
+        adaptive_tdee=map_adaptive_tdee(result.adaptive_tdee),
+        lifecycle=map_personalization_lifecycle(result.lifecycle),
+        recommendation=map_recommendation(result.recommendation),
+        latest_plan=map_personalized_plan_snapshot(result.latest_plan),
+        plan_progression=(
+            None
+            if result.plan_progression is None
+            else map_personalized_plan_progression(result.plan_progression)
+        ),
         assumptions=result.assumptions,
     )

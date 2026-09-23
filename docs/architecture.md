@@ -110,8 +110,26 @@ It creates no new REE, TDEE, calorie-adjustment, lifecycle, smoothing, or macro 
 an existing adaptive aggregate can responsibly support an actionable recommendation, planning uses
 the baseline target. A personalized lifecycle with an unavailable or unsafe recommendation also
 falls back explicitly to baseline while retaining recommendation reasons. Future observations cannot
-change earlier snapshots, and the layer remains stateless. API and frontend integration are future
-boundaries.
+change earlier snapshots, and the layer remains stateless. Frontend integration is a future
+boundary.
+
+## Unified Profile Intelligence Boundary
+
+The unified application orchestration collects existing outputs without changing their contracts:
+
+```text
+UserProfile + DailyObservation history + NutritionPreferences
+    -> baseline + trends + adaptive TDEE + lifecycle + recommendation
+    -> latest proposed plan
+    -> optional chronological plan progression
+    -> explicit HTTP response schemas
+```
+
+`POST /v1/profile-intelligence` uses the documented existing defaults and is stateless. Its
+latest-only response avoids constructing progression by default; requesting progression recomputes
+every chronological prefix and is intentionally more expensive. The orchestration does not add
+formulas, caches, synthetic truth, ML inference, persistence, or mutation. The future frontend
+integration consumes this operation rather than duplicating calculations.
 
 ## Preference Macro Boundary
 

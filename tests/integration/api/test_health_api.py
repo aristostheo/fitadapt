@@ -35,6 +35,7 @@ def test_openapi_and_swagger_expose_versioned_routes() -> None:
         "/v1/recommendations/calories",
         "/v1/macros/personalized",
         "/v1/personalization/status",
+        "/v1/profile-intelligence",
     } <= set(openapi.json()["paths"])
     assert client.get("/docs").status_code == 200
 

@@ -22,16 +22,20 @@ from fitadapt.api.schemas import (
     PersonalizationLifecycleResponse,
     PersonalizedMacroPlanRequest,
     PersonalizedMacroPlanResponse,
+    ProfileIntelligenceRequest,
+    ProfileIntelligenceResponse,
     TrendsRequest,
     TrendsResponse,
     map_adaptive_tdee,
     map_baseline,
     map_personalization_lifecycle,
     map_personalized_macro_plan,
+    map_profile_intelligence,
     map_recommendation,
     map_trends,
 )
 from fitadapt.baseline.targets import calculate_calorie_target
+from fitadapt.personalization.intelligence import analyze_profile_intelligence
 from fitadapt.personalization.lifecycle import assess_personalization_lifecycle
 from fitadapt.personalization.macros import calculate_personalized_macro_plan
 from fitadapt.recommendation.calories import (
@@ -174,6 +178,21 @@ def create_app() -> FastAPI:
                 None if request.lifecycle_config is None else request.lifecycle_config.to_domain(),
                 None if request.trend_config is None else request.trend_config.to_domain(),
                 None if request.adaptive_config is None else request.adaptive_config.to_domain(),
+            )
+        )
+
+    @app.post(
+        "/v1/profile-intelligence",
+        response_model=ProfileIntelligenceResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def profile_intelligence(request: ProfileIntelligenceRequest) -> ProfileIntelligenceResponse:
+        return map_profile_intelligence(
+            analyze_profile_intelligence(
+                request.profile.to_domain(),
+                tuple(item.to_domain() for item in request.observations),
+                request.nutrition_preferences.to_domain(),
+                include_plan_progression=request.include_plan_progression,
             )
         )
 

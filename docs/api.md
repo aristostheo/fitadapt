@@ -3,7 +3,8 @@
 ## Purpose
 
 The FitAdapt API is a small, stateless FastAPI adapter over the existing domain engine. It exposes
-baseline targets, calendar-aware trends, adaptive TDEE, lifecycle readiness, and conservative calorie recommendations.
+baseline targets, calendar-aware trends, adaptive TDEE, lifecycle readiness, conservative calorie recommendations,
+and a unified profile-intelligence response.
 It stores no submitted profile or observation data, contains no fitness formulas, and is not a
 clinical, medical, or nutritional treatment service. Synthetic ML benchmarks and model
 interpretation are not used by recommendation endpoints.
@@ -39,6 +40,7 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 | `POST` | `/v1/recommendations/calories` | Conservative, evidence-gated calorie adjustment. |
 | `POST` | `/v1/macros/personalized` | Explicit V1 macro plan for supplied baseline or personalized calories. |
 | `POST` | `/v1/personalization/status` | Recomputed evidence stage and next data-logging requirements. |
+| `POST` | `/v1/profile-intelligence` | Complete stateless baseline, evidence, recommendation, and latest-plan response. |
 
 All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `NaN`, and infinity
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements
@@ -88,6 +90,15 @@ adaptive-estimate counts; optional aggregate adaptive TDEE and MAD; policy versi
 assumptions. It recomputes status from the full submitted history, does not create a confidence
 score or premature TDEE estimate, and does not alter recommendations, macro plans, or stored data.
 
+`POST /v1/profile-intelligence` accepts `profile`, `observations`, `nutrition_preferences`, and
+an optional strict boolean `include_plan_progression` (default `false`). It returns explicit
+baseline, trends/data quality, adaptive TDEE, lifecycle, recommendation, latest-plan, and optional
+progression sections using the same full-precision schemas as existing routes. Nutrition strategy
+changes only the nested macro allocation. When progression is requested, it returns one
+chronological prefix plan per submitted observation; this is larger and more expensive than the
+latest-only default. Empty history remains a complete undated baseline response. See
+[profile-intelligence API](profile-intelligence-api.md) for the executable request example.
+
 Run the supplied non-identifying recommendation example with:
 
 ```bash
@@ -109,7 +120,9 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
 `adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
 `macro_plan_infeasible`, `recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
-return `500` with `internal_server_error` and no implementation details.
+return `500` with `internal_server_error` and no implementation details. The unified endpoint also
+uses `personalized_planning_error` and `profile_intelligence_error` for its applicable domain
+contract failures.
 
 ## Non-Goals
 

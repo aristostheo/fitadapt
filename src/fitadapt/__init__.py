@@ -50,6 +50,12 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.personalization.intelligence import (
+    PROFILE_INTELLIGENCE_POLICY_VERSION,
+    ProfileIntelligenceError,
+    ProfileIntelligenceResult,
+    analyze_profile_intelligence,
+)
 from fitadapt.personalization.lifecycle import (
     PERSONALIZATION_LIFECYCLE_POLICY_VERSION,
     PersonalizationLifecycleConfig,
@@ -101,6 +107,7 @@ __all__ = [
     "MACRO_PLAN_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "PERSONALIZED_PLANNING_POLICY_VERSION",
+    "PROFILE_INTELLIGENCE_POLICY_VERSION",
     "MacroCalorieSource",
     "MacroPlanInfeasibleError",
     "MacroPolicyInfeasibleError",
@@ -113,6 +120,8 @@ __all__ = [
     "PersonalizedPlanProgression",
     "PersonalizedPlanSnapshot",
     "PersonalizedPlanningError",
+    "ProfileIntelligenceError",
+    "ProfileIntelligenceResult",
     "PersonalizationLifecycleConfig",
     "PersonalizationLifecycleError",
     "PersonalizationLifecycleResult",
@@ -144,6 +153,7 @@ __all__ = [
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",
     "assess_personalization_lifecycle",
+    "analyze_profile_intelligence",
     "calculate_tdee_error_metrics",
     "create_app",
     "build_synthetic_weight_change_dataset",
