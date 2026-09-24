@@ -1,9 +1,9 @@
 /** Return a visually useful domain without inventing values for null gaps. */
 export function paddedDomain(
-  points: readonly Record<string, unknown>[],
+  points: readonly object[],
   ...keys: readonly string[]
 ): [number, number] {
-  const values = points.flatMap(point => keys.map(key => point[key])).filter(
+  const values = points.flatMap(point => keys.map(key => (point as Record<string, unknown>)[key])).filter(
     (value): value is number => typeof value === 'number' && Number.isFinite(value),
   )
   if (values.length === 0) return [0, 1]

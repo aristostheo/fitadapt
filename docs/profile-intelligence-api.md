@@ -77,5 +77,5 @@ return opaque documented `500` `ErrorResponse` payloads.
 
 The endpoint uses existing defaults and does not expose individual engine configurations as a new
 transport policy. It does not persist state, call synthetic ML, perform inference, alter baseline or
-adaptive results, or apply recommendations. Frontend migration to this single operation is
-Checkpoint 21 work.
+adaptive results, or apply recommendations. The standalone Checkpoint 21 React client now uses this
+single operation; integration into a separate fitness-app profile page remains future work.

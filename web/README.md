@@ -1,12 +1,19 @@
-# FitAdapt Web
+# FitAdapt Web Client
 
-The standalone browser client uses the existing FastAPI service only; it contains no fitness formulas and stores no session data by default.
+The standalone React/Vite client is a session-only view over the stateless FitAdapt API. It sends
+profile, preferences, and observations only when the user chooses **Analyze my profile**; it has no
+local storage, accounts, cookies, persistence, or browser-side fitness formulas.
 
-## Run
+## Run Locally
 
-Terminal 1: `uv run uvicorn fitadapt.api.app:app --reload`
+Terminal 1 starts the API:
 
-Terminal 2:
+```bash
+uv sync
+uv run uvicorn fitadapt.api.app:app --reload
+```
+
+Terminal 2 starts the client:
 
 ```bash
 cd web
@@ -14,35 +21,34 @@ npm ci
 npm run dev
 ```
 
-`VITE_FITADAPT_API_URL` defaults to `http://127.0.0.1:8000`. Run `npm run lint`, `npm run test -- --run`, and `npm run build`. Sample history is fictional and session-only; do not paste personal data into an untrusted browser or public repository.
+`VITE_FITADAPT_API_URL` defaults to `http://127.0.0.1:8000`. Use `npm run lint`,
+`npm run test -- --run`, and `npm run build` for validation.
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Profile Intelligence
 
-Currently, two official plugins are available:
+The primary action sends one `POST /v1/profile-intelligence` request. It includes the profile,
+daily observations, nutrition preferences, and optional plan-history flag. The browser does not
+call legacy calculation endpoints as part of its analysis flow.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Users select balanced, higher-carb, higher-fat, higher-protein, or custom macro allocation.
+Custom protein is limited to `1.2–2.4 g/kg`; custom fat is limited to `20–40%` of calories. This
+preference changes macro allocation, not TDEE estimation. Lifecycle stages explain whether results
+are baseline, calibrating, early-personalized, or personalized. Optional plan history reconstructs
+one plan per historical observation prefix and can be slower for larger histories.
 
-## React Compiler
+## Historical Import
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Imports are browser-only previews until confirmation. JSON accepts an array or an
+`{"observations": [...]}` wrapper; CSV uses canonical headers. The client uses Papa Parse for
+quoted CSV handling and rejects unknown headers, invalid rows, duplicates, and more than 5,000 rows.
+Blank CSV cells become missing `null`; CSV `0` remains numeric zero.
 
-## Expanding the Oxlint configuration
+Choose merge or replace-all. Merge supports rejecting date conflicts (default), keeping existing
+records, or replacing existing records. The generated CSV template is fictional and contains all
+canonical fields. See [historical import documentation](../docs/historical-import.md).
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Sample history is fictional and deterministically generated around the currently displayed profile
+weight, with varied calories and steps. It is complete enough to demonstrate personalization but is
+not personal, clinical, or real-world evidence. Do not commit personal fitness data or use an
+untrusted browser for sensitive data. FitAdapt is transparent decision support, not medical or
+clinical guidance.

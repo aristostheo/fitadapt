@@ -16,6 +16,7 @@ FitAdapt keeps explainable decision support separate from research: versioned RE
 | Recommendations | Conservative decision support; never automatically applied. |
 | Personalization | Lifecycle readiness, proposed per-entry plans, and explicit V1 macro strategies. |
 | API | Stateless typed adapter, including unified profile intelligence; no stored user data. |
+| Web client | Session-only profile intelligence, preference selection, and browser-only historical import. |
 
 ## Fixed-Seed Synthetic Results
 
@@ -92,6 +93,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
 - [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized planning](docs/personalized-planning.md), [personalized macro plans](docs/personalized-macros.md), [profile-intelligence API](docs/profile-intelligence-api.md)
+- [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 
 ## Roadmap
 

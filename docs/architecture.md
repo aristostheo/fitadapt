@@ -128,8 +128,10 @@ UserProfile + DailyObservation history + NutritionPreferences
 `POST /v1/profile-intelligence` uses the documented existing defaults and is stateless. Its
 latest-only response avoids constructing progression by default; requesting progression recomputes
 every chronological prefix and is intentionally more expensive. The orchestration does not add
-formulas, caches, synthetic truth, ML inference, persistence, or mutation. The future frontend
-integration consumes this operation rather than duplicating calculations.
+formulas, caches, synthetic truth, ML inference, persistence, or mutation. The standalone React
+client consumes this operation rather than duplicating calculations. It keeps profile, preferences,
+and imported observations only in session memory; browser CSV/JSON import is previewed locally and
+never adds an upload or persistence boundary.
 
 ## Preference Macro Boundary
 
