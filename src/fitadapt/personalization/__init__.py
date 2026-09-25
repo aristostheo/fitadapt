@@ -1,5 +1,27 @@
 """Explicit nutrition-preference and macro-planning contracts."""
 
+from fitadapt.personalization.dietary import (
+    DIETARY_ASSESSMENT_POLICY_VERSION,
+    DIETARY_CATEGORY_POLICY_VERSION,
+    DIETARY_PATTERN_POLICY_VERSION,
+    FOOD_CATEGORY_ROLES,
+    PROTEIN_FLEXIBILITY_POLICY_VERSION,
+    DietaryPattern,
+    FoodCategory,
+    FoodCategoryRole,
+    FoodConstraint,
+    FoodConstraintAction,
+    FoodConstraintType,
+    FoodPreference,
+    FoodPreferenceLevel,
+    FoodSelectionMode,
+    NutritionDietaryError,
+    NutritionPreferenceAssessment,
+    NutritionPreferenceProfile,
+    ProteinFlexibilityConfig,
+    ProteinFlexibilityStatus,
+    assess_nutrition_preferences,
+)
 from fitadapt.personalization.intelligence import (
     PROFILE_INTELLIGENCE_POLICY_VERSION,
     ProfileIntelligenceError,
@@ -37,6 +59,10 @@ from fitadapt.personalization.planning import (
 
 __all__ = [
     "MACRO_PLAN_POLICY_VERSION",
+    "DIETARY_ASSESSMENT_POLICY_VERSION",
+    "DIETARY_CATEGORY_POLICY_VERSION",
+    "DIETARY_PATTERN_POLICY_VERSION",
+    "FOOD_CATEGORY_ROLES",
     "NUTRITION_TARGET_RANGE_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "PERSONALIZED_PLANNING_POLICY_VERSION",
@@ -51,6 +77,21 @@ __all__ = [
     "NutritionTargetEnvelopeError",
     "NutritionTargetRange",
     "NutritionTargetRangeConfig",
+    "PROTEIN_FLEXIBILITY_POLICY_VERSION",
+    "DietaryPattern",
+    "FoodCategory",
+    "FoodCategoryRole",
+    "FoodConstraint",
+    "FoodConstraintAction",
+    "FoodConstraintType",
+    "FoodPreference",
+    "FoodPreferenceLevel",
+    "FoodSelectionMode",
+    "NutritionDietaryError",
+    "NutritionPreferenceAssessment",
+    "NutritionPreferenceProfile",
+    "ProteinFlexibilityConfig",
+    "ProteinFlexibilityStatus",
     "PersonalizedMacroPlan",
     "PersonalizedPlanProgression",
     "PersonalizedPlanSnapshot",
@@ -69,6 +110,7 @@ __all__ = [
     "build_personalized_plan_snapshot",
     "calculate_personalized_macro_plan",
     "calculate_nutrition_target_envelope",
+    "assess_nutrition_preferences",
 ]
 from fitadapt.personalization.targets import (
     NUTRITION_TARGET_RANGE_POLICY_VERSION,

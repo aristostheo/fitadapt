@@ -31,17 +31,18 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 
 ## Endpoints
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/health` | Service, API, and recommendation-policy metadata. |
-| `POST` | `/v1/baseline` | REE, baseline TDEE, calorie target, and macro allocation. |
-| `POST` | `/v1/trends` | Calendar-day rolling trends and data quality. |
-| `POST` | `/v1/adaptive-tdee` | Trend-derived daily and aggregate adaptive TDEE. |
-| `POST` | `/v1/recommendations/calories` | Conservative, evidence-gated calorie adjustment. |
-| `POST` | `/v1/macros/personalized` | Explicit V1 macro plan for supplied baseline or personalized calories. |
-| `POST` | `/v1/nutrition/targets` | Exact macro plan plus versioned calorie and macro target ranges. |
-| `POST` | `/v1/personalization/status` | Recomputed evidence stage and next data-logging requirements. |
-| `POST` | `/v1/profile-intelligence` | Complete stateless baseline, evidence, recommendation, and latest-plan response. |
+| Method | Path                               | Purpose                                                                          |
+| ------ | ---------------------------------- | -------------------------------------------------------------------------------- |
+| `GET`  | `/health`                          | Service, API, and recommendation-policy metadata.                                |
+| `POST` | `/v1/baseline`                     | REE, baseline TDEE, calorie target, and macro allocation.                        |
+| `POST` | `/v1/trends`                       | Calendar-day rolling trends and data quality.                                    |
+| `POST` | `/v1/adaptive-tdee`                | Trend-derived daily and aggregate adaptive TDEE.                                 |
+| `POST` | `/v1/recommendations/calories`     | Conservative, evidence-gated calorie adjustment.                                 |
+| `POST` | `/v1/macros/personalized`          | Explicit V1 macro plan for supplied baseline or personalized calories.           |
+| `POST` | `/v1/nutrition/targets`            | Exact macro plan plus versioned calorie and macro target ranges.                 |
+| `POST` | `/v1/nutrition/preferences/assess` | Dietary constraints, preferences, conflicts, and protein-source flexibility.     |
+| `POST` | `/v1/personalization/status`       | Recomputed evidence stage and next data-logging requirements.                    |
+| `POST` | `/v1/profile-intelligence`         | Complete stateless baseline, evidence, recommendation, and latest-plan response. |
 
 All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `NaN`, and infinity
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements
@@ -90,6 +91,12 @@ and policy provenance. Bounds preserve full precision. They are independent prod
 not jointly interchangeable meal macros or medical requirements. See
 [nutrition target ranges](nutrition-target-ranges.md).
 
+`POST /v1/nutrition/preferences/assess` accepts the same profile, calorie target/source, and macro
+preferences plus a `dietary_preference_profile`. The server composes the exact macro plan and
+target envelope before assessing category constraints, soft preferences, conflicts, verification
+notices, and protein-source flexibility. Clients cannot provide a computed envelope. Domain failures
+use `nutrition_dietary_error`; see [dietary preferences](dietary-preferences.md).
+
 `POST /v1/personalization/status` accepts the same strict profile and observation transport models
 as the analysis endpoints, with optional `trend_config`, `adaptive_config`, and
 `lifecycle_config`. It reports one of `baseline`, `calibrating`, `early_personalized`, or
@@ -98,15 +105,17 @@ adaptive-estimate counts; optional aggregate adaptive TDEE and MAD; policy versi
 assumptions. It recomputes status from the full submitted history, does not create a confidence
 score or premature TDEE estimate, and does not alter recommendations, macro plans, or stored data.
 
-`POST /v1/profile-intelligence` accepts `profile`, `observations`, `nutrition_preferences`, and
-an optional strict boolean `include_plan_progression` (default `false`). It returns explicit
+`POST /v1/profile-intelligence` accepts `profile`, `observations`, `nutrition_preferences`, an
+optional `dietary_preference_profile`, and an optional strict boolean `include_plan_progression`
+(default `false`). It returns explicit
 baseline, trends/data quality, adaptive TDEE, lifecycle, recommendation, latest-plan, and optional
 progression sections using the same full-precision schemas as existing routes. Nutrition strategy
 changes only the nested macro allocation. When progression is requested, it returns one
 chronological prefix plan per submitted observation; this is larger and more expensive than the
 latest-only default. Every latest/progression plan includes its prefix-specific `target_envelope`
 without removing or renaming existing fields. Empty history remains a complete undated baseline
-response. See
+response. The additive `dietary_assessment` describes the current/latest plan only; omission uses
+an unrestricted/broad profile. See
 [profile-intelligence API](profile-intelligence-api.md) for the executable request example.
 
 Run the supplied non-identifying recommendation example with:
@@ -124,12 +133,18 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 `ErrorResponse`; unexpected failures use the same schema with `500`:
 
 ```json
-{"error": {"code": "trend_analysis_error", "message": "Duplicate observed_on dates are not allowed."}}
+{
+  "error": {
+    "code": "trend_analysis_error",
+    "message": "Duplicate observed_on dates are not allowed."
+  }
+}
 ```
 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
 `adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
-`macro_plan_infeasible`, `nutrition_target_envelope_error`, `recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
+`macro_plan_infeasible`, `nutrition_target_envelope_error`, `nutrition_dietary_error`,
+`recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
 return `500` with `internal_server_error` and no implementation details. The unified endpoint also
 uses `personalized_planning_error` and `profile_intelligence_error` for its applicable domain
 contract failures.
@@ -138,6 +153,7 @@ contract failures.
 
 There is no persistence, authentication, authorization, database, deployment setup, or ML inference
 endpoint in this checkpoint. Future work must validate recommendation behavior with
-real-world evidence before use beyond transparent decision support. Target ranges do not implement
-food selection, allergies/restrictions, medical nutrition therapy, meal generation, micronutrient
-analysis, training-day/rest-day targets, or budget, cuisine, cooking, or schedule optimization.
+real-world evidence before use beyond transparent decision support. Dietary assessment does not
+provide frontend onboarding, individual foods, recipes, meals, medical nutrition therapy,
+micronutrient analysis, or budget, cuisine, cooking, or schedule optimization. Halal and kosher
+results require external verification and are not certifications.

@@ -4,7 +4,7 @@ import math
 from datetime import date
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, StrictBool, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 
 from fitadapt.adaptive.tdee import (
     AdaptiveTdeeConfig,
@@ -21,6 +21,19 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.dietary import (
+    DietaryPattern,
+    FoodCategory,
+    FoodConstraint,
+    FoodConstraintAction,
+    FoodConstraintType,
+    FoodPreference,
+    FoodPreferenceLevel,
+    FoodSelectionMode,
+    NutritionPreferenceAssessment,
+    NutritionPreferenceProfile,
+    ProteinFlexibilityStatus,
+)
 from fitadapt.personalization.intelligence import ProfileIntelligenceResult
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
@@ -242,12 +255,52 @@ class NutritionTargetEnvelopeRequest(PersonalizedMacroPlanRequest):
     """Strict transport boundary for a standalone target-envelope calculation."""
 
 
+class FoodConstraintRequest(ApiModel):
+    category: FoodCategory
+    constraint_type: FoodConstraintType
+    action: FoodConstraintAction
+    note: str | None = None
+
+    def to_domain(self) -> FoodConstraint:
+        return FoodConstraint(**self.model_dump())
+
+
+class FoodPreferenceRequest(ApiModel):
+    category: FoodCategory
+    level: FoodPreferenceLevel
+
+    def to_domain(self) -> FoodPreference:
+        return FoodPreference(**self.model_dump())
+
+
+class NutritionPreferenceProfileRequest(ApiModel):
+    dietary_pattern: DietaryPattern
+    selection_mode: FoodSelectionMode
+    constraints: list[FoodConstraintRequest] = Field(default_factory=list)
+    preferences: list[FoodPreferenceRequest] = Field(default_factory=list)
+    other_description: str | None = None
+
+    def to_domain(self) -> NutritionPreferenceProfile:
+        return NutritionPreferenceProfile(
+            dietary_pattern=self.dietary_pattern,
+            selection_mode=self.selection_mode,
+            constraints=tuple(item.to_domain() for item in self.constraints),
+            preferences=tuple(item.to_domain() for item in self.preferences),
+            other_description=self.other_description,
+        )
+
+
+class NutritionPreferenceAssessmentRequest(PersonalizedMacroPlanRequest):
+    dietary_preference_profile: NutritionPreferenceProfileRequest
+
+
 class ProfileIntelligenceRequest(ApiModel):
     """Main client request using existing engine defaults and strict progression opt-in."""
 
     profile: ProfileRequest
     observations: list[ObservationRequest]
     nutrition_preferences: NutritionPreferencesRequest
+    dietary_preference_profile: NutritionPreferenceProfileRequest | None = None
     include_plan_progression: StrictBool = False
 
 
@@ -462,6 +515,32 @@ class NutritionTargetEnvelopeResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class NutritionPreferenceAssessmentResponse(ApiModel):
+    dietary_pattern: DietaryPattern
+    selection_mode: FoodSelectionMode
+    protein_target_range: NutritionTargetRangeResponse
+    protein_target_provenance: str
+    inferred_hard_excluded_categories: tuple[FoodCategory, ...]
+    explicit_hard_excluded_categories: tuple[FoodCategory, ...]
+    limited_categories: tuple[FoodCategory, ...]
+    disliked_categories: tuple[FoodCategory, ...]
+    accepted_categories: tuple[FoodCategory, ...]
+    preferred_categories: tuple[FoodCategory, ...]
+    favorite_categories: tuple[FoodCategory, ...]
+    usable_protein_source_categories: tuple[FoodCategory, ...]
+    usable_protein_source_count: int
+    protein_flexibility_status: ProteinFlexibilityStatus
+    conflicts: tuple[str, ...]
+    verification_notices: tuple[str, ...]
+    actionable_requirements: tuple[str, ...]
+    category_policy_version: str
+    pattern_policy_version: str
+    assessment_policy_version: str
+    protein_flexibility_policy_version: str
+    target_range_policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class PersonalizedPlanProgressionResponse(ApiModel):
     snapshots: tuple[PersonalizedPlanSnapshotResponse, ...]
     submitted_observation_count: int
@@ -477,6 +556,7 @@ class ProfileIntelligenceResponse(ApiModel):
     lifecycle: PersonalizationLifecycleResponse
     recommendation: CalorieRecommendationResponse
     latest_plan: PersonalizedPlanSnapshotResponse
+    dietary_assessment: NutritionPreferenceAssessmentResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -744,6 +824,43 @@ def map_nutrition_target_envelope(
     )
 
 
+def map_nutrition_preference_assessment(
+    result: NutritionPreferenceAssessment,
+) -> NutritionPreferenceAssessmentResponse:
+    return NutritionPreferenceAssessmentResponse(
+        dietary_pattern=result.dietary_pattern,
+        selection_mode=result.selection_mode,
+        protein_target_range=NutritionTargetRangeResponse(
+            lower_bound=result.protein_target_range.lower_bound,
+            selected_value=result.protein_target_range.selected_value,
+            upper_bound=result.protein_target_range.upper_bound,
+            unit=result.protein_target_range.unit,
+            interpretation=result.protein_target_range.interpretation,
+            range_kind=result.protein_target_range.range_kind,
+        ),
+        protein_target_provenance=result.protein_target_provenance,
+        inferred_hard_excluded_categories=result.inferred_hard_excluded_categories,
+        explicit_hard_excluded_categories=result.explicit_hard_excluded_categories,
+        limited_categories=result.limited_categories,
+        disliked_categories=result.disliked_categories,
+        accepted_categories=result.accepted_categories,
+        preferred_categories=result.preferred_categories,
+        favorite_categories=result.favorite_categories,
+        usable_protein_source_categories=result.usable_protein_source_categories,
+        usable_protein_source_count=result.usable_protein_source_count,
+        protein_flexibility_status=result.protein_flexibility_status,
+        conflicts=result.conflicts,
+        verification_notices=result.verification_notices,
+        actionable_requirements=result.actionable_requirements,
+        category_policy_version=result.category_policy_version,
+        pattern_policy_version=result.pattern_policy_version,
+        assessment_policy_version=result.assessment_policy_version,
+        protein_flexibility_policy_version=result.protein_flexibility_policy_version,
+        target_range_policy_version=result.target_range_policy_version,
+        assumptions=result.assumptions,
+    )
+
+
 def map_personalized_plan_progression(
     result: PersonalizedPlanProgression,
 ) -> PersonalizedPlanProgressionResponse:
@@ -764,6 +881,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         lifecycle=map_personalization_lifecycle(result.lifecycle),
         recommendation=map_recommendation(result.recommendation),
         latest_plan=map_personalized_plan_snapshot(result.latest_plan),
+        dietary_assessment=map_nutrition_preference_assessment(result.dietary_assessment),
         plan_progression=(
             None
             if result.plan_progression is None

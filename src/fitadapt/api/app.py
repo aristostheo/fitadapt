@@ -18,6 +18,8 @@ from fitadapt.api.schemas import (
     CalorieRecommendationResponse,
     ErrorResponse,
     HealthResponse,
+    NutritionPreferenceAssessmentRequest,
+    NutritionPreferenceAssessmentResponse,
     NutritionTargetEnvelopeRequest,
     NutritionTargetEnvelopeResponse,
     PersonalizationLifecycleRequest,
@@ -30,6 +32,7 @@ from fitadapt.api.schemas import (
     TrendsResponse,
     map_adaptive_tdee,
     map_baseline,
+    map_nutrition_preference_assessment,
     map_nutrition_target_envelope,
     map_personalization_lifecycle,
     map_personalized_macro_plan,
@@ -38,6 +41,7 @@ from fitadapt.api.schemas import (
     map_trends,
 )
 from fitadapt.baseline.targets import calculate_calorie_target
+from fitadapt.personalization.dietary import assess_nutrition_preferences
 from fitadapt.personalization.intelligence import analyze_profile_intelligence
 from fitadapt.personalization.lifecycle import assess_personalization_lifecycle
 from fitadapt.personalization.macros import calculate_personalized_macro_plan
@@ -203,6 +207,24 @@ def create_app() -> FastAPI:
         )
 
     @app.post(
+        "/v1/nutrition/preferences/assess",
+        response_model=NutritionPreferenceAssessmentResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def assess_nutrition_preference_endpoint(
+        request: NutritionPreferenceAssessmentRequest,
+    ) -> NutritionPreferenceAssessmentResponse:
+        envelope = calculate_nutrition_target_envelope(
+            request.profile.to_domain(),
+            request.calorie_target_kcal_per_day,
+            request.calorie_source,
+            request.preferences.to_domain(),
+        )
+        return map_nutrition_preference_assessment(
+            assess_nutrition_preferences(request.dietary_preference_profile.to_domain(), envelope)
+        )
+
+    @app.post(
         "/v1/profile-intelligence",
         response_model=ProfileIntelligenceResponse,
         responses=ERROR_RESPONSES,
@@ -214,6 +236,11 @@ def create_app() -> FastAPI:
                 tuple(item.to_domain() for item in request.observations),
                 request.nutrition_preferences.to_domain(),
                 include_plan_progression=request.include_plan_progression,
+                dietary_profile=(
+                    None
+                    if request.dietary_preference_profile is None
+                    else request.dietary_preference_profile.to_domain()
+                ),
             )
         )
 

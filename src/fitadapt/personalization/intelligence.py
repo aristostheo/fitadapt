@@ -12,6 +12,12 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate, calculate_calorie_target
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import UserProfile
+from fitadapt.personalization.dietary import (
+    DEFAULT_NUTRITION_PREFERENCE_PROFILE,
+    NutritionPreferenceAssessment,
+    NutritionPreferenceProfile,
+    assess_nutrition_preferences,
+)
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
     PersonalizationLifecycleResult,
@@ -56,6 +62,7 @@ class ProfileIntelligenceResult:
     lifecycle: PersonalizationLifecycleResult
     recommendation: CalorieRecommendation
     latest_plan: PersonalizedPlanSnapshot
+    dietary_assessment: NutritionPreferenceAssessment
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -70,9 +77,11 @@ def analyze_profile_intelligence(
     lifecycle_config: PersonalizationLifecycleConfig | None = None,
     recommendation_config: CalorieRecommendationConfig | None = None,
     include_plan_progression: bool = False,
+    dietary_profile: NutritionPreferenceProfile | None = None,
 ) -> ProfileIntelligenceResult:
     """Compose current FitAdapt outputs without altering their individual policies."""
-    _validate_inputs(profile, observations, preferences, include_plan_progression)
+    _validate_inputs(profile, observations, preferences, include_plan_progression, dietary_profile)
+    effective_dietary_profile = dietary_profile or DEFAULT_NUTRITION_PREFERENCE_PROFILE
     submitted = tuple(observations)
     baseline = calculate_calorie_target(profile)
     trends = analyze_observation_trends(submitted, trend_config)
@@ -91,6 +100,9 @@ def analyze_profile_intelligence(
         adaptive_config,
         lifecycle_config,
         recommendation_config,
+    )
+    dietary_assessment = assess_nutrition_preferences(
+        effective_dietary_profile, latest_plan.target_envelope
     )
     progression = (
         build_personalized_plan_progression(
@@ -112,6 +124,7 @@ def analyze_profile_intelligence(
         lifecycle=lifecycle,
         recommendation=recommendation,
         latest_plan=latest_plan,
+        dietary_assessment=dietary_assessment,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,
@@ -123,6 +136,7 @@ def _validate_inputs(
     observations: Sequence[DailyObservation],
     preferences: NutritionPreferences,
     include_plan_progression: bool,
+    dietary_profile: NutritionPreferenceProfile | None,
 ) -> None:
     if not isinstance(profile, UserProfile):
         raise ProfileIntelligenceError("profile must be a UserProfile.")
@@ -136,3 +150,7 @@ def _validate_inputs(
         )
     if not isinstance(include_plan_progression, bool):
         raise ProfileIntelligenceError("include_plan_progression must be a bool.")
+    if dietary_profile is not None and not isinstance(dietary_profile, NutritionPreferenceProfile):
+        raise ProfileIntelligenceError(
+            "dietary_profile must be a NutritionPreferenceProfile or None."
+        )

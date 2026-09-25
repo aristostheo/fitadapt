@@ -2,6 +2,10 @@
 
 ## 0.1.0
 
-Initial development release: validated profiles and observations, REE/TDEE and macro policies, calendar trends, adaptive TDEE, evidence-based personalization lifecycle status, entry-by-entry proposed personalized planning, a unified stateless profile-intelligence API, synthetic evaluation, leakage-safe ML diagnostics, conservative recommendations, a stateless FastAPI adapter, a session-only React profile-intelligence client with browser-only CSV/JSON historical import, separate V1 preference-driven macro plans, and versioned nutrition target envelopes exposed through domain, API, progression, and frontend contracts.
+Initial development release: validated profiles and observations, REE/TDEE and macro policies, calendar trends, adaptive TDEE, evidence-based personalization lifecycle status, entry-by-entry proposed personalized planning, a unified stateless profile-intelligence API, synthetic evaluation, leakage-safe ML diagnostics, conservative recommendations, a stateless FastAPI adapter, a session-only React profile-intelligence client with browser-only CSV/JSON historical import, separate V1 preference-driven macro plans, versioned nutrition target envelopes exposed through domain, API, progression, and frontend contracts, and deterministic category-level dietary preference assessment exposed through standalone and unified backend APIs.
 
 Nutrition target envelopes remain policy-based decision support. They do not implement food selection, allergies/restrictions, medical nutrition therapy, meal generation, micronutrient analysis, training-day/rest-day targets, or budget, cuisine, cooking, or schedule optimization.
+
+Dietary assessment remains category-level decision support. Frontend onboarding, individual food records,
+recipes, meal generation, medical nutrition therapy, micronutrient analysis, persistence, and
+budget/cuisine/schedule/cooking optimization are deferred.

@@ -171,6 +171,25 @@ arbitrary jointly energy-reconciling combinations. This boundary does not provid
 allergies/restrictions, medical nutrition therapy, meal generation, micronutrient analysis,
 training-day/rest-day targets, or budget, cuisine, cooking, or schedule optimization.
 
+## Dietary Preference Assessment Boundary
+
+Dietary assessment is a downstream composition over an existing target envelope:
+
+```text
+profile + calorie target + macro preferences
+    -> exact macro plan -> nutrition target envelope
+    -> dietary pattern + hard constraints + soft preferences
+    -> conflicts, verification notices, and protein-source flexibility
+```
+
+The `dietary_categories_v1`, `dietary_patterns_v1`, `dietary_assessment_v1`, and
+`protein_flexibility_v1` policies are framework-independent. Allergies, required exclusions,
+pattern exclusions, and excluding intolerances override limiting intolerances and soft preferences.
+The assessment measures food-choice variety and adherence difficulty, not biological impossibility.
+The unified endpoint adds the current/latest assessment only; progression snapshots are unchanged.
+This boundary does not add frontend onboarding, individual foods, recipes, meals, medical nutrition
+therapy, micronutrients, persistence, or budget/cuisine/schedule/cooking logic.
+
 ## HTTP Adapter Boundary
 
 Checkpoint 13 adds a stateless adapter outside the domain packages:

@@ -8,7 +8,8 @@ data and introduces no fitness formula or policy.
 ## Request
 
 The endpoint accepts the existing strict `profile`, `observations`, and `nutrition_preferences`
-models. `include_plan_progression` is an optional JSON boolean and defaults to `false`.
+models. `dietary_preference_profile` is optional and `include_plan_progression` is an optional JSON
+boolean; omission uses an unrestricted/broad dietary profile and progression defaults to `false`.
 
 ```json
 {
@@ -22,7 +23,13 @@ models. `include_plan_progression` is an optional JSON boolean and defaults to `
     "requested_weekly_change_kg": 0
   },
   "observations": [],
-  "nutrition_preferences": {"macro_strategy": "balanced"},
+  "nutrition_preferences": { "macro_strategy": "balanced" },
+  "dietary_preference_profile": {
+    "dietary_pattern": "unrestricted",
+    "selection_mode": "broad",
+    "constraints": [],
+    "preferences": []
+  },
   "include_plan_progression": false
 }
 ```
@@ -45,19 +52,23 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 
 `ProfileIntelligenceResponse` preserves full calculation precision and has these sections:
 
-| Field | Existing source |
-| --- | --- |
-| `baseline` | `calculate_calorie_target` output. |
-| `trends` | Calendar-aware trend points and data quality. |
-| `adaptive_tdee` | Daily eligibility, aggregate TDEE, MAD, and aggregation evidence. |
-| `lifecycle` | Evidence readiness and requirements. |
-| `recommendation` | Existing conservative recommendation or ordered insufficiency reasons. |
-| `latest_plan` | Current selected calorie basis, exact preference-driven macro plan, and target envelope. |
-| `plan_progression` | `null` unless requested; otherwise one prefix snapshot per submitted entry. |
+| Field                | Existing source                                                                                     |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| `baseline`           | `calculate_calorie_target` output.                                                                  |
+| `trends`             | Calendar-aware trend points and data quality.                                                       |
+| `adaptive_tdee`      | Daily eligibility, aggregate TDEE, MAD, and aggregation evidence.                                   |
+| `lifecycle`          | Evidence readiness and requirements.                                                                |
+| `recommendation`     | Existing conservative recommendation or ordered insufficiency reasons.                              |
+| `latest_plan`        | Current selected calorie basis, exact preference-driven macro plan, and target envelope.            |
+| `dietary_assessment` | Current/latest-plan category constraints, preferences, conflicts, notices, and protein flexibility. |
+| `plan_progression`   | `null` unless requested; otherwise one prefix snapshot per submitted entry.                         |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
 and logged numeric zero as zero. Nutrition preferences affect macro allocation only; they do not
 alter baseline calorie estimation, trends, adaptive TDEE, lifecycle evidence, or recommendation policy.
+The additive dietary assessment is computed from `latest_plan.target_envelope`; it does not alter
+calories, macros, lifecycle, recommendations, or progression snapshots. If omitted, the request
+uses an unrestricted/broad dietary profile for backward compatibility.
 `target_envelope` is additive: all earlier response fields retain their names and semantics. It
 contains the exact selected plan plus calorie adherence, protein/fat preferred, and carbohydrate
 flexible ranges with policy provenance.
@@ -88,3 +99,5 @@ single operation; integration into a separate fitness-app profile page remains f
 Target envelopes do not add food selection, allergies/restrictions, medical nutrition therapy,
 meal generation, micronutrient analysis, training-day/rest-day targets, or budget, cuisine,
 cooking, or schedule optimization.
+Dietary assessment remains category-level only. It does not add frontend onboarding, individual
+foods, recipes, persistence, or halal/kosher certification.

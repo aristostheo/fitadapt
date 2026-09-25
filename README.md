@@ -8,28 +8,28 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 
 FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans with flexible target envelopes, calendar-aware trends, adaptive observed-data TDEE, lifecycle readiness, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. `POST /v1/profile-intelligence` composes those existing outputs into one stateless client response. Synthetic histories support evaluation and ML experiments only; FastAPI has no formulas or persistence.
 
-| Layer | Role |
-| --- | --- |
-| Baseline | Deterministic REE, activity-adjusted TDEE, calorie and macro targets. |
-| Adaptive | Intake and weight-trend observed-data approximation. |
-| Research | Fixed-seed synthetic evaluation and leakage-safe ML benchmark. |
-| Recommendations | Conservative decision support; never automatically applied. |
-| Personalization | Lifecycle readiness, proposed per-entry plans, explicit V1 macro strategies, and policy-based target ranges. |
-| API | Stateless typed adapter, including unified profile intelligence; no stored user data. |
-| Web client | Session-only profile intelligence, preference selection, and browser-only historical import. |
+| Layer           | Role                                                                                                                                                       |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline        | Deterministic REE, activity-adjusted TDEE, calorie and macro targets.                                                                                      |
+| Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                       |
+| Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                             |
+| Recommendations | Conservative decision support; never automatically applied.                                                                                                |
+| Personalization | Lifecycle readiness, proposed per-entry plans, explicit V1 macro strategies, policy-based target ranges, and deterministic dietary flexibility assessment. |
+| API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                      |
+| Web client      | Session-only profile intelligence, preference selection, and browser-only historical import.                                                               |
 
 ## Fixed-Seed Synthetic Results
 
 Adaptive TDEE paired MAE results (`kcal/day`):
 
-| Scenario | Eligible dates | Adaptive MAE | Paired MAE change |
-| --- | ---: | ---: | ---: |
-| Clean constant expenditure | 47 | 0.000 | 100.000% |
-| Noisy observations | 47 | 249.005 | 39.191% |
-| Missing data | 34 | 241.287 | 41.493% |
-| Calorie underreporting | 47 | 250.000 | 63.181% |
-| Calorie overreporting | 47 | 250.000 | -400.000% |
-| Baseline mismatch | 47 | 0.000 | 100.000% |
+| Scenario                   | Eligible dates | Adaptive MAE | Paired MAE change |
+| -------------------------- | -------------: | -----------: | ----------------: |
+| Clean constant expenditure |             47 |        0.000 |          100.000% |
+| Noisy observations         |             47 |      249.005 |           39.191% |
+| Missing data               |             34 |      241.287 |           41.493% |
+| Calorie underreporting     |             47 |      250.000 |           63.181% |
+| Calorie overreporting      |             47 |      250.000 |         -400.000% |
+| Baseline mismatch          |             47 |        0.000 |          100.000% |
 
 The complete-history ML split is `18 / 6 / 6`. Selected `linear` validation MAE is `0.175475` kg, versus dummy `0.405652`, Ridge `0.175525`, and random forest `0.310848`; held-out MAE/RMSE/R² are `0.159362 / 0.200325 / 0.716630` (dummy MAE `0.369595`). These are synthetic-only results, not claims about real people. Leading permutation diagnostics are window weight change (`0.11913`) and trailing intake (`0.09338`); correlated features make these non-causal.
 
@@ -94,8 +94,9 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
 - [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized planning](docs/personalized-planning.md), [personalized macro plans](docs/personalized-macros.md), [nutrition target ranges](docs/nutrition-target-ranges.md), [profile-intelligence API](docs/profile-intelligence-api.md)
+- [Dietary preferences](docs/dietary-preferences.md)
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 
 ## Roadmap
 
-Real-world evaluation, storage, authentication, client integration, and license selection remain release work. FitAdapt does not yet provide food selection, allergies/restrictions handling, medical nutrition therapy, meal generation, micronutrient analysis, training-day/rest-day targets, or budget/cuisine/cooking/schedule optimization.
+Real-world evaluation, storage, authentication, client integration, and license selection remain release work. FitAdapt does not yet provide frontend dietary onboarding, individual food selection, recipes, meal generation, medical nutrition therapy, micronutrient analysis, training-day/rest-day targets, or budget/cuisine/cooking/schedule optimization.
