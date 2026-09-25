@@ -15,6 +15,7 @@ from fitadapt.personalization.macros import (
 from fitadapt.personalization.targets import (
     NUTRITION_TARGET_RANGE_POLICY_VERSION,
     NutritionRangeKind,
+    NutritionTargetEnvelope,
     NutritionTargetEnvelopeError,
     NutritionTargetRange,
     NutritionTargetRangeConfig,
@@ -101,6 +102,68 @@ def test_configuration_normalizes_ints_and_public_models_are_frozen_and_slotted(
         config.calorie_adherence_tolerance_kcal_per_day = 1  # type: ignore[misc]
     with pytest.raises(NutritionTargetEnvelopeError):
         NutritionTargetRange(2, 1, 3, "g/day", "test", NutritionRangeKind.PREFERRED)
+
+
+def test_envelope_rejects_inconsistent_direct_construction(profile: UserProfile) -> None:
+    plan = calculate_personalized_macro_plan(
+        profile,
+        2400,
+        MacroCalorieSource.BASELINE,
+        NutritionPreferences(MacroStrategy.BALANCED),
+    )
+    with pytest.raises(NutritionTargetEnvelopeError):
+        NutritionTargetEnvelope(
+            -1,
+            NutritionTargetRange(
+                plan.calorie_target_kcal_per_day,
+                plan.calorie_target_kcal_per_day,
+                plan.calorie_target_kcal_per_day,
+                "kcal/day",
+                "test",
+                NutritionRangeKind.ADHERENCE,
+            ),
+            NutritionTargetRange(
+                plan.protein_g_per_day,
+                plan.protein_g_per_day,
+                plan.protein_g_per_day,
+                "g/day",
+                "test",
+                NutritionRangeKind.PREFERRED,
+            ),
+            NutritionTargetRange(
+                plan.fat_g_per_day,
+                plan.fat_g_per_day,
+                plan.fat_g_per_day,
+                "g/day",
+                "test",
+                NutritionRangeKind.PREFERRED,
+            ),
+            NutritionTargetRange(
+                plan.carbohydrate_g_per_day,
+                plan.carbohydrate_g_per_day,
+                plan.carbohydrate_g_per_day,
+                "g/day",
+                "test",
+                NutritionRangeKind.FLEXIBLE_REMAINDER,
+            ),
+            plan,
+            MacroStrategy.BALANCED,
+            MacroCalorieSource.BASELINE,
+            (),
+            "range-v1",
+            plan.macro_policy_version,
+            (),
+        )
+
+
+def test_envelope_rejects_mutable_provenance(profile: UserProfile) -> None:
+    from dataclasses import replace
+
+    envelope = calculate_nutrition_target_envelope(
+        profile, 2400, MacroCalorieSource.BASELINE, NutritionPreferences(MacroStrategy.BALANCED)
+    )
+    with pytest.raises(NutritionTargetEnvelopeError):
+        replace(envelope, assumptions=list(envelope.assumptions))
 
 
 def test_inputs_are_unchanged_and_results_are_deterministic(profile: UserProfile) -> None:

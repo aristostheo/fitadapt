@@ -114,6 +114,62 @@ class NutritionTargetEnvelope:
     macro_policy_version: str
     assumptions: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        selected_calories = validate_finite_number(
+            self.selected_calorie_target_kcal_per_day,
+            field_name="selected_calorie_target_kcal_per_day",
+            error_type=NutritionTargetEnvelopeError,
+        )
+        if selected_calories <= 0:
+            raise NutritionTargetEnvelopeError(
+                "selected_calorie_target_kcal_per_day must be greater than 0."
+            )
+        if not isinstance(self.macro_plan, PersonalizedMacroPlan):
+            raise NutritionTargetEnvelopeError("macro_plan must be a PersonalizedMacroPlan.")
+        if not isinstance(self.macro_strategy, MacroStrategy):
+            raise NutritionTargetEnvelopeError("macro_strategy must be a MacroStrategy enum value.")
+        if not isinstance(self.calorie_source, MacroCalorieSource):
+            raise NutritionTargetEnvelopeError(
+                "calorie_source must be a MacroCalorieSource enum value."
+            )
+        if selected_calories != self.macro_plan.calorie_target_kcal_per_day:
+            raise NutritionTargetEnvelopeError(
+                "selected calorie target must match the exact macro plan."
+            )
+        if self.macro_strategy is not self.macro_plan.strategy:
+            raise NutritionTargetEnvelopeError("macro_strategy must match the exact macro plan.")
+        if self.calorie_source is not self.macro_plan.calorie_source:
+            raise NutritionTargetEnvelopeError("calorie_source must match the exact macro plan.")
+        expected_selected_values = (
+            (self.calorie_adherence_range, self.macro_plan.calorie_target_kcal_per_day),
+            (self.protein_preferred_range, self.macro_plan.protein_g_per_day),
+            (self.fat_preferred_range, self.macro_plan.fat_g_per_day),
+            (self.carbohydrate_flexible_range, self.macro_plan.carbohydrate_g_per_day),
+        )
+        for target_range, expected_value in expected_selected_values:
+            if not isinstance(target_range, NutritionTargetRange):
+                raise NutritionTargetEnvelopeError(
+                    "all envelope targets must be NutritionTargetRange instances."
+                )
+            if target_range.selected_value != expected_value:
+                raise NutritionTargetEnvelopeError(
+                    "each range selected value must match the exact macro plan."
+                )
+        if not isinstance(self.policy_floors, tuple) or not all(
+            isinstance(item, str) and item for item in self.policy_floors
+        ):
+            raise NutritionTargetEnvelopeError(
+                "policy_floors must be a tuple of non-empty strings."
+            )
+        if not isinstance(self.assumptions, tuple) or not all(
+            isinstance(item, str) and item for item in self.assumptions
+        ):
+            raise NutritionTargetEnvelopeError("assumptions must be a tuple of non-empty strings.")
+        for name in ("range_policy_version", "macro_policy_version"):
+            if not isinstance(getattr(self, name), str) or not getattr(self, name):
+                raise NutritionTargetEnvelopeError(f"{name} must be a non-empty string.")
+        object.__setattr__(self, "selected_calorie_target_kcal_per_day", selected_calories)
+
 
 def calculate_nutrition_target_envelope(
     profile: UserProfile,
