@@ -63,6 +63,13 @@ tbody tr:last-child td { border-bottom: 0; }
 .metric { border-left-color: #82948d; }
 .metric span { display: block; color: #4d6666; font-size: .78rem; }
 .metric strong { display: block; margin-top: .3rem; font-size: 1.08rem; line-height: 1.2; }
+.metric small { display: block; margin-top: .35rem; color: #4d6666; font-size: .78rem; line-height: 1.35; }
+.range-summary { font-size: .9rem; }
+.range-summary strong { color: #17343b; }
+.target-ranges { margin-top: 1rem; }
+.range-explanation { margin: .85rem 0 0; padding: .7rem .8rem; background: #eef2ed; color: #385150; font-size: .88rem; line-height: 1.45; }
+.progression-target strong, .progression-target small { display: block; }
+.progression-target small { margin-top: .2rem; color: #4d6666; }
 .macro-note { margin: .7rem 0 0; color: #4d6666; font-size: .88rem; line-height: 1.4; }
 .quality-card > div { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .9rem; }
 .quality-card span { display: grid; gap: .15rem; color: #4d6666; }

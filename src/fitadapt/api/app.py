@@ -18,6 +18,8 @@ from fitadapt.api.schemas import (
     CalorieRecommendationResponse,
     ErrorResponse,
     HealthResponse,
+    NutritionTargetEnvelopeRequest,
+    NutritionTargetEnvelopeResponse,
     PersonalizationLifecycleRequest,
     PersonalizationLifecycleResponse,
     PersonalizedMacroPlanRequest,
@@ -28,6 +30,7 @@ from fitadapt.api.schemas import (
     TrendsResponse,
     map_adaptive_tdee,
     map_baseline,
+    map_nutrition_target_envelope,
     map_personalization_lifecycle,
     map_personalized_macro_plan,
     map_profile_intelligence,
@@ -38,6 +41,7 @@ from fitadapt.baseline.targets import calculate_calorie_target
 from fitadapt.personalization.intelligence import analyze_profile_intelligence
 from fitadapt.personalization.lifecycle import assess_personalization_lifecycle
 from fitadapt.personalization.macros import calculate_personalized_macro_plan
+from fitadapt.personalization.targets import calculate_nutrition_target_envelope
 from fitadapt.recommendation.calories import (
     RECOMMENDATION_POLICY_VERSION,
     recommend_calorie_adjustment,
@@ -178,6 +182,23 @@ def create_app() -> FastAPI:
                 None if request.lifecycle_config is None else request.lifecycle_config.to_domain(),
                 None if request.trend_config is None else request.trend_config.to_domain(),
                 None if request.adaptive_config is None else request.adaptive_config.to_domain(),
+            )
+        )
+
+    @app.post(
+        "/v1/nutrition/targets",
+        response_model=NutritionTargetEnvelopeResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def nutrition_targets(
+        request: NutritionTargetEnvelopeRequest,
+    ) -> NutritionTargetEnvelopeResponse:
+        return map_nutrition_target_envelope(
+            calculate_nutrition_target_envelope(
+                request.profile.to_domain(),
+                request.calorie_target_kcal_per_day,
+                request.calorie_source,
+                request.preferences.to_domain(),
             )
         )
 

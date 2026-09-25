@@ -110,8 +110,8 @@ It creates no new REE, TDEE, calorie-adjustment, lifecycle, smoothing, or macro 
 an existing adaptive aggregate can responsibly support an actionable recommendation, planning uses
 the baseline target. A personalized lifecycle with an unavailable or unsafe recommendation also
 falls back explicitly to baseline while retaining recommendation reasons. Future observations cannot
-change earlier snapshots, and the layer remains stateless. Frontend integration is a future
-boundary.
+change earlier snapshots, and the layer remains stateless. The standalone web client renders this
+contract; integration into external products remains a separate future boundary.
 
 ## Unified Profile Intelligence Boundary
 
@@ -148,6 +148,29 @@ UserProfile + NutritionPreferences + supplied calorie target
 It does not call adaptive TDEE, overwrite V0.1 baseline macros, infer preferences from physiology,
 or mutate recommendation outputs. The existing baseline macro contract is retained unchanged.
 
+## Nutrition Target Envelope Boundary
+
+The range layer is additive and downstream of the exact preference-driven macro plan:
+
+```text
+selected baseline or safe personalized calorie target
+    -> exact preference_macros_v1 allocation
+    -> nutrition_target_ranges_v1 policy envelope
+    -> domain, API, and standalone-client representations
+```
+
+It does not select energy, alter a recommendation, or replace exact macros. It adds a fixed calorie
+adherence band, bounded protein/fat preferred bands, and a carbohydrate flexible remainder with
+explicit versions and assumptions. Baseline and pre-personalized plans keep baseline-source
+envelopes. Safe personalized plans keep the existing recommendation target; safety fallback keeps
+its baseline target and reason codes. Prefix progression constructs each envelope from only the
+observations available at that snapshot, so future entries cannot alter earlier envelopes.
+
+The bands are product policy, not medical requirements. Their endpoints are independent and are not
+arbitrary jointly energy-reconciling combinations. This boundary does not provide food selection,
+allergies/restrictions, medical nutrition therapy, meal generation, micronutrient analysis,
+training-day/rest-day targets, or budget, cuisine, cooking, or schedule optimization.
+
 ## HTTP Adapter Boundary
 
 Checkpoint 13 adds a stateless adapter outside the domain packages:
@@ -168,7 +191,9 @@ benchmark and interpretation modules are not called by any API endpoint.
 React browser client -> FastAPI JSON adapter -> typed domain engine
 ```
 
-The standalone React client keeps session-only form state and never duplicates calculations; the API remains the validation and calculation boundary.
+The standalone React client keeps session-only form state and never duplicates calculations. It
+renders exact selected targets and server-provided ranges from `/v1/profile-intelligence`; the API
+remains the validation and calculation boundary.
 
 ## Synthetic Evaluation Boundary
 

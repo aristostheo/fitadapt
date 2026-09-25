@@ -22,6 +22,10 @@ from fitadapt.personalization.macros import (
     PersonalizedMacroPlan,
     calculate_personalized_macro_plan,
 )
+from fitadapt.personalization.targets import (
+    NutritionTargetEnvelope,
+    calculate_nutrition_target_envelope,
+)
 from fitadapt.recommendation.calories import (
     CalorieRecommendationConfig,
     RecommendationReason,
@@ -80,6 +84,7 @@ class PersonalizedPlanSnapshot:
     recommendation_policy_version: str
     personalized_macro_policy_version: str
     assumptions: tuple[str, ...]
+    target_envelope: NutritionTargetEnvelope | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -244,6 +249,9 @@ def _build_snapshot(
     macro_plan = calculate_personalized_macro_plan(
         profile, selected_target, macro_source, preferences
     )
+    target_envelope = calculate_nutrition_target_envelope(
+        profile, selected_target, macro_source, preferences
+    )
     return PersonalizedPlanSnapshot(
         as_of_date=None if not observations else observations[-1].observed_on,
         lifecycle_stage=lifecycle.stage,
@@ -278,4 +286,5 @@ def _build_snapshot(
         recommendation_policy_version=recommendation.recommendation_policy_version,
         personalized_macro_policy_version=macro_plan.macro_policy_version,
         assumptions=PERSONALIZED_PLANNING_ASSUMPTIONS + (selection_assumption,),
+        target_envelope=target_envelope,
     )

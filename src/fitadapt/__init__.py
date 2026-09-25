@@ -84,6 +84,15 @@ from fitadapt.personalization.planning import (
     build_personalized_plan_progression,
     build_personalized_plan_snapshot,
 )
+from fitadapt.personalization.targets import (
+    NUTRITION_TARGET_RANGE_POLICY_VERSION,
+    NutritionRangeKind,
+    NutritionTargetEnvelope,
+    NutritionTargetEnvelopeError,
+    NutritionTargetRange,
+    NutritionTargetRangeConfig,
+    calculate_nutrition_target_envelope,
+)
 from fitadapt.recommendation.calories import recommend_calorie_adjustment
 from fitadapt.synthetic.history import (
     SyntheticConfigurationError,
@@ -105,6 +114,7 @@ __all__ = [
     "Goal",
     "MACRO_POLICY_VERSION",
     "MACRO_PLAN_POLICY_VERSION",
+    "NUTRITION_TARGET_RANGE_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "PERSONALIZED_PLANNING_POLICY_VERSION",
     "PROFILE_INTELLIGENCE_POLICY_VERSION",
@@ -114,6 +124,11 @@ __all__ = [
     "MacroStrategy",
     "NutritionPreferences",
     "NutritionPreferencesError",
+    "NutritionRangeKind",
+    "NutritionTargetEnvelope",
+    "NutritionTargetEnvelopeError",
+    "NutritionTargetRange",
+    "NutritionTargetRangeConfig",
     "ObservationValidationError",
     "ProfileValidationError",
     "PersonalizedMacroPlan",
@@ -150,6 +165,7 @@ __all__ = [
     "calculate_daily_calorie_adjustment",
     "calculate_mifflin_st_jeor_ree",
     "calculate_personalized_macro_plan",
+    "calculate_nutrition_target_envelope",
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",
     "assess_personalization_lifecycle",

@@ -16,6 +16,7 @@ UserProfile + observation prefix + NutritionPreferences
     -> existing calorie recommendation
     -> selected calorie basis
     -> existing preference-driven macro allocation
+    -> target envelope around the exact selected plan
 ```
 
 `NutritionPreferences` stays user-selected. FitAdapt does not infer a dietary strategy. Macro grams
@@ -35,6 +36,13 @@ The existing recommendation engine supplies its own hold threshold, maximum adju
 safety gates. Planning does not reimplement them. A fallback never forces a non-positive or
 macro-infeasible personalized target; if the caller's selected macro strategy itself cannot fit a
 selected target, the existing macro-policy error remains explicit.
+
+Every current and progression snapshot exposes `target_envelope`. It preserves the same selected
+target, calorie source, strategy, and exact macro plan, then adds the versioned V1 flexibility bands
+documented in [nutrition target ranges](nutrition-target-ranges.md). Baseline, calibrating, and
+early-personalized snapshots therefore retain baseline-source envelopes. Actionable personalized
+snapshots use the safe recommendation target; a safety fallback retains its baseline target and
+recommendation reasons.
 
 ## Progression Semantics
 
@@ -68,5 +76,6 @@ kcal entries, and a linear -0.10 kg/day observed weight change.
 Lifecycle stage is readiness evidence, not confidence or clinical accuracy. Adaptive TDEE remains
 sensitive to logged intake, scale noise, hydration, glycogen, and its existing assumptions. Planning
 does not call synthetic ML, invent an early adaptive target, modify baseline calculations, alter
-recommendation policy, or persist state. Unified API exposure and frontend integration are future
-checkpoints.
+recommendation policy, or persist state. It also does not implement food selection,
+allergies/restrictions, medical nutrition therapy, meal generation, micronutrient analysis,
+training-day/rest-day targets, or budget, cuisine, cooking, or schedule optimization.

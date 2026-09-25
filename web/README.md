@@ -36,6 +36,12 @@ preference changes macro allocation, not TDEE estimation. Lifecycle stages expla
 are baseline, calibrating, early-personalized, or personalized. Optional plan history reconstructs
 one plan per historical observation prefix and can be slower for larger histories.
 
+The current-plan panel keeps the selected next-step calorie and macro plan primary, then displays
+its calorie adherence, protein and fat preferred, and carbohydrate flexible ranges from the unified
+response. The selected plan is one exactly feasible point. Range endpoints are independent policy
+bounds and arbitrary endpoint combinations may not reconcile; users do not need perfect daily gram
+precision. The browser does not calculate or default these ranges.
+
 ## Historical Import
 
 Imports are browser-only previews until confirmation. JSON accepts an array or an
@@ -52,3 +58,7 @@ weight, with varied calories and steps. It is complete enough to demonstrate per
 not personal, clinical, or real-world evidence. Do not commit personal fitness data or use an
 untrusted browser for sensitive data. FitAdapt is transparent decision support, not medical or
 clinical guidance.
+
+The client does not implement food selection, allergies/restrictions, medical nutrition therapy,
+meal generation, micronutrient analysis, training-day/rest-day targets, or budget, cuisine,
+cooking, or schedule optimization.

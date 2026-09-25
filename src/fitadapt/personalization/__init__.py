@@ -37,6 +37,7 @@ from fitadapt.personalization.planning import (
 
 __all__ = [
     "MACRO_PLAN_POLICY_VERSION",
+    "NUTRITION_TARGET_RANGE_POLICY_VERSION",
     "PERSONALIZATION_LIFECYCLE_POLICY_VERSION",
     "PERSONALIZED_PLANNING_POLICY_VERSION",
     "PROFILE_INTELLIGENCE_POLICY_VERSION",
@@ -45,6 +46,11 @@ __all__ = [
     "MacroStrategy",
     "NutritionPreferences",
     "NutritionPreferencesError",
+    "NutritionRangeKind",
+    "NutritionTargetEnvelope",
+    "NutritionTargetEnvelopeError",
+    "NutritionTargetRange",
+    "NutritionTargetRangeConfig",
     "PersonalizedMacroPlan",
     "PersonalizedPlanProgression",
     "PersonalizedPlanSnapshot",
@@ -62,4 +68,14 @@ __all__ = [
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",
     "calculate_personalized_macro_plan",
+    "calculate_nutrition_target_envelope",
 ]
+from fitadapt.personalization.targets import (
+    NUTRITION_TARGET_RANGE_POLICY_VERSION,
+    NutritionRangeKind,
+    NutritionTargetEnvelope,
+    NutritionTargetEnvelopeError,
+    NutritionTargetRange,
+    NutritionTargetRangeConfig,
+    calculate_nutrition_target_envelope,
+)

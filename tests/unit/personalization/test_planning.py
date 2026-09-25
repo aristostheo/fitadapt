@@ -218,6 +218,11 @@ def test_personalized_unavailable_recommendation_falls_back_to_baseline(
         == snapshot.baseline_calorie_target_kcal_per_day
     )
     assert snapshot.macro_plan.calorie_source is MacroCalorieSource.BASELINE
+    assert snapshot.target_envelope is not None
+    assert snapshot.target_envelope.selected_calorie_target_kcal_per_day == (
+        snapshot.baseline_calorie_target_kcal_per_day
+    )
+    assert snapshot.target_envelope.calorie_source is MacroCalorieSource.BASELINE
     assert snapshot.recommendation_reasons == recommendation.reasons
     assert "no actionable safe recommendation" in snapshot.assumptions[-1]
 
@@ -309,9 +314,13 @@ def test_previous_target_change_and_append_only_prefix_isolation(
     initial = _history(21, weight_change_per_day=-0.10)
     appended = (*initial, *_history(1, start=date(2026, 2, 1), weight_change_per_day=-0.10))
     before = build_personalized_plan_progression(profile, initial, balanced_preferences)
+    original_snapshots = before.snapshots
+    original_envelopes = tuple(item.target_envelope for item in before.snapshots)
     after = build_personalized_plan_progression(profile, appended, balanced_preferences)
 
     assert after.snapshots[:-1] == before.snapshots
+    assert before.snapshots == original_snapshots
+    assert tuple(item.target_envelope for item in after.snapshots[:-1]) == original_envelopes
     assert len(after.snapshots) == len(before.snapshots) + 1
     last = after.snapshots[-1]
     assert (
@@ -373,6 +382,9 @@ def test_future_observation_cannot_change_earlier_snapshot(
     changed = build_personalized_plan_progression(profile, changed_future, balanced_preferences)
 
     assert changed.snapshots[:-1] == original.snapshots[:-1]
+    assert tuple(item.target_envelope for item in changed.snapshots[:-1]) == tuple(
+        item.target_envelope for item in original.snapshots[:-1]
+    )
     assert all(
         item.as_of_date is not None and item.as_of_date <= observations[index].observed_on
         for index, item in enumerate(original.snapshots)

@@ -125,6 +125,24 @@ def test_empty_history_is_a_complete_undated_baseline_result(
     assert result.plan_progression.snapshots == ()
 
 
+def test_latest_only_mode_does_not_call_progression_builder(
+    profile: UserProfile,
+    preferences: NutritionPreferences,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unexpected_progression(*_: object, **__: object) -> object:
+        raise AssertionError("latest-only analysis must not build plan progression")
+
+    monkeypatch.setattr(
+        "fitadapt.personalization.intelligence.build_personalized_plan_progression",
+        unexpected_progression,
+    )
+
+    result = analyze_profile_intelligence(profile, _history(14), preferences)
+
+    assert result.plan_progression is None
+
+
 def test_requested_progression_is_chronological_prefix_only_and_matches_latest_plan(
     profile: UserProfile, preferences: NutritionPreferences
 ) -> None:

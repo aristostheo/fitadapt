@@ -52,12 +52,15 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `adaptive_tdee` | Daily eligibility, aggregate TDEE, MAD, and aggregation evidence. |
 | `lifecycle` | Evidence readiness and requirements. |
 | `recommendation` | Existing conservative recommendation or ordered insufficiency reasons. |
-| `latest_plan` | Current selected calorie basis and preference-driven macro plan. |
+| `latest_plan` | Current selected calorie basis, exact preference-driven macro plan, and target envelope. |
 | `plan_progression` | `null` unless requested; otherwise one prefix snapshot per submitted entry. |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
 and logged numeric zero as zero. Nutrition preferences affect macro allocation only; they do not
 alter baseline calorie estimation, trends, adaptive TDEE, lifecycle evidence, or recommendation policy.
+`target_envelope` is additive: all earlier response fields retain their names and semantics. It
+contains the exact selected plan plus calorie adherence, protein/fat preferred, and carbohydrate
+flexible ranges with policy provenance.
 
 ## Latest-Only And Progression
 
@@ -67,6 +70,8 @@ prefix progression: each snapshot contains only entries at or before its date, a
 snapshots are invented. This can be materially larger and more computationally expensive because
 every prefix is recomputed. The final non-empty progression snapshot equals `latest_plan`; an empty
 history returns an empty progression tuple and still returns the explicit undated baseline plan.
+Each snapshot carries the envelope for its own selected target. Appending or changing future
+observations cannot alter earlier snapshots or envelopes.
 
 ## Errors And Boundaries
 
@@ -79,3 +84,7 @@ The endpoint uses existing defaults and does not expose individual engine config
 transport policy. It does not persist state, call synthetic ML, perform inference, alter baseline or
 adaptive results, or apply recommendations. The standalone Checkpoint 21 React client now uses this
 single operation; integration into a separate fitness-app profile page remains future work.
+
+Target envelopes do not add food selection, allergies/restrictions, medical nutrition therapy,
+meal generation, micronutrient analysis, training-day/rest-day targets, or budget, cuisine,
+cooking, or schedule optimization.

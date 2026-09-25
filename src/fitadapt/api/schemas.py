@@ -39,6 +39,11 @@ from fitadapt.personalization.planning import (
     PersonalizedPlanSnapshot,
     PlanCalorieBasis,
 )
+from fitadapt.personalization.targets import (
+    NutritionRangeKind,
+    NutritionTargetEnvelope,
+    NutritionTargetRange,
+)
 from fitadapt.recommendation.calories import (
     CalorieRecommendation,
     CalorieRecommendationConfig,
@@ -233,6 +238,10 @@ class PersonalizedMacroPlanRequest(NumericRequestModel):
     calorie_source: MacroCalorieSource
 
 
+class NutritionTargetEnvelopeRequest(PersonalizedMacroPlanRequest):
+    """Strict transport boundary for a standalone target-envelope calculation."""
+
+
 class ProfileIntelligenceRequest(ApiModel):
     """Main client request using existing engine defaults and strict progression opt-in."""
 
@@ -425,6 +434,31 @@ class PersonalizedPlanSnapshotResponse(ApiModel):
     adaptive_policy_version: str
     recommendation_policy_version: str
     personalized_macro_policy_version: str
+    assumptions: tuple[str, ...]
+    target_envelope: "NutritionTargetEnvelopeResponse | None" = None
+
+
+class NutritionTargetRangeResponse(ApiModel):
+    lower_bound: float
+    selected_value: float
+    upper_bound: float
+    unit: str
+    interpretation: str
+    range_kind: NutritionRangeKind
+
+
+class NutritionTargetEnvelopeResponse(ApiModel):
+    selected_calorie_target_kcal_per_day: float
+    calorie_adherence_range: NutritionTargetRangeResponse
+    protein_preferred_range: NutritionTargetRangeResponse
+    fat_preferred_range: NutritionTargetRangeResponse
+    carbohydrate_flexible_range: NutritionTargetRangeResponse
+    macro_plan: PersonalizedMacroPlanResponse
+    macro_strategy: MacroStrategy
+    calorie_source: MacroCalorieSource
+    policy_floors: tuple[str, ...]
+    range_policy_version: str
+    macro_policy_version: str
     assumptions: tuple[str, ...]
 
 
@@ -672,6 +706,40 @@ def map_personalized_plan_snapshot(
         adaptive_policy_version=result.adaptive_policy_version,
         recommendation_policy_version=result.recommendation_policy_version,
         personalized_macro_policy_version=result.personalized_macro_policy_version,
+        assumptions=result.assumptions,
+        target_envelope=(
+            None
+            if result.target_envelope is None
+            else map_nutrition_target_envelope(result.target_envelope)
+        ),
+    )
+
+
+def map_nutrition_target_envelope(
+    result: NutritionTargetEnvelope,
+) -> NutritionTargetEnvelopeResponse:
+    def map_range(item: NutritionTargetRange) -> NutritionTargetRangeResponse:
+        return NutritionTargetRangeResponse(
+            lower_bound=item.lower_bound,
+            selected_value=item.selected_value,
+            upper_bound=item.upper_bound,
+            unit=item.unit,
+            interpretation=item.interpretation,
+            range_kind=item.range_kind,
+        )
+
+    return NutritionTargetEnvelopeResponse(
+        selected_calorie_target_kcal_per_day=result.selected_calorie_target_kcal_per_day,
+        calorie_adherence_range=map_range(result.calorie_adherence_range),
+        protein_preferred_range=map_range(result.protein_preferred_range),
+        fat_preferred_range=map_range(result.fat_preferred_range),
+        carbohydrate_flexible_range=map_range(result.carbohydrate_flexible_range),
+        macro_plan=map_personalized_macro_plan(result.macro_plan),
+        macro_strategy=MacroStrategy(result.macro_strategy),
+        calorie_source=result.calorie_source,
+        policy_floors=result.policy_floors,
+        range_policy_version=result.range_policy_version,
+        macro_policy_version=result.macro_policy_version,
         assumptions=result.assumptions,
     )
 
