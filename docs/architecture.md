@@ -214,6 +214,22 @@ The standalone React client keeps session-only form state and never duplicates c
 renders exact selected targets and server-provided ranges from `/v1/profile-intelligence`; the API
 remains the validation and calculation boundary.
 
+## Guided Web Experience Boundary
+
+The standalone web client organizes these contracts into a five-stage journey:
+
+```text
+Profile -> Nutrition -> History -> Plan -> Progress
+```
+
+Profile and Nutrition collect session-only inputs, History supports direct entry and browser-only
+CSV/JSON preview/import, Plan presents the current selected target before explanations and food
+flexibility, and Progress presents existing trends and optional chronological plan history. The
+client adds no formulas, persistence, authentication, or backend endpoints. Technical identifiers
+and reason codes remain available through secondary disclosures while primary cards use
+consumer-facing explanations. Responsive layouts, keyboard navigation, visible focus, ARIA stage
+state, labeled actions, and reduced-motion support remain presentation concerns.
+
 ## Synthetic Evaluation Boundary
 
 The evaluation layer is the only non-test layer permitted to compare production estimates with

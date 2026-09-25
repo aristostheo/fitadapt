@@ -9,3 +9,7 @@ Nutrition target envelopes remain policy-based decision support. They do not imp
 Dietary assessment remains category-level decision support. Frontend onboarding, individual food records,
 recipes, meal generation, medical nutrition therapy, micronutrient analysis, persistence, and
 budget/cuisine/schedule/cooking optimization are deferred.
+
+Checkpoint 24 client polish adds the five-stage guided journey, clearer Plan and Progress hierarchy,
+technical-detail disclosures, responsive/accessibility refinements, and explicit empty states without
+changing backend behavior or API contracts.

@@ -36,6 +36,22 @@ preference changes macro allocation, not TDEE estimation. Lifecycle stages expla
 are baseline, calibrating, early-personalized, or personalized. Optional plan history reconstructs
 one plan per historical observation prefix and can be slower for larger histories.
 
+## Guided Journey
+
+The client presents five session-only stages: Profile, Nutrition, History, Plan, and Progress.
+Nutrition includes dietary pattern, broad or selected food mode, soft preferences, and hard
+constraints. The Plan stage leads with the next action, explains the recommendation, shows flexible
+targets and food-choice flexibility, then keeps lifecycle evidence and the baseline comparison
+secondary. Technical policy identifiers and reason codes are available in expandable details.
+The Progress stage shows weight, calorie, and step trends, observed variability, and optional plan
+history. Missing values remain gaps; no browser-side formulas or interpolation are added.
+
+The interface uses keyboard-navigable journey stages, visible focus states, labeled controls,
+responsive cards and tables, and reduced-motion support. The browser keeps profile, dietary inputs,
+observations, and results in session memory only. It does not provide accounts, persistence, food
+records, recipes, meal generation, medical guidance, micronutrient analysis, or budget, cuisine,
+cooking, or schedule optimization.
+
 The current-plan panel keeps the selected next-step calorie and macro plan primary, then displays
 its calorie adherence, protein and fat preferred, and carbohydrate flexible ranges from the unified
 response. The selected plan is one exactly feasible point. Range endpoints are independent policy

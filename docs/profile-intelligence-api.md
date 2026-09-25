@@ -96,6 +96,12 @@ transport policy. It does not persist state, call synthetic ML, perform inferenc
 adaptive results, or apply recommendations. The standalone Checkpoint 21 React client now uses this
 single operation; integration into a separate fitness-app profile page remains future work.
 
+The current standalone client wraps this operation in a five-stage session-only journey: Profile,
+Nutrition, History, Plan, and Progress. It sends one unified request after the user chooses analysis.
+The Plan stage presents the latest selected target and dietary assessment; Progress presents the
+existing trends and only shows plan progression when it was requested. This presentation layer does
+not change the endpoint contract or backend calculations.
+
 Target envelopes do not add food selection, allergies/restrictions, medical nutrition therapy,
 meal generation, micronutrient analysis, training-day/rest-day targets, or budget, cuisine,
 cooking, or schedule optimization.
