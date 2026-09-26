@@ -26,6 +26,7 @@ from fitadapt.personalization.targets import (
     NutritionTargetEnvelope,
     calculate_nutrition_target_envelope,
 )
+from fitadapt.personalization.training import TrainingDemandAssessment
 from fitadapt.recommendation.calories import (
     CalorieRecommendationConfig,
     RecommendationReason,
@@ -105,6 +106,7 @@ def build_personalized_plan_snapshot(
     adaptive_config: AdaptiveTdeeConfig | None = None,
     lifecycle_config: PersonalizationLifecycleConfig | None = None,
     recommendation_config: CalorieRecommendationConfig | None = None,
+    training_assessment: TrainingDemandAssessment | None = None,
 ) -> PersonalizedPlanSnapshot:
     """Build the latest proposal, or an explicit undated baseline plan when history is empty."""
     ordered = _validated_observations(profile, observations, preferences, trend_config)
@@ -118,6 +120,7 @@ def build_personalized_plan_snapshot(
             adaptive_config,
             lifecycle_config,
             recommendation_config,
+            training_assessment,
         )
     return _build_progression(
         profile,
@@ -215,6 +218,7 @@ def _build_snapshot(
     adaptive_config: AdaptiveTdeeConfig | None,
     lifecycle_config: PersonalizationLifecycleConfig | None,
     recommendation_config: CalorieRecommendationConfig | None,
+    training_assessment: TrainingDemandAssessment | None = None,
 ) -> PersonalizedPlanSnapshot:
     baseline = calculate_calorie_target(profile)
     lifecycle = assess_personalization_lifecycle(
@@ -247,10 +251,14 @@ def _build_snapshot(
             "The existing baseline target is retained until adaptive personalization is available."
         )
     macro_plan = calculate_personalized_macro_plan(
-        profile, selected_target, macro_source, preferences
+        profile,
+        selected_target,
+        macro_source,
+        preferences,
+        training_assessment=training_assessment,
     )
     target_envelope = calculate_nutrition_target_envelope(
-        profile, selected_target, macro_source, preferences
+        profile, selected_target, macro_source, preferences, training_assessment=training_assessment
     )
     return PersonalizedPlanSnapshot(
         as_of_date=None if not observations else observations[-1].observed_on,

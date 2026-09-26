@@ -80,3 +80,5 @@ performance guarantee.
 
 A later checkpoint may use the reviewed assessment for training-aware protein policy, carbohydrate
 policy, or possible training/rest-day strategies. Checkpoint 25 does not implement those changes.
+Checkpoint 26 uses the current assessment for fixed-calorie macro composition while retaining all
+other calorie and recommendation boundaries.

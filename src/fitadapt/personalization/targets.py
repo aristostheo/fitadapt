@@ -177,6 +177,7 @@ def calculate_nutrition_target_envelope(
     calorie_source: MacroCalorieSource,
     preferences: NutritionPreferences,
     config: NutritionTargetRangeConfig | None = None,
+    training_assessment: object | None = None,
 ) -> NutritionTargetEnvelope:
     """Compose the existing exact macro plan with bounded V1 flexibility bands."""
     if not isinstance(config, (NutritionTargetRangeConfig, type(None))):
@@ -184,7 +185,11 @@ def calculate_nutrition_target_envelope(
     effective = config or NutritionTargetRangeConfig()
     try:
         plan = calculate_personalized_macro_plan(
-            profile, calorie_target_kcal_per_day, calorie_source, preferences
+            profile,
+            calorie_target_kcal_per_day,
+            calorie_source,
+            preferences,
+            training_assessment=training_assessment,
         )
     except ValueError as error:
         raise NutritionTargetEnvelopeError(str(error)) from error

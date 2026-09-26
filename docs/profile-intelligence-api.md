@@ -70,8 +70,9 @@ The additive dietary assessment is computed from `latest_plan.target_envelope`; 
 calories, macros, lifecycle, recommendations, or progression snapshots. If omitted, the request
 uses an unrestricted/broad dietary profile for backward compatibility.
 The optional `training_context` contributes only to the additive latest-only `training_assessment`.
-It does not alter TDEE, recommendations, macros, target envelopes, dietary assessment, or progression
-snapshots.
+When sufficient, it also adds training-aware macro provenance to `latest_plan.macro_plan`; this
+changes macro composition only, not calories, TDEE, recommendations, target envelopes, dietary
+assessment, or progression snapshots. Insufficient evidence preserves the existing macro policy.
 `target_envelope` is additive: all earlier response fields retain their names and semantics. It
 contains the exact selected plan plus calorie adherence, protein/fat preferred, and carbohydrate
 flexible ranges with policy provenance.

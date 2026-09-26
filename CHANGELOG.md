@@ -17,3 +17,5 @@ changing backend behavior or API contracts.
 Checkpoint 25 adds versioned informational training-demand context with questionnaire and observed
 evidence, missing-versus-zero handling, contributor completeness, conservative demand levels, and
 future-facing protein/carbohydrate priorities. It does not change current nutrition calculations.
+Checkpoint 26 adds a fixed-calorie training-aware macro policy with explicit protein/carbohydrate
+provenance, feasibility constraints, and latest-plan-only integration.

@@ -96,6 +96,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized planning](docs/personalized-planning.md), [personalized macro plans](docs/personalized-macros.md), [nutrition target ranges](docs/nutrition-target-ranges.md), [profile-intelligence API](docs/profile-intelligence-api.md)
 - [Dietary preferences](docs/dietary-preferences.md)
 - [Training demand](docs/training-demand.md)
+- [Training-aware nutrition](docs/training-aware-nutrition.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 

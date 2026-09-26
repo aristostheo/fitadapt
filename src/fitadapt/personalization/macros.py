@@ -113,6 +113,19 @@ class PersonalizedMacroPlan:
     carbohydrate_kcal_per_day: float
     macro_policy_version: str
     assumptions: tuple[str, ...]
+    training_adjustment_available: bool = False
+    training_adjustment_applied: bool = False
+    training_policy_version: str | None = None
+    protein_policy_source: str = "default"
+    carbohydrate_policy_source: str = "default"
+    baseline_protein_target_g: float | None = None
+    training_aware_protein_target_g: float | None = None
+    effective_protein_target_g: float | None = None
+    baseline_carbohydrate_target_g: float | None = None
+    effective_carbohydrate_target_g: float | None = None
+    protein_priority: str | None = None
+    carbohydrate_performance_priority: str | None = None
+    training_reason_codes: tuple[str, ...] = ()
 
 
 _STRATEGY_ALLOCATION = MappingProxyType(
@@ -130,6 +143,7 @@ def calculate_personalized_macro_plan(
     calorie_target_kcal_per_day: float,
     calorie_source: MacroCalorieSource,
     preferences: NutritionPreferences,
+    training_assessment: object | None = None,
 ) -> PersonalizedMacroPlan:
     """Allocate supplied calories from explicit V1 preferences without hidden coupling."""
     if not isinstance(profile, UserProfile):
@@ -157,7 +171,7 @@ def calculate_personalized_macro_plan(
     carbohydrate_kcal = max(remaining_kcal, 0.0)
     fat_g = fat_kcal / FAT_KCAL_PER_GRAM
     carbohydrate_g = carbohydrate_kcal / CARBOHYDRATE_KCAL_PER_GRAM
-    return PersonalizedMacroPlan(
+    plan = PersonalizedMacroPlan(
         calorie_target_kcal_per_day=calories,
         calorie_source=calorie_source,
         strategy=preferences.macro_strategy,
@@ -179,6 +193,11 @@ def calculate_personalized_macro_plan(
             "Custom limits are general-adult product-policy boundaries, not medical requirements.",
         ),
     )
+    if training_assessment is None:
+        return plan
+    from fitadapt.personalization.training_nutrition import apply_training_aware_macro_policy
+
+    return apply_training_aware_macro_policy(plan, training_assessment)
 
 
 def _resolve_strategy(preferences: NutritionPreferences) -> tuple[float, float]:

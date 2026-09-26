@@ -122,8 +122,9 @@ chronological prefix plan per submitted observation; this is larger and more exp
 latest-only default. Every latest/progression plan includes its prefix-specific `target_envelope`
 without removing or renaming existing fields. Empty history remains a complete undated baseline
 response. The additive `dietary_assessment` describes the current/latest plan only; omission uses
-an unrestricted/broad profile. The additive `training_assessment` is current/latest only and does
-not alter existing calculations or progression snapshots. See
+an unrestricted/broad profile. The additive `training_assessment` is current/latest only; sufficient
+evidence may refine macro composition without changing calories, and it does not alter progression
+snapshots. See
 [profile-intelligence API](profile-intelligence-api.md) for the executable request example.
 
 Run the supplied non-identifying recommendation example with:

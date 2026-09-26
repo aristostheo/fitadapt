@@ -75,6 +75,14 @@ from fitadapt.personalization.training import (
     TrainingStreamEvidence,
     assess_training_demand,
 )
+from fitadapt.personalization.training_nutrition import (
+    TRAINING_AWARE_FAT_FLOOR_PERCENTAGE,
+    TRAINING_AWARE_MACRO_POLICY_VERSION,
+    TrainingAwareMacroError,
+    TrainingAwareMacroConfig,
+    TrainingMacroPolicySource,
+    apply_training_aware_macro_policy,
+)
 
 __all__ = [
     "MACRO_PLAN_POLICY_VERSION",
@@ -146,6 +154,12 @@ __all__ = [
     "TrainingPriority",
     "TrainingStreamEvidence",
     "assess_training_demand",
+    "TRAINING_AWARE_FAT_FLOOR_PERCENTAGE",
+    "TRAINING_AWARE_MACRO_POLICY_VERSION",
+    "TrainingAwareMacroError",
+    "TrainingAwareMacroConfig",
+    "TrainingMacroPolicySource",
+    "apply_training_aware_macro_policy",
     "assess_nutrition_preferences",
 ]
 from fitadapt.personalization.targets import (

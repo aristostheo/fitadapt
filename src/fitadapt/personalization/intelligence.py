@@ -106,6 +106,7 @@ def analyze_profile_intelligence(
     recommendation = recommend_calorie_adjustment(
         profile, submitted, recommendation_config, trend_config, adaptive_config
     )
+    training_assessment = assess_training_demand(training_context, submitted)
     latest_plan = build_personalized_plan_snapshot(
         profile,
         submitted,
@@ -114,11 +115,11 @@ def analyze_profile_intelligence(
         adaptive_config,
         lifecycle_config,
         recommendation_config,
+        training_assessment,
     )
     dietary_assessment = assess_nutrition_preferences(
         effective_dietary_profile, latest_plan.target_envelope
     )
-    training_assessment = assess_training_demand(training_context, submitted)
     progression = (
         build_personalized_plan_progression(
             profile,

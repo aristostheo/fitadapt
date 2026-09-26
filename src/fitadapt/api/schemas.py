@@ -494,6 +494,19 @@ class PersonalizedMacroPlanResponse(ApiModel):
     carbohydrate_kcal_per_day: float
     macro_policy_version: str
     assumptions: tuple[str, ...]
+    training_adjustment_available: bool
+    training_adjustment_applied: bool
+    training_policy_version: str | None
+    protein_policy_source: str
+    carbohydrate_policy_source: str
+    baseline_protein_target_g: float | None
+    training_aware_protein_target_g: float | None
+    effective_protein_target_g: float | None
+    baseline_carbohydrate_target_g: float | None
+    effective_carbohydrate_target_g: float | None
+    protein_priority: str | None
+    carbohydrate_performance_priority: str | None
+    training_reason_codes: tuple[str, ...]
 
 
 class PersonalizationLifecycleResponse(ApiModel):
@@ -806,6 +819,19 @@ def map_personalized_macro_plan(result: PersonalizedMacroPlan) -> PersonalizedMa
         carbohydrate_kcal_per_day=result.carbohydrate_kcal_per_day,
         macro_policy_version=result.macro_policy_version,
         assumptions=result.assumptions,
+        training_adjustment_available=result.training_adjustment_available,
+        training_adjustment_applied=result.training_adjustment_applied,
+        training_policy_version=result.training_policy_version,
+        protein_policy_source=result.protein_policy_source,
+        carbohydrate_policy_source=result.carbohydrate_policy_source,
+        baseline_protein_target_g=result.baseline_protein_target_g,
+        training_aware_protein_target_g=result.training_aware_protein_target_g,
+        effective_protein_target_g=result.effective_protein_target_g,
+        baseline_carbohydrate_target_g=result.baseline_carbohydrate_target_g,
+        effective_carbohydrate_target_g=result.effective_carbohydrate_target_g,
+        protein_priority=result.protein_priority,
+        carbohydrate_performance_priority=result.carbohydrate_performance_priority,
+        training_reason_codes=result.training_reason_codes,
     )
 
 

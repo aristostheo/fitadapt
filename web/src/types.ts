@@ -321,6 +321,19 @@ export interface PersonalizedMacroPlan {
   carbohydrate_kcal_per_day: number;
   macro_policy_version: string;
   assumptions: string[];
+  training_adjustment_available?: boolean;
+  training_adjustment_applied?: boolean;
+  training_policy_version?: string | null;
+  protein_policy_source?: string;
+  carbohydrate_policy_source?: string;
+  baseline_protein_target_g?: number | null;
+  training_aware_protein_target_g?: number | null;
+  effective_protein_target_g?: number | null;
+  baseline_carbohydrate_target_g?: number | null;
+  effective_carbohydrate_target_g?: number | null;
+  protein_priority?: string | null;
+  carbohydrate_performance_priority?: string | null;
+  training_reason_codes?: string[];
 }
 export interface NutritionTargetRange {
   lower_bound: number;

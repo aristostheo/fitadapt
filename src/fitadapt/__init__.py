@@ -134,6 +134,14 @@ from fitadapt.personalization.training import (
     TrainingStreamEvidence,
     assess_training_demand,
 )
+from fitadapt.personalization.training_nutrition import (
+    TRAINING_AWARE_FAT_FLOOR_PERCENTAGE,
+    TRAINING_AWARE_MACRO_POLICY_VERSION,
+    TrainingAwareMacroError,
+    TrainingAwareMacroConfig,
+    TrainingMacroPolicySource,
+    apply_training_aware_macro_policy,
+)
 from fitadapt.recommendation.calories import recommend_calorie_adjustment
 from fitadapt.synthetic.history import (
     SyntheticConfigurationError,
@@ -243,6 +251,12 @@ __all__ = [
     "TrainingPriority",
     "TrainingStreamEvidence",
     "assess_training_demand",
+    "TRAINING_AWARE_FAT_FLOOR_PERCENTAGE",
+    "TRAINING_AWARE_MACRO_POLICY_VERSION",
+    "TrainingAwareMacroError",
+    "TrainingAwareMacroConfig",
+    "TrainingMacroPolicySource",
+    "apply_training_aware_macro_policy",
     "assess_nutrition_preferences",
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",

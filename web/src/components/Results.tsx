@@ -215,6 +215,19 @@ export function CurrentPlan({
             combinations of every endpoint may not reconcile exactly to the
             calorie target.
           </p>
+          {plan.macro_plan.training_adjustment_applied && (
+            <Notice>
+              Training demand refined the protein and carbohydrate mix within
+              the same calorie target. Calories were not increased because of
+              workouts.
+            </Notice>
+          )}
+          {plan.macro_plan.training_adjustment_available === false && (
+            <p className="supporting-copy">
+              Training evidence was insufficient, so the standard macro policy
+              is being used.
+            </p>
+          )}
           <details>
             <summary>Technical plan details</summary>
             <p>

@@ -47,6 +47,9 @@ Profile also includes an optional Training and Performance context section. It r
 training frequency, optional duration/intensity, focus, and optional steps without estimating workout
 calories or changing the current plan. The Plan assessment is informational; future checkpoints may
 use it for training-aware macro policy.
+When sufficient training evidence is available, the current macro plan may use the training-aware
+policy. Calories remain unchanged; the Plan card explains protein/carbohydrate provenance and keeps
+raw policy details collapsed.
 The Progress stage shows weight, calorie, and step trends, observed variability, and optional plan
 history. Missing values remain gaps; no browser-side formulas or interpolation are added.
 
