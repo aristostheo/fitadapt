@@ -57,6 +57,17 @@ from fitadapt.personalization.targets import (
     NutritionTargetEnvelope,
     NutritionTargetRange,
 )
+from fitadapt.personalization.training import (
+    OccupationActivity,
+    PrimaryTrainingFocus,
+    TrainingContext,
+    TrainingDemandAssessment,
+    TrainingDemandLevel,
+    TrainingEvidenceSource,
+    TrainingIntensity,
+    TrainingPriority,
+    TrainingStreamEvidence,
+)
 from fitadapt.recommendation.calories import (
     CalorieRecommendation,
     CalorieRecommendationConfig,
@@ -294,6 +305,48 @@ class NutritionPreferenceAssessmentRequest(PersonalizedMacroPlanRequest):
     dietary_preference_profile: NutritionPreferenceProfileRequest
 
 
+class TrainingContextRequest(NumericRequestModel):
+    numeric_fields = frozenset(
+        {
+            "resistance_days_per_week",
+            "resistance_minutes_per_week",
+            "cardio_days_per_week",
+            "cardio_minutes_per_week",
+            "sport_days_per_week",
+            "sport_minutes_per_week",
+            "typical_daily_steps",
+        }
+    )
+    integer_fields = frozenset(
+        {
+            "resistance_days_per_week",
+            "cardio_days_per_week",
+            "sport_days_per_week",
+            "typical_daily_steps",
+        }
+    )
+
+    occupation_activity: OccupationActivity
+    resistance_days_per_week: int = 0
+    resistance_minutes_per_week: float = 0.0
+    cardio_days_per_week: int = 0
+    cardio_minutes_per_week: float = 0.0
+    cardio_intensity: TrainingIntensity | None = None
+    sport_days_per_week: int = 0
+    sport_minutes_per_week: float = 0.0
+    sport_intensity: TrainingIntensity | None = None
+    primary_training_focus: PrimaryTrainingFocus = PrimaryTrainingFocus.GENERAL
+    typical_daily_steps: int | None = None
+
+    def to_domain(self) -> TrainingContext:
+        return TrainingContext(**self.model_dump())
+
+
+class TrainingDemandRequest(ApiModel):
+    training_context: TrainingContextRequest | None = None
+    observations: list[ObservationRequest] = Field(default_factory=list)
+
+
 class ProfileIntelligenceRequest(ApiModel):
     """Main client request using existing engine defaults and strict progression opt-in."""
 
@@ -301,6 +354,7 @@ class ProfileIntelligenceRequest(ApiModel):
     observations: list[ObservationRequest]
     nutrition_preferences: NutritionPreferencesRequest
     dietary_preference_profile: NutritionPreferenceProfileRequest | None = None
+    training_context: TrainingContextRequest | None = None
     include_plan_progression: StrictBool = False
 
 
@@ -541,6 +595,34 @@ class NutritionPreferenceAssessmentResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class TrainingStreamEvidenceResponse(ApiModel):
+    eligible_calendar_days: int
+    observation_records: int
+    contributor_count: int
+    completeness: float
+    mean_value: float | None
+    weekly_equivalent: float | None
+    evidence_available: bool
+
+
+class TrainingDemandAssessmentResponse(ApiModel):
+    assessment_available: bool
+    effective_date: date | None
+    overall_demand: TrainingDemandLevel | None
+    resistance_demand: TrainingDemandLevel | None
+    aerobic_sport_demand: TrainingDemandLevel | None
+    protein_priority: TrainingPriority | None
+    carbohydrate_performance_priority: TrainingPriority | None
+    evidence_source: TrainingEvidenceSource
+    questionnaire_summary: tuple[str, ...]
+    step_evidence: TrainingStreamEvidenceResponse
+    strength_evidence: TrainingStreamEvidenceResponse
+    cardio_evidence: TrainingStreamEvidenceResponse
+    reason_codes: tuple[str, ...]
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class PersonalizedPlanProgressionResponse(ApiModel):
     snapshots: tuple[PersonalizedPlanSnapshotResponse, ...]
     submitted_observation_count: int
@@ -557,6 +639,7 @@ class ProfileIntelligenceResponse(ApiModel):
     recommendation: CalorieRecommendationResponse
     latest_plan: PersonalizedPlanSnapshotResponse
     dietary_assessment: NutritionPreferenceAssessmentResponse
+    training_assessment: TrainingDemandAssessmentResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -861,6 +944,39 @@ def map_nutrition_preference_assessment(
     )
 
 
+def map_training_demand_assessment(
+    result: TrainingDemandAssessment,
+) -> TrainingDemandAssessmentResponse:
+    def map_stream(stream: TrainingStreamEvidence) -> TrainingStreamEvidenceResponse:
+        return TrainingStreamEvidenceResponse(
+            eligible_calendar_days=stream.eligible_calendar_days,
+            observation_records=stream.observation_records,
+            contributor_count=stream.contributor_count,
+            completeness=stream.completeness,
+            mean_value=stream.mean_value,
+            weekly_equivalent=stream.weekly_equivalent,
+            evidence_available=stream.evidence_available,
+        )
+
+    return TrainingDemandAssessmentResponse(
+        assessment_available=result.assessment_available,
+        effective_date=result.effective_date,
+        overall_demand=result.overall_demand,
+        resistance_demand=result.resistance_demand,
+        aerobic_sport_demand=result.aerobic_sport_demand,
+        protein_priority=result.protein_priority,
+        carbohydrate_performance_priority=result.carbohydrate_performance_priority,
+        evidence_source=result.evidence_source,
+        questionnaire_summary=result.questionnaire_summary,
+        step_evidence=map_stream(result.step_evidence),
+        strength_evidence=map_stream(result.strength_evidence),
+        cardio_evidence=map_stream(result.cardio_evidence),
+        reason_codes=result.reason_codes,
+        policy_version=result.policy_version,
+        assumptions=result.assumptions,
+    )
+
+
 def map_personalized_plan_progression(
     result: PersonalizedPlanProgression,
 ) -> PersonalizedPlanProgressionResponse:
@@ -882,6 +998,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         recommendation=map_recommendation(result.recommendation),
         latest_plan=map_personalized_plan_snapshot(result.latest_plan),
         dietary_assessment=map_nutrition_preference_assessment(result.dietary_assessment),
+        training_assessment=map_training_demand_assessment(result.training_assessment),
         plan_progression=(
             None
             if result.plan_progression is None

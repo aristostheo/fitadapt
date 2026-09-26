@@ -98,6 +98,25 @@ export type ProteinFlexibilityStatus =
   | "limited"
   | "difficult"
   | "infeasible";
+export type OccupationActivity =
+  | "mostly_seated"
+  | "mixed"
+  | "mostly_on_feet"
+  | "physically_demanding";
+export type TrainingIntensity = "low" | "moderate" | "vigorous";
+export type PrimaryTrainingFocus =
+  | "general"
+  | "resistance"
+  | "endurance"
+  | "intermittent_sport"
+  | "mixed";
+export type TrainingDemandLevel = "low" | "moderate" | "high" | "very_high";
+export type TrainingPriority = "low" | "moderate" | "high";
+export type TrainingEvidenceSource =
+  | "questionnaire"
+  | "observations"
+  | "combined"
+  | "insufficient";
 
 export interface Profile {
   age_years: number;
@@ -144,11 +163,25 @@ export interface NutritionPreferenceProfile {
   preferences: FoodPreference[];
   other_description?: string | null;
 }
+export interface TrainingContext {
+  occupation_activity: OccupationActivity;
+  resistance_days_per_week: number;
+  resistance_minutes_per_week: number;
+  cardio_days_per_week: number;
+  cardio_minutes_per_week: number;
+  cardio_intensity?: TrainingIntensity | null;
+  sport_days_per_week: number;
+  sport_minutes_per_week: number;
+  sport_intensity?: TrainingIntensity | null;
+  primary_training_focus: PrimaryTrainingFocus;
+  typical_daily_steps?: number | null;
+}
 export interface ProfileIntelligenceRequest {
   profile: Profile;
   observations: Observation[];
   nutrition_preferences: NutritionPreferences;
   dietary_preference_profile?: NutritionPreferenceProfile;
+  training_context?: TrainingContext;
   include_plan_progression: boolean;
 }
 
@@ -336,6 +369,32 @@ export interface DietaryPreferenceAssessment {
   target_range_policy_version: string;
   assumptions: string[];
 }
+export interface TrainingStreamEvidence {
+  eligible_calendar_days: number;
+  observation_records: number;
+  contributor_count: number;
+  completeness: number;
+  mean_value: number | null;
+  weekly_equivalent: number | null;
+  evidence_available: boolean;
+}
+export interface TrainingDemandAssessment {
+  assessment_available: boolean;
+  effective_date: string | null;
+  overall_demand: TrainingDemandLevel | null;
+  resistance_demand: TrainingDemandLevel | null;
+  aerobic_sport_demand: TrainingDemandLevel | null;
+  protein_priority: TrainingPriority | null;
+  carbohydrate_performance_priority: TrainingPriority | null;
+  evidence_source: TrainingEvidenceSource;
+  questionnaire_summary: string[];
+  step_evidence: TrainingStreamEvidence;
+  strength_evidence: TrainingStreamEvidence;
+  cardio_evidence: TrainingStreamEvidence;
+  reason_codes: string[];
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -381,6 +440,7 @@ export interface ProfileIntelligenceResponse {
   recommendation: RecommendationResult;
   latest_plan: PersonalizedPlanSnapshot;
   dietary_assessment: DietaryPreferenceAssessment;
+  training_assessment?: TrainingDemandAssessment;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

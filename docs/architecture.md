@@ -190,6 +190,15 @@ The unified endpoint adds the current/latest assessment only; progression snapsh
 This boundary does not add frontend onboarding, individual foods, recipes, meals, medical nutrition
 therapy, micronutrients, persistence, or budget/cuisine/schedule/cooking logic.
 
+## Training Context Boundary
+
+Training context is an informational composition over questionnaire input and observed steps,
+strength minutes, and cardio minutes. It reports trailing evidence completeness, provenance, demand
+levels, and future-facing protein/carbohydrate priorities. It is not consumed by baseline TDEE,
+adaptive TDEE, recommendations, macros, target envelopes, lifecycle, or planning. Unified intelligence
+exposes only the current/latest assessment; historical snapshots remain unchanged. Missing activity
+values remain unknown, explicit zero values remain valid evidence, and no workout calories are estimated.
+
 ## HTTP Adapter Boundary
 
 Checkpoint 13 adds a stateless adapter outside the domain packages:

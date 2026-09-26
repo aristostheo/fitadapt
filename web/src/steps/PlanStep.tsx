@@ -6,6 +6,7 @@ import {
   RecommendationPanel,
 } from "../components/Results";
 import { ActionBar, Notice, SectionCard, StepHeader } from "../components/ui";
+import { TrainingAssessmentCard } from "../components/TrainingAssessmentCard";
 import type { ProfileIntelligenceResponse } from "../types";
 
 export function PlanStep({
@@ -89,6 +90,7 @@ export function PlanStep({
           <DietaryAssessmentCard assessment={result.dietary_assessment} />
           <LifecycleStatus result={result} />
           <BaselineAndQuality result={result} />
+          <TrainingAssessmentCard assessment={result.training_assessment} />
         </div>
       )}
       <ActionBar>

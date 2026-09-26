@@ -30,6 +30,11 @@ from fitadapt.personalization.planning import (
     build_personalized_plan_progression,
     build_personalized_plan_snapshot,
 )
+from fitadapt.personalization.training import (
+    TrainingContext,
+    TrainingDemandAssessment,
+    assess_training_demand,
+)
 from fitadapt.recommendation.calories import (
     CalorieRecommendation,
     CalorieRecommendationConfig,
@@ -63,6 +68,7 @@ class ProfileIntelligenceResult:
     recommendation: CalorieRecommendation
     latest_plan: PersonalizedPlanSnapshot
     dietary_assessment: NutritionPreferenceAssessment
+    training_assessment: TrainingDemandAssessment
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -78,9 +84,17 @@ def analyze_profile_intelligence(
     recommendation_config: CalorieRecommendationConfig | None = None,
     include_plan_progression: bool = False,
     dietary_profile: NutritionPreferenceProfile | None = None,
+    training_context: TrainingContext | None = None,
 ) -> ProfileIntelligenceResult:
     """Compose current FitAdapt outputs without altering their individual policies."""
-    _validate_inputs(profile, observations, preferences, include_plan_progression, dietary_profile)
+    _validate_inputs(
+        profile,
+        observations,
+        preferences,
+        include_plan_progression,
+        dietary_profile,
+        training_context,
+    )
     effective_dietary_profile = dietary_profile or DEFAULT_NUTRITION_PREFERENCE_PROFILE
     submitted = tuple(observations)
     baseline = calculate_calorie_target(profile)
@@ -104,6 +118,7 @@ def analyze_profile_intelligence(
     dietary_assessment = assess_nutrition_preferences(
         effective_dietary_profile, latest_plan.target_envelope
     )
+    training_assessment = assess_training_demand(training_context, submitted)
     progression = (
         build_personalized_plan_progression(
             profile,
@@ -125,6 +140,7 @@ def analyze_profile_intelligence(
         recommendation=recommendation,
         latest_plan=latest_plan,
         dietary_assessment=dietary_assessment,
+        training_assessment=training_assessment,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,
@@ -137,6 +153,7 @@ def _validate_inputs(
     preferences: NutritionPreferences,
     include_plan_progression: bool,
     dietary_profile: NutritionPreferenceProfile | None,
+    training_context: TrainingContext | None,
 ) -> None:
     if not isinstance(profile, UserProfile):
         raise ProfileIntelligenceError("profile must be a UserProfile.")
@@ -154,3 +171,5 @@ def _validate_inputs(
         raise ProfileIntelligenceError(
             "dietary_profile must be a NutritionPreferenceProfile or None."
         )
+    if training_context is not None and not isinstance(training_context, TrainingContext):
+        raise ProfileIntelligenceError("training_context must be a TrainingContext or None.")

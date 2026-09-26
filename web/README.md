@@ -43,6 +43,10 @@ Nutrition includes dietary pattern, broad or selected food mode, soft preference
 constraints. The Plan stage leads with the next action, explains the recommendation, shows flexible
 targets and food-choice flexibility, then keeps lifecycle evidence and the baseline comparison
 secondary. Technical policy identifiers and reason codes are available in expandable details.
+Profile also includes an optional Training and Performance context section. It records occupation,
+training frequency, optional duration/intensity, focus, and optional steps without estimating workout
+calories or changing the current plan. The Plan assessment is informational; future checkpoints may
+use it for training-aware macro policy.
 The Progress stage shows weight, calorie, and step trends, observed variability, and optional plan
 history. Missing values remain gaps; no browser-side formulas or interpolation are added.
 

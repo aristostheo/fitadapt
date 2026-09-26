@@ -13,3 +13,7 @@ budget/cuisine/schedule/cooking optimization are deferred.
 Checkpoint 24 client polish adds the five-stage guided journey, clearer Plan and Progress hierarchy,
 technical-detail disclosures, responsive/accessibility refinements, and explicit empty states without
 changing backend behavior or API contracts.
+
+Checkpoint 25 adds versioned informational training-demand context with questionnaire and observed
+evidence, missing-versus-zero handling, contributor completeness, conservative demand levels, and
+future-facing protein/carbohydrate priorities. It does not change current nutrition calculations.

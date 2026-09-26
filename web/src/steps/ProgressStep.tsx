@@ -1,4 +1,5 @@
 import { PlanProgression, TrendChart } from "../components/Results";
+import { TrainingAssessmentCard } from "../components/TrainingAssessmentCard";
 import { ActionBar, MetricCard, StepHeader } from "../components/ui";
 import type { ProfileIntelligenceResponse } from "../types";
 import { whole } from "../utils/presentation";
@@ -56,6 +57,7 @@ export function ProgressStep({
               />
             </div>
           </article>
+          <TrainingAssessmentCard assessment={result.training_assessment} />
           <div className="chart-grid">
             <TrendChart
               title="Weight trend"

@@ -28,6 +28,8 @@ from fitadapt.api.schemas import (
     PersonalizedMacroPlanResponse,
     ProfileIntelligenceRequest,
     ProfileIntelligenceResponse,
+    TrainingDemandAssessmentResponse,
+    TrainingDemandRequest,
     TrendsRequest,
     TrendsResponse,
     map_adaptive_tdee,
@@ -38,6 +40,7 @@ from fitadapt.api.schemas import (
     map_personalized_macro_plan,
     map_profile_intelligence,
     map_recommendation,
+    map_training_demand_assessment,
     map_trends,
 )
 from fitadapt.baseline.targets import calculate_calorie_target
@@ -46,6 +49,7 @@ from fitadapt.personalization.intelligence import analyze_profile_intelligence
 from fitadapt.personalization.lifecycle import assess_personalization_lifecycle
 from fitadapt.personalization.macros import calculate_personalized_macro_plan
 from fitadapt.personalization.targets import calculate_nutrition_target_envelope
+from fitadapt.personalization.training import assess_training_demand
 from fitadapt.recommendation.calories import (
     RECOMMENDATION_POLICY_VERSION,
     recommend_calorie_adjustment,
@@ -225,6 +229,19 @@ def create_app() -> FastAPI:
         )
 
     @app.post(
+        "/v1/training/demand",
+        response_model=TrainingDemandAssessmentResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def training_demand(request: TrainingDemandRequest) -> TrainingDemandAssessmentResponse:
+        return map_training_demand_assessment(
+            assess_training_demand(
+                None if request.training_context is None else request.training_context.to_domain(),
+                tuple(item.to_domain() for item in request.observations),
+            )
+        )
+
+    @app.post(
         "/v1/profile-intelligence",
         response_model=ProfileIntelligenceResponse,
         responses=ERROR_RESPONSES,
@@ -240,6 +257,11 @@ def create_app() -> FastAPI:
                     None
                     if request.dietary_preference_profile is None
                     else request.dietary_preference_profile.to_domain()
+                ),
+                training_context=(
+                    None
+                    if request.training_context is None
+                    else request.training_context.to_domain()
                 ),
             )
         )

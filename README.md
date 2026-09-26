@@ -8,15 +8,15 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 
 FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans with flexible target envelopes, calendar-aware trends, adaptive observed-data TDEE, lifecycle readiness, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. `POST /v1/profile-intelligence` composes those existing outputs into one stateless client response. Synthetic histories support evaluation and ML experiments only; FastAPI has no formulas or persistence.
 
-| Layer           | Role                                                                                                                                                       |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Baseline        | Deterministic REE, activity-adjusted TDEE, calorie and macro targets.                                                                                      |
-| Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                       |
-| Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                             |
-| Recommendations | Conservative decision support; never automatically applied.                                                                                                |
-| Personalization | Lifecycle readiness, proposed per-entry plans, explicit V1 macro strategies, policy-based target ranges, and deterministic dietary flexibility assessment. |
-| API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                      |
-| Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                          |
+| Layer           | Role                                                                                                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline        | Deterministic REE, activity-adjusted TDEE, calorie and macro targets.                                                                                                       |
+| Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                                        |
+| Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                                              |
+| Recommendations | Conservative decision support; never automatically applied.                                                                                                                 |
+| Personalization | Lifecycle readiness, proposed per-entry plans, explicit V1 macro strategies, policy-based target ranges, dietary flexibility, and informational training-demand assessment. |
+| API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                                       |
+| Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                                           |
 
 ## Fixed-Seed Synthetic Results
 
@@ -95,6 +95,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
 - [Personalization lifecycle](docs/personalization-lifecycle.md), [personalized planning](docs/personalized-planning.md), [personalized macro plans](docs/personalized-macros.md), [nutrition target ranges](docs/nutrition-target-ranges.md), [profile-intelligence API](docs/profile-intelligence-api.md)
 - [Dietary preferences](docs/dietary-preferences.md)
+- [Training demand](docs/training-demand.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 

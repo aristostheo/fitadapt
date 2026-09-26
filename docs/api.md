@@ -41,6 +41,7 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 | `POST` | `/v1/macros/personalized`          | Explicit V1 macro plan for supplied baseline or personalized calories.           |
 | `POST` | `/v1/nutrition/targets`            | Exact macro plan plus versioned calorie and macro target ranges.                 |
 | `POST` | `/v1/nutrition/preferences/assess` | Dietary constraints, preferences, conflicts, and protein-source flexibility.     |
+| `POST` | `/v1/training/demand`              | Informational questionnaire and observed training-demand assessment.             |
 | `POST` | `/v1/personalization/status`       | Recomputed evidence stage and next data-logging requirements.                    |
 | `POST` | `/v1/profile-intelligence`         | Complete stateless baseline, evidence, recommendation, and latest-plan response. |
 
@@ -97,6 +98,12 @@ target envelope before assessing category constraints, soft preferences, conflic
 notices, and protein-source flexibility. Clients cannot provide a computed envelope. Domain failures
 use `nutrition_dietary_error`; see [dietary preferences](dietary-preferences.md).
 
+`POST /v1/training/demand` accepts optional `training_context` and observations. It returns demand
+levels, future-facing protein and carbohydrate priorities, evidence source, contributor completeness,
+reason codes, and policy assumptions. It does not estimate workout calories or alter energy, macros,
+target envelopes, or recommendations. Domain failures use `training_domain_error`; see
+[training demand](training-demand.md).
+
 `POST /v1/personalization/status` accepts the same strict profile and observation transport models
 as the analysis endpoints, with optional `trend_config`, `adaptive_config`, and
 `lifecycle_config`. It reports one of `baseline`, `calibrating`, `early_personalized`, or
@@ -106,7 +113,7 @@ assumptions. It recomputes status from the full submitted history, does not crea
 score or premature TDEE estimate, and does not alter recommendations, macro plans, or stored data.
 
 `POST /v1/profile-intelligence` accepts `profile`, `observations`, `nutrition_preferences`, an
-optional `dietary_preference_profile`, and an optional strict boolean `include_plan_progression`
+optional `dietary_preference_profile`, optional `training_context`, and an optional strict boolean `include_plan_progression`
 (default `false`). It returns explicit
 baseline, trends/data quality, adaptive TDEE, lifecycle, recommendation, latest-plan, and optional
 progression sections using the same full-precision schemas as existing routes. Nutrition strategy
@@ -115,7 +122,8 @@ chronological prefix plan per submitted observation; this is larger and more exp
 latest-only default. Every latest/progression plan includes its prefix-specific `target_envelope`
 without removing or renaming existing fields. Empty history remains a complete undated baseline
 response. The additive `dietary_assessment` describes the current/latest plan only; omission uses
-an unrestricted/broad profile. See
+an unrestricted/broad profile. The additive `training_assessment` is current/latest only and does
+not alter existing calculations or progression snapshots. See
 [profile-intelligence API](profile-intelligence-api.md) for the executable request example.
 
 Run the supplied non-identifying recommendation example with:
@@ -144,7 +152,7 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
 `adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
 `macro_plan_infeasible`, `nutrition_target_envelope_error`, `nutrition_dietary_error`,
-`recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
+`training_domain_error`, `recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
 return `500` with `internal_server_error` and no implementation details. The unified endpoint also
 uses `personalized_planning_error` and `profile_intelligence_error` for its applicable domain
 contract failures.
