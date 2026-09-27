@@ -16,6 +16,7 @@ from fitadapt.personalization.dietary import NutritionDietaryError
 from fitadapt.personalization.intelligence import ProfileIntelligenceError
 from fitadapt.personalization.lifecycle import PersonalizationLifecycleError
 from fitadapt.personalization.macros import MacroPlanInfeasibleError, NutritionPreferencesError
+from fitadapt.personalization.nutrition_feasibility import NutritionFeasibilityError
 from fitadapt.personalization.planning import PersonalizedPlanningError
 from fitadapt.personalization.targets import NutritionTargetEnvelopeError
 from fitadapt.personalization.training import TrainingDomainError
@@ -36,6 +37,7 @@ DOMAIN_ERROR_CODES: dict[type[ValueError], str] = {
     NutritionTargetEnvelopeError: "nutrition_target_envelope_error",
     NutritionDietaryError: "nutrition_dietary_error",
     TrainingDomainError: "training_domain_error",
+    NutritionFeasibilityError: "nutrition_feasibility_error",
 }
 
 

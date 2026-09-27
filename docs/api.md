@@ -104,6 +104,16 @@ reason codes, and policy assumptions. It does not estimate workout calories or a
 target envelopes, or recommendations. Domain failures use `training_domain_error`; see
 [training demand](training-demand.md).
 
+`POST /v1/profile-intelligence` also returns `nutrition_feasibility`, computed from the explicitly
+submitted dietary profile and the final effective macro plan. Omitted dietary profiles produce an
+unavailable feasibility assessment; the compatibility default used by dietary display is not treated
+as evidence of broad flexibility. The response includes separate protein, carbohydrate, fat, and
+restriction compatibility dimensions, accepted category summaries, structured category-level
+guidance, policy provenance, and reason codes. Feasibility does not alter the macro plan or calorie target. See
+[nutrition feasibility](nutrition-feasibility.md).
+The assessment also carries the effective macro-policy version and baseline/effective training-aware
+protein and carbohydrate provenance when applicable; these values explain the single current plan.
+
 `POST /v1/personalization/status` accepts the same strict profile and observation transport models
 as the analysis endpoints, with optional `trend_config`, `adaptive_config`, and
 `lifecycle_config`. It reports one of `baseline`, `calibrating`, `early_personalized`, or
@@ -153,7 +163,8 @@ response. Valid JSON that violates a FitAdapt domain contract uses a documented 
 Codes are `profile_validation_error`, `observation_validation_error`, `trend_analysis_error`,
 `adaptive_tdee_error`, `macro_policy_infeasible`, `nutrition_preferences_error`,
 `macro_plan_infeasible`, `nutrition_target_envelope_error`, `nutrition_dietary_error`,
-`training_domain_error`, `recommendation_error`, and `personalization_lifecycle_error`. Unexpected failures
+`training_domain_error`, `nutrition_feasibility_error`, `recommendation_error`, and
+`personalization_lifecycle_error`. Unexpected failures
 return `500` with `internal_server_error` and no implementation details. The unified endpoint also
 uses `personalized_planning_error` and `profile_intelligence_error` for its applicable domain
 contract failures.

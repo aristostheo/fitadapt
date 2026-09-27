@@ -97,6 +97,19 @@ from fitadapt.personalization.macros import (
     PersonalizedMacroPlan,
     calculate_personalized_macro_plan,
 )
+from fitadapt.personalization.nutrition_feasibility import (
+    NUTRITION_FEASIBILITY_POLICY_VERSION,
+    FeasibilityLevel,
+    GuidanceAction,
+    GuidanceCategory,
+    GuidancePriority,
+    NutritionFeasibilityAssessment,
+    NutritionFeasibilityConfig,
+    NutritionFeasibilityError,
+    NutritionGuidanceItem,
+    RestrictionCompatibility,
+    assess_nutrition_feasibility,
+)
 from fitadapt.personalization.planning import (
     PERSONALIZED_PLANNING_POLICY_VERSION,
     PersonalizedPlanningError,
@@ -137,8 +150,8 @@ from fitadapt.personalization.training import (
 from fitadapt.personalization.training_nutrition import (
     TRAINING_AWARE_FAT_FLOOR_PERCENTAGE,
     TRAINING_AWARE_MACRO_POLICY_VERSION,
-    TrainingAwareMacroError,
     TrainingAwareMacroConfig,
+    TrainingAwareMacroError,
     TrainingMacroPolicySource,
     apply_training_aware_macro_policy,
 )
@@ -257,6 +270,17 @@ __all__ = [
     "TrainingAwareMacroConfig",
     "TrainingMacroPolicySource",
     "apply_training_aware_macro_policy",
+    "NUTRITION_FEASIBILITY_POLICY_VERSION",
+    "FeasibilityLevel",
+    "GuidanceAction",
+    "GuidanceCategory",
+    "GuidancePriority",
+    "NutritionFeasibilityAssessment",
+    "NutritionFeasibilityConfig",
+    "NutritionFeasibilityError",
+    "NutritionGuidanceItem",
+    "RestrictionCompatibility",
+    "assess_nutrition_feasibility",
     "assess_nutrition_preferences",
     "build_personalized_plan_progression",
     "build_personalized_plan_snapshot",

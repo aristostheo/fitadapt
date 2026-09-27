@@ -50,6 +50,13 @@ use it for training-aware macro policy.
 When sufficient training evidence is available, the current macro plan may use the training-aware
 policy. Calories remain unchanged; the Plan card explains protein/carbohydrate provenance and keeps
 raw policy details collapsed.
+The Plan stage also shows category-level nutrition feasibility and up to four practical guidance
+items when a dietary profile was explicitly supplied. Missing food information is not treated as
+broad flexibility; guidance never generates meals or changes macro targets.
+Feasibility is distinct from mathematical calorie/macro feasibility. It explains practical fit for
+the existing targets; missing dietary inputs remain unavailable, not easy.
+Restrictions, dislikes, and preferences remain distinct. Guidance stays at category level; exact
+foods, quantities, recipes, meal timing, and grocery lists are not generated.
 The Progress stage shows weight, calorie, and step trends, observed variability, and optional plan
 history. Missing values remain gaps; no browser-side formulas or interpolation are added.
 

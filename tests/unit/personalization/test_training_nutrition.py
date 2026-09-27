@@ -64,6 +64,16 @@ def test_missing_or_insufficient_training_preserves_default_macro_plan() -> None
     assert insufficient.training_adjustment_applied is False
 
 
+def test_step_only_training_evidence_does_not_change_macro_policy() -> None:
+    assessment = assess_training_demand(None, observed(14, strength=None, cardio=None))
+    default = plan_with()
+    aware = plan_with(assessment)
+    assert assessment.assessment_available is True
+    assert assessment.resistance_demand is None
+    assert assessment.aerobic_sport_demand is None
+    assert aware == default
+
+
 def test_resistance_training_raises_protein_without_changing_calories() -> None:
     assessment = assess_training_demand(
         TrainingContext(

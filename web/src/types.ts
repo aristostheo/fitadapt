@@ -117,6 +117,29 @@ export type TrainingEvidenceSource =
   | "observations"
   | "combined"
   | "insufficient";
+export type FeasibilityLevel =
+  | "easy"
+  | "manageable"
+  | "challenging"
+  | "very_challenging";
+export type RestrictionCompatibility =
+  | "compatible"
+  | "limited"
+  | "highly_limited";
+export type GuidanceCategory =
+  | "protein"
+  | "carbohydrate"
+  | "fat"
+  | "dietary_flexibility"
+  | "restriction"
+  | "convenience";
+export type GuidancePriority = "low" | "moderate" | "high";
+export type GuidanceAction =
+  | "favor_accepted_categories"
+  | "plan_deliberately"
+  | "maintain_variety"
+  | "review_restrictions"
+  | "use_convenient_options";
 
 export interface Profile {
   age_years: number;
@@ -408,6 +431,45 @@ export interface TrainingDemandAssessment {
   policy_version: string;
   assumptions: string[];
 }
+export interface NutritionGuidanceItem {
+  category: GuidanceCategory;
+  priority: GuidancePriority;
+  reason_code: string;
+  action: GuidanceAction;
+  message: string;
+}
+export interface NutritionFeasibilityAssessment {
+  assessment_available: boolean;
+  overall_feasibility: FeasibilityLevel | null;
+  protein_feasibility: FeasibilityLevel | null;
+  carbohydrate_feasibility: FeasibilityLevel | null;
+  fat_feasibility: FeasibilityLevel | null;
+  restriction_compatibility: RestrictionCompatibility | null;
+  macro_policy_version: string;
+  training_adjustment_applied: boolean;
+  protein_target_g_per_day: number;
+  carbohydrate_target_g_per_day: number;
+  fat_target_g_per_day: number;
+  calorie_target_kcal_per_day: number;
+  accepted_protein_categories: FoodCategory[];
+  accepted_carbohydrate_categories: FoodCategory[];
+  accepted_fat_categories: FoodCategory[];
+  disliked_categories: FoodCategory[];
+  limiting_categories: FoodCategory[];
+  dietary_conflicts: string[];
+  guidance: NutritionGuidanceItem[];
+  reason_codes: string[];
+  policy_version: string;
+  assumptions: string[];
+  training_policy_version: string | null;
+  protein_policy_source: string;
+  carbohydrate_policy_source: string;
+  baseline_protein_target_g_per_day: number;
+  training_aware_protein_target_g_per_day: number | null;
+  baseline_carbohydrate_target_g_per_day: number;
+  protein_priority: string | null;
+  carbohydrate_performance_priority: string | null;
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -454,6 +516,7 @@ export interface ProfileIntelligenceResponse {
   latest_plan: PersonalizedPlanSnapshot;
   dietary_assessment: DietaryPreferenceAssessment;
   training_assessment?: TrainingDemandAssessment;
+  nutrition_feasibility?: NutritionFeasibilityAssessment;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

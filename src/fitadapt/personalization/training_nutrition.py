@@ -83,6 +83,13 @@ def apply_training_aware_macro_policy(
         return plan
     if not isinstance(assessment, TrainingDemandAssessment):
         raise TrainingAwareMacroError("assessment must be a TrainingDemandAssessment or None.")
+    if (
+        assessment.resistance_demand is None
+        and assessment.aerobic_sport_demand is None
+        and assessment.protein_priority is None
+        and assessment.carbohydrate_performance_priority is None
+    ):
+        return plan
     protein_by_resistance = {
         TrainingDemandLevel.LOW: effective_config.low_resistance_protein_g_per_kg,
         TrainingDemandLevel.MODERATE: effective_config.moderate_resistance_protein_g_per_kg,
@@ -117,19 +124,51 @@ def apply_training_aware_macro_policy(
         raise TrainingAwareMacroError("Training-aware macro allocation is infeasible.")
     fat_g = desired_fat_kcal / FAT_KCAL_PER_GRAM
     carbohydrate_g = carbohydrate_kcal / 4.0
+    adjustment_applied = (
+        effective_protein_g != plan.protein_g_per_day
+        or desired_fat_kcal != plan.fat_kcal_per_day
+        or carbohydrate_g != plan.carbohydrate_g_per_day
+    )
     source = (
         TrainingMacroPolicySource.CONSTRAINED
         if constrained
         else TrainingMacroPolicySource.TRAINING_AWARE
     )
     reasons = list(assessment.reason_codes)
-    if desired_protein_per_kg > plan.protein_g_per_kg:
+    if adjustment_applied and desired_protein_per_kg > plan.protein_g_per_kg:
         reasons.append("training_resistance_increased_protein_preference")
-    if desired_fat_percentage < plan.fat_percentage:
+    if adjustment_applied and desired_fat_percentage < plan.fat_percentage:
         reasons.append("training_performance_increased_carbohydrate_preference")
     if constrained:
         reasons.append("calorie_budget_limited_preferred_protein_target")
-    reasons.append("training_aware_adjustment_applied")
+    reasons.append(
+        "training_aware_adjustment_applied"
+        if adjustment_applied
+        else "default_macro_policy_already_satisfied_training_preference"
+    )
+    if not adjustment_applied:
+        return replace(
+            plan,
+            training_adjustment_available=True,
+            training_adjustment_applied=False,
+            training_policy_version=effective_config.policy_version,
+            protein_policy_source=TrainingMacroPolicySource.DEFAULT.value,
+            carbohydrate_policy_source=TrainingMacroPolicySource.DEFAULT.value,
+            baseline_protein_target_g=float(plan.protein_g_per_day),
+            training_aware_protein_target_g=float(desired_protein_g),
+            effective_protein_target_g=float(plan.protein_g_per_day),
+            baseline_carbohydrate_target_g=float(plan.carbohydrate_g_per_day),
+            effective_carbohydrate_target_g=float(plan.carbohydrate_g_per_day),
+            protein_priority=(
+                None if assessment.protein_priority is None else assessment.protein_priority.value
+            ),
+            carbohydrate_performance_priority=(
+                None
+                if assessment.carbohydrate_performance_priority is None
+                else assessment.carbohydrate_performance_priority.value
+            ),
+            training_reason_codes=tuple(dict.fromkeys(reasons)),
+        )
     assumptions = plan.assumptions + (
         "Training-aware macro composition preserves the supplied calorie target.",
         "Training-aware protein and carbohydrate values are deterministic product-policy "

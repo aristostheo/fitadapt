@@ -19,3 +19,7 @@ evidence, missing-versus-zero handling, contributor completeness, conservative d
 future-facing protein/carbohydrate priorities. It does not change current nutrition calculations.
 Checkpoint 26 adds a fixed-calorie training-aware macro policy with explicit protein/carbohydrate
 provenance, feasibility constraints, and latest-plan-only integration.
+
+Checkpoint 27 adds informational nutrition feasibility and deterministic category-level guidance
+based on the explicit dietary profile and final macro plan. Targets remain unchanged; no meals or
+recipes are generated.

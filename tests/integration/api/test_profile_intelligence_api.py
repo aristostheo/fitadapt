@@ -86,6 +86,30 @@ def test_profile_intelligence_endpoint_matches_complete_direct_empty_result() ->
     assert response.json()["plan_progression"] is None
     assert response.json()["latest_plan"]["as_of_date"] is None
     assert response.json()["latest_plan"]["calorie_basis"] == "baseline"
+    assert response.json()["nutrition_feasibility"]["assessment_available"] is False
+
+
+def test_explicit_dietary_profile_adds_feasibility_without_changing_targets() -> None:
+    payload = _payload(0)
+    payload["dietary_preference_profile"] = {
+        "dietary_pattern": "unrestricted",
+        "selection_mode": "broad",
+        "constraints": [],
+        "preferences": [],
+    }
+    response = TestClient(create_app()).post("/v1/profile-intelligence", json=payload)
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["nutrition_feasibility"]["assessment_available"] is True
+    assert (
+        body["nutrition_feasibility"]["calorie_target_kcal_per_day"]
+        == body["latest_plan"]["selected_calorie_target_kcal_per_day"]
+    )
+    assert (
+        body["nutrition_feasibility"]["protein_target_g_per_day"]
+        == body["latest_plan"]["macro_plan"]["protein_g_per_day"]
+    )
 
 
 @pytest.mark.parametrize("days", [0, 1, 11, 14])

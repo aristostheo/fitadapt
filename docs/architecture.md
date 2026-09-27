@@ -199,6 +199,20 @@ adaptive TDEE, recommendations, macros, target envelopes, lifecycle, or planning
 exposes only the current/latest assessment; historical snapshots remain unchanged. Missing activity
 values remain unknown, explicit zero values remain valid evidence, and no workout calories are estimated.
 
+## Nutrition Feasibility Boundary
+
+Practical feasibility is composed after the effective macro plan and existing dietary assessment:
+
+```text
+final macro plan + explicit dietary profile + category assessment
+    -> practical-fit dimensions + category-level guidance
+```
+
+It distinguishes a mathematically calorie-feasible plan from one that may require deliberate choices
+given accepted categories. Missing dietary context yields an unavailable assessment, not unrestricted
+flexibility. Feasibility does not change calories, macros, target envelopes, recommendations, or
+progression. No foods, quantities, meals, recipes, or grocery lists are generated.
+
 ## HTTP Adapter Boundary
 
 Checkpoint 13 adds a stateless adapter outside the domain packages:

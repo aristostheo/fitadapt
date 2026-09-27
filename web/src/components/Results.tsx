@@ -31,6 +31,7 @@ import {
   whole,
 } from "../utils/presentation";
 import { MetricCard, Notice, StatusBadge } from "./ui";
+import { NutritionFeasibilityCard } from "./NutritionFeasibilityCard";
 
 const stageCopy = {
   baseline:
@@ -250,6 +251,7 @@ export function CurrentPlan({
           {whole(plan.change_from_previous_snapshot_kcal_per_day, "kcal/day")}
         </p>
       )}
+      <NutritionFeasibilityCard assessment={result.nutrition_feasibility} />
       <p className="supporting-copy">
         FitAdapt caps the next step to move gradually toward the calculated goal
         intake. Your macro strategy is explicitly selected, not inferred.

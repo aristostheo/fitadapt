@@ -54,7 +54,8 @@ It never returns negative carbohydrates or breaks calorie equality. The effectiv
 - `training_aware_macros_v1`
 
 If training assessment is absent or insufficient, the existing macro plan is returned unchanged and
-training-aware adjustment is not applied.
+training-aware adjustment is not applied. Checkpoint 27 evaluates how practical that final plan may
+be for the explicit dietary profile; it does not alter the macro values.
 
 ## Unified And Historical Behavior
 
@@ -71,3 +72,5 @@ supplements, provide clinical nutrition, guarantee performance, or activate trai
 Training thresholds are deterministic FitAdapt product policy. Individual needs may vary, and the
 system does not measure glycogen needs or diagnose deficiencies. Later work may review training-aware
 protein and carbohydrate policy further, but this checkpoint does not add meals or workouts.
+Checkpoint 27 evaluates the practical fit of that effective macro plan against the explicit dietary
+profile. It adds guidance only and does not modify the training-aware macro outputs.

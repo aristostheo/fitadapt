@@ -24,6 +24,10 @@ from fitadapt.personalization.lifecycle import (
     assess_personalization_lifecycle,
 )
 from fitadapt.personalization.macros import NutritionPreferences
+from fitadapt.personalization.nutrition_feasibility import (
+    NutritionFeasibilityAssessment,
+    assess_nutrition_feasibility,
+)
 from fitadapt.personalization.planning import (
     PersonalizedPlanProgression,
     PersonalizedPlanSnapshot,
@@ -69,6 +73,7 @@ class ProfileIntelligenceResult:
     latest_plan: PersonalizedPlanSnapshot
     dietary_assessment: NutritionPreferenceAssessment
     training_assessment: TrainingDemandAssessment
+    nutrition_feasibility: NutritionFeasibilityAssessment
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -120,6 +125,9 @@ def analyze_profile_intelligence(
     dietary_assessment = assess_nutrition_preferences(
         effective_dietary_profile, latest_plan.target_envelope
     )
+    nutrition_feasibility = assess_nutrition_feasibility(
+        dietary_profile, dietary_assessment, latest_plan.macro_plan
+    )
     progression = (
         build_personalized_plan_progression(
             profile,
@@ -142,6 +150,7 @@ def analyze_profile_intelligence(
         latest_plan=latest_plan,
         dietary_assessment=dietary_assessment,
         training_assessment=training_assessment,
+        nutrition_feasibility=nutrition_feasibility,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,

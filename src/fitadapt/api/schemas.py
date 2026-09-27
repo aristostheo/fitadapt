@@ -47,6 +47,14 @@ from fitadapt.personalization.macros import (
     NutritionPreferences,
     PersonalizedMacroPlan,
 )
+from fitadapt.personalization.nutrition_feasibility import (
+    FeasibilityLevel,
+    GuidanceAction,
+    GuidanceCategory,
+    GuidancePriority,
+    NutritionFeasibilityAssessment,
+    RestrictionCompatibility,
+)
 from fitadapt.personalization.planning import (
     PersonalizedPlanProgression,
     PersonalizedPlanSnapshot,
@@ -608,6 +616,47 @@ class NutritionPreferenceAssessmentResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class NutritionGuidanceItemResponse(ApiModel):
+    category: GuidanceCategory
+    priority: GuidancePriority
+    reason_code: str
+    action: GuidanceAction
+    message: str
+
+
+class NutritionFeasibilityResponse(ApiModel):
+    assessment_available: bool
+    overall_feasibility: FeasibilityLevel | None
+    protein_feasibility: FeasibilityLevel | None
+    carbohydrate_feasibility: FeasibilityLevel | None
+    fat_feasibility: FeasibilityLevel | None
+    restriction_compatibility: RestrictionCompatibility | None
+    macro_policy_version: str
+    training_adjustment_applied: bool
+    protein_target_g_per_day: float
+    carbohydrate_target_g_per_day: float
+    fat_target_g_per_day: float
+    calorie_target_kcal_per_day: float
+    accepted_protein_categories: tuple[FoodCategory, ...]
+    accepted_carbohydrate_categories: tuple[FoodCategory, ...]
+    accepted_fat_categories: tuple[FoodCategory, ...]
+    disliked_categories: tuple[FoodCategory, ...]
+    limiting_categories: tuple[FoodCategory, ...]
+    dietary_conflicts: tuple[str, ...]
+    guidance: tuple[NutritionGuidanceItemResponse, ...]
+    reason_codes: tuple[str, ...]
+    policy_version: str
+    assumptions: tuple[str, ...]
+    training_policy_version: str | None
+    protein_policy_source: str
+    carbohydrate_policy_source: str
+    baseline_protein_target_g_per_day: float
+    training_aware_protein_target_g_per_day: float | None
+    baseline_carbohydrate_target_g_per_day: float
+    protein_priority: str | None
+    carbohydrate_performance_priority: str | None
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -653,6 +702,8 @@ class ProfileIntelligenceResponse(ApiModel):
     latest_plan: PersonalizedPlanSnapshotResponse
     dietary_assessment: NutritionPreferenceAssessmentResponse
     training_assessment: TrainingDemandAssessmentResponse
+    nutrition_feasibility: NutritionFeasibilityResponse
+    nutrition_feasibility: NutritionFeasibilityResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1003,6 +1054,52 @@ def map_training_demand_assessment(
     )
 
 
+def map_nutrition_feasibility(
+    result: NutritionFeasibilityAssessment,
+) -> NutritionFeasibilityResponse:
+    return NutritionFeasibilityResponse(
+        assessment_available=result.assessment_available,
+        overall_feasibility=result.overall_feasibility,
+        protein_feasibility=result.protein_feasibility,
+        carbohydrate_feasibility=result.carbohydrate_feasibility,
+        fat_feasibility=result.fat_feasibility,
+        restriction_compatibility=result.restriction_compatibility,
+        macro_policy_version=result.macro_policy_version,
+        training_adjustment_applied=result.training_adjustment_applied,
+        protein_target_g_per_day=result.protein_target_g_per_day,
+        carbohydrate_target_g_per_day=result.carbohydrate_target_g_per_day,
+        fat_target_g_per_day=result.fat_target_g_per_day,
+        calorie_target_kcal_per_day=result.calorie_target_kcal_per_day,
+        accepted_protein_categories=result.accepted_protein_categories,
+        accepted_carbohydrate_categories=result.accepted_carbohydrate_categories,
+        accepted_fat_categories=result.accepted_fat_categories,
+        disliked_categories=result.disliked_categories,
+        limiting_categories=result.limiting_categories,
+        dietary_conflicts=result.dietary_conflicts,
+        guidance=tuple(
+            NutritionGuidanceItemResponse(
+                category=item.category,
+                priority=item.priority,
+                reason_code=item.reason_code,
+                action=item.action,
+                message=item.message,
+            )
+            for item in result.guidance
+        ),
+        reason_codes=result.reason_codes,
+        policy_version=result.policy_version,
+        assumptions=result.assumptions,
+        training_policy_version=result.training_policy_version,
+        protein_policy_source=result.protein_policy_source,
+        carbohydrate_policy_source=result.carbohydrate_policy_source,
+        baseline_protein_target_g_per_day=result.baseline_protein_target_g_per_day,
+        training_aware_protein_target_g_per_day=result.training_aware_protein_target_g_per_day,
+        baseline_carbohydrate_target_g_per_day=result.baseline_carbohydrate_target_g_per_day,
+        protein_priority=result.protein_priority,
+        carbohydrate_performance_priority=result.carbohydrate_performance_priority,
+    )
+
+
 def map_personalized_plan_progression(
     result: PersonalizedPlanProgression,
 ) -> PersonalizedPlanProgressionResponse:
@@ -1025,6 +1122,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         latest_plan=map_personalized_plan_snapshot(result.latest_plan),
         dietary_assessment=map_nutrition_preference_assessment(result.dietary_assessment),
         training_assessment=map_training_demand_assessment(result.training_assessment),
+        nutrition_feasibility=map_nutrition_feasibility(result.nutrition_feasibility),
         plan_progression=(
             None
             if result.plan_progression is None

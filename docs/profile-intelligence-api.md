@@ -69,6 +69,14 @@ alter baseline calorie estimation, trends, adaptive TDEE, lifecycle evidence, or
 The additive dietary assessment is computed from `latest_plan.target_envelope`; it does not alter
 calories, macros, lifecycle, recommendations, or progression snapshots. If omitted, the request
 uses an unrestricted/broad dietary profile for backward compatibility.
+The additive `nutrition_feasibility` assessment uses only an explicitly supplied dietary profile
+and the final effective macro plan. When dietary information is omitted or a selected-food profile
+is empty, feasibility is unavailable rather than assumed easy. Practical guidance is category-level
+and never modifies calories, macros, or progression. The response distinguishes practical protein,
+carbohydrate, fat, and restriction compatibility, carries structured guidance/reason codes, and
+preserves any dietary preference conflicts. It also exposes whether training-aware macro policy was
+applied and baseline/effective protein and carbohydrate provenance where available. These explain
+the single existing macro plan; they are not a second competing plan.
 The optional `training_context` contributes only to the additive latest-only `training_assessment`.
 When sufficient, it also adds training-aware macro provenance to `latest_plan.macro_plan`; this
 changes macro composition only, not calories, TDEE, recommendations, target envelopes, dietary

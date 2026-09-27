@@ -76,6 +76,13 @@ target-envelope provenance, conflicts, verification notices, actionable requirem
 assumptions. Transport errors use `422`; valid domain conflicts use the stable `nutrition_dietary_error`
 `400` code; unexpected failures are opaque `500` responses.
 
+Checkpoint 27 assesses practical macro-plan fit using the explicitly supplied dietary profile. If
+the field is omitted, feasibility is unavailable even though the existing dietary display retains
+its unrestricted/broad compatibility default. Missing dietary information does not imply broad food
+acceptance. See [nutrition feasibility](nutrition-feasibility.md).
+Feasibility distinguishes mathematical macro fit from practical category fit, preserves the final
+macro plan, and returns category-level guidance only.
+
 ## Limitations And Deferred Work
 
 This checkpoint does not provide frontend onboarding, individual food records, recipes, meal
