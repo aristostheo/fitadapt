@@ -263,6 +263,7 @@ def create_app() -> FastAPI:
                     if request.training_context is None
                     else request.training_context.to_domain()
                 ),
+                outcome_as_of_date=request.outcome_as_of_date,
             )
         )
 

@@ -23,3 +23,7 @@ provenance, feasibility constraints, and latest-plan-only integration.
 Checkpoint 27 adds informational nutrition feasibility and deterministic category-level guidance
 based on the explicit dietary profile and final macro plan. Targets remain unchanged; no meals or
 recipes are generated.
+
+Checkpoint 28 adds deterministic current-plan adherence and observed-outcome assessment with
+trailing-window evidence thresholds, missing-versus-zero preservation, optional as-of filtering,
+and a Progress-stage summary. It is informational and does not change targets or recommendations.

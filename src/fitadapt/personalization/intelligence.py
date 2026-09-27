@@ -2,6 +2,7 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 
 from fitadapt.adaptive.tdee import AdaptiveTdeeConfig, AdaptiveTdeeResult, estimate_adaptive_tdee
 from fitadapt.analysis.trends import (
@@ -28,6 +29,7 @@ from fitadapt.personalization.nutrition_feasibility import (
     NutritionFeasibilityAssessment,
     assess_nutrition_feasibility,
 )
+from fitadapt.personalization.outcomes import PlanOutcomeAssessment, assess_plan_outcome
 from fitadapt.personalization.planning import (
     PersonalizedPlanProgression,
     PersonalizedPlanSnapshot,
@@ -74,6 +76,7 @@ class ProfileIntelligenceResult:
     dietary_assessment: NutritionPreferenceAssessment
     training_assessment: TrainingDemandAssessment
     nutrition_feasibility: NutritionFeasibilityAssessment
+    plan_outcome: PlanOutcomeAssessment
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -90,6 +93,7 @@ def analyze_profile_intelligence(
     include_plan_progression: bool = False,
     dietary_profile: NutritionPreferenceProfile | None = None,
     training_context: TrainingContext | None = None,
+    outcome_as_of_date: date | None = None,
 ) -> ProfileIntelligenceResult:
     """Compose current FitAdapt outputs without altering their individual policies."""
     _validate_inputs(
@@ -128,6 +132,12 @@ def analyze_profile_intelligence(
     nutrition_feasibility = assess_nutrition_feasibility(
         dietary_profile, dietary_assessment, latest_plan.macro_plan
     )
+    plan_outcome = assess_plan_outcome(
+        profile,
+        submitted,
+        latest_plan.selected_calorie_target_kcal_per_day,
+        as_of_date=outcome_as_of_date,
+    )
     progression = (
         build_personalized_plan_progression(
             profile,
@@ -151,6 +161,7 @@ def analyze_profile_intelligence(
         dietary_assessment=dietary_assessment,
         training_assessment=training_assessment,
         nutrition_feasibility=nutrition_feasibility,
+        plan_outcome=plan_outcome,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,

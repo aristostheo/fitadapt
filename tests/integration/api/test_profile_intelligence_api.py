@@ -87,6 +87,30 @@ def test_profile_intelligence_endpoint_matches_complete_direct_empty_result() ->
     assert response.json()["latest_plan"]["as_of_date"] is None
     assert response.json()["latest_plan"]["calorie_basis"] == "baseline"
     assert response.json()["nutrition_feasibility"]["assessment_available"] is False
+    assert response.json()["plan_outcome"]["assessment_available"] is False
+
+
+def test_plan_outcome_supports_cutoff_without_changing_plan_targets() -> None:
+    payload = _payload(28)
+    payload["outcome_as_of_date"] = "2026-01-28"
+    payload["observations"].append(
+        {
+            "observed_on": "2026-02-01",
+            "body_weight_kg": 90,
+            "energy_intake_kcal": 4000,
+        }
+    )
+    response = TestClient(create_app()).post("/v1/profile-intelligence", json=payload)
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["plan_outcome"]["effective_date"] == "2026-01-28"
+    assert body["plan_outcome"]["intake_contributor_count"] == 28
+    assert body["plan_outcome"]["observed_mean_intake_kcal_per_day"] == 2400
+    assert (
+        body["plan_outcome"]["prescribed_calorie_target_kcal_per_day"]
+        == body["latest_plan"]["selected_calorie_target_kcal_per_day"]
+    )
 
 
 def test_explicit_dietary_profile_adds_feasibility_without_changing_targets() -> None:

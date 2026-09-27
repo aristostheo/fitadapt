@@ -60,6 +60,18 @@ from fitadapt.personalization.nutrition_feasibility import (
     RestrictionCompatibility,
     assess_nutrition_feasibility,
 )
+from fitadapt.personalization.outcomes import (
+    PLAN_OUTCOME_POLICY_VERSION,
+    GoalProgressStatus,
+    IntakeAdherenceStatus,
+    OutcomeInterpretability,
+    PlanOutcomeAssessment,
+    PlanOutcomeConfig,
+    PlanOutcomeError,
+    PlanOutcomeEvidenceSource,
+    WeightTrendStatus,
+    assess_plan_outcome,
+)
 from fitadapt.personalization.planning import (
     PERSONALIZED_PLANNING_POLICY_VERSION,
     PersonalizedPlanningError,
@@ -184,6 +196,16 @@ __all__ = [
     "NutritionGuidanceItem",
     "RestrictionCompatibility",
     "assess_nutrition_feasibility",
+    "PLAN_OUTCOME_POLICY_VERSION",
+    "GoalProgressStatus",
+    "IntakeAdherenceStatus",
+    "OutcomeInterpretability",
+    "PlanOutcomeAssessment",
+    "PlanOutcomeConfig",
+    "PlanOutcomeError",
+    "PlanOutcomeEvidenceSource",
+    "WeightTrendStatus",
+    "assess_plan_outcome",
     "assess_nutrition_preferences",
 ]
 from fitadapt.personalization.targets import (

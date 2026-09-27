@@ -30,7 +30,8 @@ boolean; omission uses an unrestricted/broad dietary profile and progression def
     "constraints": [],
     "preferences": []
   },
-  "include_plan_progression": false
+  "include_plan_progression": false,
+  "outcome_as_of_date": null
 }
 ```
 
@@ -61,6 +62,7 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `recommendation`     | Existing conservative recommendation or ordered insufficiency reasons.                              |
 | `latest_plan`        | Current selected calorie basis, exact preference-driven macro plan, and target envelope.            |
 | `dietary_assessment` | Current/latest-plan category constraints, preferences, conflicts, notices, and protein flexibility. |
+| `plan_outcome`       | Current-target intake adherence, observed weight-rate progress, evidence sufficiency, and reasons.  |
 | `plan_progression`   | `null` unless requested; otherwise one prefix snapshot per submitted entry.                         |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
@@ -69,6 +71,13 @@ alter baseline calorie estimation, trends, adaptive TDEE, lifecycle evidence, or
 The additive dietary assessment is computed from `latest_plan.target_envelope`; it does not alter
 calories, macros, lifecycle, recommendations, or progression snapshots. If omitted, the request
 uses an unrestricted/broad dietary profile for backward compatibility.
+The additive `plan_outcome` assessment compares recorded calorie intake with the selected current
+plan target and compares observed smoothed weight change with the profile's requested rate. It uses
+a trailing calendar window, preserves missing values as unknown, and returns contributor counts,
+completeness, evidence source, stable reason codes, and an interpretability grade. Early or sparse
+history is limited rather than treated as adherence or non-adherence. The optional
+`outcome_as_of_date` field filters out later observations; by default the latest observation date is
+used. It does not alter any target, recommendation, macro calculation, or progression.
 The additive `nutrition_feasibility` assessment uses only an explicitly supplied dietary profile
 and the final effective macro plan. When dietary information is omitted or a selected-food profile
 is empty, feasibility is unavailable rather than assumed easy. Practical guidance is category-level

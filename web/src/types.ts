@@ -470,6 +470,54 @@ export interface NutritionFeasibilityAssessment {
   protein_priority: string | null;
   carbohydrate_performance_priority: string | null;
 }
+export type OutcomeInterpretability =
+  | "insufficient"
+  | "limited"
+  | "interpretable";
+export type IntakeAdherenceStatus =
+  | "insufficient_evidence"
+  | "below_target"
+  | "near_target"
+  | "above_target";
+export type WeightTrendStatus = "insufficient_evidence" | "available";
+export type GoalProgressStatus =
+  | "insufficient_evidence"
+  | "slower_than_expected"
+  | "broadly_on_track"
+  | "faster_than_expected"
+  | "direction_mismatch"
+  | "outside_maintenance_range"
+  | "not_applicable";
+export type PlanOutcomeEvidenceSource =
+  | "intake_only"
+  | "weight_only"
+  | "intake_and_weight"
+  | "insufficient";
+export interface PlanOutcomeAssessment {
+  assessment_available: boolean;
+  effective_date: string | null;
+  observation_window_days: number;
+  overall_interpretability: OutcomeInterpretability;
+  intake_adherence: IntakeAdherenceStatus;
+  weight_trend_status: WeightTrendStatus;
+  goal_progress: GoalProgressStatus;
+  observed_mean_intake_kcal_per_day: number | null;
+  prescribed_calorie_target_kcal_per_day: number;
+  intake_deviation_kcal_per_day: number | null;
+  observed_weight_change_kg_per_week: number | null;
+  intended_weight_change_kg_per_week: number;
+  intake_observation_records: number;
+  intake_contributor_count: number;
+  intake_completeness: number;
+  weight_observation_records: number;
+  weight_contributor_count: number;
+  weight_completeness: number;
+  weight_span_days: number;
+  evidence_source: PlanOutcomeEvidenceSource;
+  reason_codes: string[];
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -517,6 +565,7 @@ export interface ProfileIntelligenceResponse {
   dietary_assessment: DietaryPreferenceAssessment;
   training_assessment?: TrainingDemandAssessment;
   nutrition_feasibility?: NutritionFeasibilityAssessment;
+  plan_outcome?: PlanOutcomeAssessment;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

@@ -1,6 +1,7 @@
 """Transport schemas and pure domain-to-HTTP mappings for the FitAdapt API."""
 
 import math
+from dataclasses import asdict
 from datetime import date
 from typing import ClassVar
 
@@ -54,6 +55,14 @@ from fitadapt.personalization.nutrition_feasibility import (
     GuidancePriority,
     NutritionFeasibilityAssessment,
     RestrictionCompatibility,
+)
+from fitadapt.personalization.outcomes import (
+    GoalProgressStatus,
+    IntakeAdherenceStatus,
+    OutcomeInterpretability,
+    PlanOutcomeAssessment,
+    PlanOutcomeEvidenceSource,
+    WeightTrendStatus,
 )
 from fitadapt.personalization.planning import (
     PersonalizedPlanProgression,
@@ -364,6 +373,7 @@ class ProfileIntelligenceRequest(ApiModel):
     dietary_preference_profile: NutritionPreferenceProfileRequest | None = None
     training_context: TrainingContextRequest | None = None
     include_plan_progression: StrictBool = False
+    outcome_as_of_date: date | None = None
 
 
 class BaselineEnergyResponse(ApiModel):
@@ -657,6 +667,32 @@ class NutritionFeasibilityResponse(ApiModel):
     carbohydrate_performance_priority: str | None
 
 
+class PlanOutcomeAssessmentResponse(ApiModel):
+    assessment_available: bool
+    effective_date: date | None
+    observation_window_days: int
+    overall_interpretability: OutcomeInterpretability
+    intake_adherence: IntakeAdherenceStatus
+    weight_trend_status: WeightTrendStatus
+    goal_progress: GoalProgressStatus
+    observed_mean_intake_kcal_per_day: float | None
+    prescribed_calorie_target_kcal_per_day: float
+    intake_deviation_kcal_per_day: float | None
+    observed_weight_change_kg_per_week: float | None
+    intended_weight_change_kg_per_week: float
+    intake_observation_records: int
+    intake_contributor_count: int
+    intake_completeness: float
+    weight_observation_records: int
+    weight_contributor_count: int
+    weight_completeness: float
+    weight_span_days: int
+    evidence_source: PlanOutcomeEvidenceSource
+    reason_codes: tuple[str, ...]
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -703,7 +739,7 @@ class ProfileIntelligenceResponse(ApiModel):
     dietary_assessment: NutritionPreferenceAssessmentResponse
     training_assessment: TrainingDemandAssessmentResponse
     nutrition_feasibility: NutritionFeasibilityResponse
-    nutrition_feasibility: NutritionFeasibilityResponse
+    plan_outcome: PlanOutcomeAssessmentResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1123,6 +1159,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         dietary_assessment=map_nutrition_preference_assessment(result.dietary_assessment),
         training_assessment=map_training_demand_assessment(result.training_assessment),
         nutrition_feasibility=map_nutrition_feasibility(result.nutrition_feasibility),
+        plan_outcome=map_plan_outcome(result.plan_outcome),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1130,3 +1167,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         ),
         assumptions=result.assumptions,
     )
+
+
+def map_plan_outcome(result: PlanOutcomeAssessment) -> PlanOutcomeAssessmentResponse:
+    return PlanOutcomeAssessmentResponse(**asdict(result))

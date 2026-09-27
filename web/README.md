@@ -58,7 +58,9 @@ the existing targets; missing dietary inputs remain unavailable, not easy.
 Restrictions, dislikes, and preferences remain distinct. Guidance stays at category level; exact
 foods, quantities, recipes, meal timing, and grocery lists are not generated.
 The Progress stage shows weight, calorie, and step trends, observed variability, and optional plan
-history. Missing values remain gaps; no browser-side formulas or interpolation are added.
+history, plus current-plan adherence and goal-progress evidence. Missing values remain unknown and
+do not imply non-adherence; no browser-side formulas or interpolation are added. Outcome assessment
+is informational and never adjusts the current plan.
 
 The interface uses keyboard-navigable journey stages, visible focus states, labeled controls,
 responsive cards and tables, and reduced-motion support. The browser keeps profile, dietary inputs,
