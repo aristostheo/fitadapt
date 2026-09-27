@@ -518,6 +518,28 @@ export interface PlanOutcomeAssessment {
   policy_version: string;
   assumptions: string[];
 }
+export type RecommendationDecisionType = "hold" | "increase" | "decrease" | "defer";
+export type RecommendationDecisionReason = string;
+export interface RecommendationDecision {
+  decision: RecommendationDecisionType;
+  decision_available: boolean;
+  attention_required: boolean;
+  current_calorie_target_kcal_per_day: number;
+  proposed_calorie_target_kcal_per_day: number;
+  calorie_delta_kcal_per_day: number;
+  numerical_change_proposed: boolean;
+  goal: Goal;
+  requested_weekly_change_kg: number;
+  outcome_interpretability: OutcomeInterpretability;
+  intake_adherence: IntakeAdherenceStatus;
+  weight_trend_status: WeightTrendStatus;
+  goal_progress: GoalProgressStatus;
+  limiting_reason: RecommendationDecisionReason | null;
+  reason_codes: RecommendationDecisionReason[];
+  adaptive_tdee_kcal_per_day: number | null;
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -566,6 +588,9 @@ export interface ProfileIntelligenceResponse {
   training_assessment?: TrainingDemandAssessment;
   nutrition_feasibility?: NutritionFeasibilityAssessment;
   plan_outcome?: PlanOutcomeAssessment;
+  recommendation_decision?: RecommendationDecision;
+  proposed_macro_plan?: PersonalizedMacroPlan | null;
+  proposed_target_envelope?: NutritionTargetEnvelope | null;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

@@ -61,6 +61,9 @@ The Progress stage shows weight, calorie, and step trends, observed variability,
 history, plus current-plan adherence and goal-progress evidence. Missing values remain unknown and
 do not imply non-adherence; no browser-side formulas or interpolation are added. Outcome assessment
 is informational and never adjusts the current plan.
+Progress also shows a proposal-only recommendation decision. Hold and defer keep the current plan;
+increase/decrease proposals show old and proposed calories plus recalculated macros. No proposal is
+activated or added to plan history.
 
 The interface uses keyboard-navigable journey stages, visible focus states, labeled controls,
 responsive cards and tables, and reduced-motion support. The browser keeps profile, dietary inputs,

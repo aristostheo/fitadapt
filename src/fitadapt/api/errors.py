@@ -12,6 +12,7 @@ from fitadapt.analysis.trends import TrendAnalysisError
 from fitadapt.baseline.targets import MacroPolicyInfeasibleError
 from fitadapt.domain.observation import ObservationValidationError
 from fitadapt.domain.profile import ProfileValidationError
+from fitadapt.personalization.decisions import RecommendationDecisionError
 from fitadapt.personalization.dietary import NutritionDietaryError
 from fitadapt.personalization.intelligence import ProfileIntelligenceError
 from fitadapt.personalization.lifecycle import PersonalizationLifecycleError
@@ -40,6 +41,7 @@ DOMAIN_ERROR_CODES: dict[type[ValueError], str] = {
     TrainingDomainError: "training_domain_error",
     NutritionFeasibilityError: "nutrition_feasibility_error",
     PlanOutcomeError: "plan_outcome_error",
+    RecommendationDecisionError: "recommendation_decision_error",
 }
 
 

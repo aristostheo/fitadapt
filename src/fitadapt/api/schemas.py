@@ -22,6 +22,11 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.decisions import (
+    RecommendationDecision,
+    RecommendationDecisionReason,
+    RecommendationDecisionType,
+)
 from fitadapt.personalization.dietary import (
     DietaryPattern,
     FoodCategory,
@@ -693,6 +698,27 @@ class PlanOutcomeAssessmentResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class RecommendationDecisionResponse(ApiModel):
+    decision: RecommendationDecisionType
+    decision_available: bool
+    attention_required: bool
+    current_calorie_target_kcal_per_day: float
+    proposed_calorie_target_kcal_per_day: float
+    calorie_delta_kcal_per_day: float
+    numerical_change_proposed: bool
+    goal: Goal
+    requested_weekly_change_kg: float
+    outcome_interpretability: OutcomeInterpretability
+    intake_adherence: IntakeAdherenceStatus
+    weight_trend_status: WeightTrendStatus
+    goal_progress: GoalProgressStatus
+    limiting_reason: RecommendationDecisionReason | None
+    reason_codes: tuple[RecommendationDecisionReason, ...]
+    adaptive_tdee_kcal_per_day: float | None
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -740,6 +766,9 @@ class ProfileIntelligenceResponse(ApiModel):
     training_assessment: TrainingDemandAssessmentResponse
     nutrition_feasibility: NutritionFeasibilityResponse
     plan_outcome: PlanOutcomeAssessmentResponse
+    recommendation_decision: RecommendationDecisionResponse
+    proposed_macro_plan: PersonalizedMacroPlanResponse | None
+    proposed_target_envelope: NutritionTargetEnvelopeResponse | None
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1160,6 +1189,17 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         training_assessment=map_training_demand_assessment(result.training_assessment),
         nutrition_feasibility=map_nutrition_feasibility(result.nutrition_feasibility),
         plan_outcome=map_plan_outcome(result.plan_outcome),
+        recommendation_decision=map_recommendation_decision(result.recommendation_decision),
+        proposed_macro_plan=(
+            None
+            if result.proposed_macro_plan is None
+            else map_personalized_macro_plan(result.proposed_macro_plan)
+        ),
+        proposed_target_envelope=(
+            None
+            if result.proposed_target_envelope is None
+            else map_nutrition_target_envelope(result.proposed_target_envelope)
+        ),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1171,3 +1211,9 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
 
 def map_plan_outcome(result: PlanOutcomeAssessment) -> PlanOutcomeAssessmentResponse:
     return PlanOutcomeAssessmentResponse(**asdict(result))
+
+
+def map_recommendation_decision(
+    result: RecommendationDecision,
+) -> RecommendationDecisionResponse:
+    return RecommendationDecisionResponse(**asdict(result))

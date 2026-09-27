@@ -63,6 +63,9 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `latest_plan`        | Current selected calorie basis, exact preference-driven macro plan, and target envelope.            |
 | `dietary_assessment` | Current/latest-plan category constraints, preferences, conflicts, notices, and protein flexibility. |
 | `plan_outcome`       | Current-target intake adherence, observed weight-rate progress, evidence sufficiency, and reasons.  |
+| `recommendation_decision` | Proposal-only hold/increase/decrease/defer decision with target delta, attention state, and reasons. |
+| `proposed_macro_plan` | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target. |
+| `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal. |
 | `plan_progression`   | `null` unless requested; otherwise one prefix snapshot per submitted entry.                         |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
@@ -93,6 +96,10 @@ assessment, or progression snapshots. Insufficient evidence preserves the existi
 `target_envelope` is additive: all earlier response fields retain their names and semantics. It
 contains the exact selected plan plus calorie adherence, protein/fat preferred, and carbohydrate
 flexible ranges with policy provenance.
+The additive `recommendation_decision` is proposal-only. `latest_plan` remains the current active
+plan; hold and defer preserve its target exactly. Increase/decrease proposals use the existing macro
+and training-aware macro pipelines and do not alter progression or activate history. CP28 outcome
+assessment supplies adherence and progress evidence; CP29 does not duplicate those calculations.
 
 ## Latest-Only And Progression
 

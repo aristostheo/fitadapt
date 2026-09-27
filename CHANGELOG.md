@@ -27,3 +27,8 @@ recipes are generated.
 Checkpoint 28 adds deterministic current-plan adherence and observed-outcome assessment with
 trailing-window evidence thresholds, missing-versus-zero preservation, optional as-of filtering,
 and a Progress-stage summary. It is informational and does not change targets or recommendations.
+
+Checkpoint 29 adds a deterministic proposal-only recommendation decision layer with explicit
+hold/increase/decrease/defer outcomes, conservative goal-aware adjustment sizes, adherence gates,
+target-floor constraints, adaptive-TDEE context, and proposed macro/envelope recalculation. It does
+not activate plans, retain adaptation history, or change progression.

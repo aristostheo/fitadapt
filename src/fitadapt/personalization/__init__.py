@@ -1,5 +1,14 @@
 """Explicit nutrition-preference and macro-planning contracts."""
 
+from fitadapt.personalization.decisions import (
+    RECOMMENDATION_DECISION_POLICY_VERSION,
+    RecommendationDecision,
+    RecommendationDecisionConfig,
+    RecommendationDecisionError,
+    RecommendationDecisionReason,
+    RecommendationDecisionType,
+    decide_plan_adjustment,
+)
 from fitadapt.personalization.dietary import (
     DIETARY_ASSESSMENT_POLICY_VERSION,
     DIETARY_CATEGORY_POLICY_VERSION,
@@ -196,6 +205,13 @@ __all__ = [
     "NutritionGuidanceItem",
     "RestrictionCompatibility",
     "assess_nutrition_feasibility",
+    "RECOMMENDATION_DECISION_POLICY_VERSION",
+    "RecommendationDecision",
+    "RecommendationDecisionConfig",
+    "RecommendationDecisionError",
+    "RecommendationDecisionReason",
+    "RecommendationDecisionType",
+    "decide_plan_adjustment",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

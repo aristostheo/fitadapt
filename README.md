@@ -14,7 +14,7 @@ FitAdapt keeps explainable decision support separate from research: versioned RE
 | Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                                                  |
 | Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                                                        |
 | Recommendations | Conservative decision support; never automatically applied.                                                                                                                           |
-| Personalization | Lifecycle readiness, proposed plans, macro strategies/ranges, dietary preferences, training-aware macro composition, nutrition-feasibility guidance, and current-plan outcome review. |
+| Personalization | Lifecycle readiness, proposed plans, macro strategies/ranges, dietary preferences, training-aware macro composition, nutrition-feasibility guidance, current-plan outcome review, and proposal-only recommendation decisions. |
 | API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                                                 |
 | Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                                                     |
 
@@ -99,6 +99,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Training-aware nutrition](docs/training-aware-nutrition.md)
 - [Nutrition feasibility](docs/nutrition-feasibility.md)
 - [Plan outcome assessment](docs/plan-outcome-assessment.md)
+- [Recommendation decisions](docs/recommendation-decisions.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 

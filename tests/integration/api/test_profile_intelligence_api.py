@@ -109,8 +109,54 @@ def test_plan_outcome_supports_cutoff_without_changing_plan_targets() -> None:
     assert body["plan_outcome"]["observed_mean_intake_kcal_per_day"] == 2400
     assert (
         body["plan_outcome"]["prescribed_calorie_target_kcal_per_day"]
-        == body["latest_plan"]["selected_calorie_target_kcal_per_day"]
+        == body["recommendation_decision"]["current_calorie_target_kcal_per_day"]
     )
+    assert (
+        body["latest_plan"]["selected_calorie_target_kcal_per_day"]
+        != body["recommendation_decision"]["current_calorie_target_kcal_per_day"]
+    )
+
+
+def test_recommendation_decision_is_proposal_only_and_recalculates_macros() -> None:
+    payload = _payload(28)
+    payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
+    response = TestClient(create_app()).post("/v1/profile-intelligence", json=payload)
+    body = response.json()
+    decision = body["recommendation_decision"]
+
+    assert response.status_code == 200
+    assert decision["decision"] == "decrease"
+    assert decision["numerical_change_proposed"] is True
+    assert (
+        decision["proposed_calorie_target_kcal_per_day"]
+        < decision["current_calorie_target_kcal_per_day"]
+    )
+    assert (
+        body["proposed_macro_plan"]["calorie_target_kcal_per_day"]
+        == decision["proposed_calorie_target_kcal_per_day"]
+    )
+    assert (
+        body["latest_plan"]["selected_calorie_target_kcal_per_day"]
+        == decision["current_calorie_target_kcal_per_day"]
+    )
+
+
+def test_decision_cutoff_isolated_from_future_observation() -> None:
+    payload = _payload(28)
+    payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
+    payload["outcome_as_of_date"] = "2026-01-28"
+    baseline = TestClient(create_app()).post("/v1/profile-intelligence", json=payload).json()
+    payload["observations"].append(
+        {
+            "observed_on": "2026-02-01",
+            "body_weight_kg": 100,
+            "energy_intake_kcal": 1000,
+            "steps": 5000,
+        }
+    )
+    isolated = TestClient(create_app()).post("/v1/profile-intelligence", json=payload).json()
+
+    assert isolated["recommendation_decision"] == baseline["recommendation_decision"]
 
 
 def test_explicit_dietary_profile_adds_feasibility_without_changing_targets() -> None:

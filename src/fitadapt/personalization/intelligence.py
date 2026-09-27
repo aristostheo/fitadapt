@@ -13,6 +13,10 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate, calculate_calorie_target
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import UserProfile
+from fitadapt.personalization.decisions import (
+    RecommendationDecision,
+    decide_plan_adjustment,
+)
 from fitadapt.personalization.dietary import (
     DEFAULT_NUTRITION_PREFERENCE_PROFILE,
     NutritionPreferenceAssessment,
@@ -24,7 +28,11 @@ from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleResult,
     assess_personalization_lifecycle,
 )
-from fitadapt.personalization.macros import NutritionPreferences
+from fitadapt.personalization.macros import (
+    NutritionPreferences,
+    PersonalizedMacroPlan,
+    calculate_personalized_macro_plan,
+)
 from fitadapt.personalization.nutrition_feasibility import (
     NutritionFeasibilityAssessment,
     assess_nutrition_feasibility,
@@ -35,6 +43,10 @@ from fitadapt.personalization.planning import (
     PersonalizedPlanSnapshot,
     build_personalized_plan_progression,
     build_personalized_plan_snapshot,
+)
+from fitadapt.personalization.targets import (
+    NutritionTargetEnvelope,
+    calculate_nutrition_target_envelope,
 )
 from fitadapt.personalization.training import (
     TrainingContext,
@@ -77,6 +89,9 @@ class ProfileIntelligenceResult:
     training_assessment: TrainingDemandAssessment
     nutrition_feasibility: NutritionFeasibilityAssessment
     plan_outcome: PlanOutcomeAssessment
+    recommendation_decision: RecommendationDecision
+    proposed_macro_plan: PersonalizedMacroPlan | None
+    proposed_target_envelope: NutritionTargetEnvelope | None
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -132,12 +147,58 @@ def analyze_profile_intelligence(
     nutrition_feasibility = assess_nutrition_feasibility(
         dietary_profile, dietary_assessment, latest_plan.macro_plan
     )
+    decision_observations = (
+        submitted
+        if outcome_as_of_date is None
+        else tuple(item for item in submitted if item.observed_on <= outcome_as_of_date)
+    )
+    decision_plan = (
+        latest_plan
+        if outcome_as_of_date is None
+        else build_personalized_plan_snapshot(
+            profile,
+            decision_observations,
+            preferences,
+            trend_config,
+            adaptive_config,
+            lifecycle_config,
+            recommendation_config,
+            assess_training_demand(training_context, decision_observations),
+        )
+    )
     plan_outcome = assess_plan_outcome(
         profile,
         submitted,
-        latest_plan.selected_calorie_target_kcal_per_day,
+        decision_plan.selected_calorie_target_kcal_per_day,
         as_of_date=outcome_as_of_date,
     )
+    decision_adaptive_tdee = estimate_adaptive_tdee(
+        analyze_observation_trends(decision_observations, trend_config), adaptive_config
+    ).adaptive_tdee_kcal_per_day
+    recommendation_decision = decide_plan_adjustment(
+        profile,
+        decision_plan.selected_calorie_target_kcal_per_day,
+        decision_plan.macro_plan,
+        plan_outcome,
+        decision_adaptive_tdee,
+    )
+    proposed_macro_plan = None
+    proposed_target_envelope = None
+    if recommendation_decision.numerical_change_proposed:
+        proposed_macro_plan = calculate_personalized_macro_plan(
+            profile,
+            recommendation_decision.proposed_calorie_target_kcal_per_day,
+            decision_plan.macro_plan.calorie_source,
+            preferences,
+            training_assessment=training_assessment,
+        )
+        proposed_target_envelope = calculate_nutrition_target_envelope(
+            profile,
+            recommendation_decision.proposed_calorie_target_kcal_per_day,
+            decision_plan.macro_plan.calorie_source,
+            preferences,
+            training_assessment=training_assessment,
+        )
     progression = (
         build_personalized_plan_progression(
             profile,
@@ -162,6 +223,9 @@ def analyze_profile_intelligence(
         training_assessment=training_assessment,
         nutrition_feasibility=nutrition_feasibility,
         plan_outcome=plan_outcome,
+        recommendation_decision=recommendation_decision,
+        proposed_macro_plan=proposed_macro_plan,
+        proposed_target_envelope=proposed_target_envelope,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,

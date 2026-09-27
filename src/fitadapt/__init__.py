@@ -50,6 +50,15 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.personalization.decisions import (
+    RECOMMENDATION_DECISION_POLICY_VERSION,
+    RecommendationDecision,
+    RecommendationDecisionConfig,
+    RecommendationDecisionError,
+    RecommendationDecisionReason,
+    RecommendationDecisionType,
+    decide_plan_adjustment,
+)
 from fitadapt.personalization.dietary import (
     DIETARY_ASSESSMENT_POLICY_VERSION,
     DIETARY_CATEGORY_POLICY_VERSION,
@@ -294,6 +303,13 @@ __all__ = [
     "RestrictionCompatibility",
     "assess_nutrition_feasibility",
     "assess_nutrition_preferences",
+    "RECOMMENDATION_DECISION_POLICY_VERSION",
+    "RecommendationDecision",
+    "RecommendationDecisionConfig",
+    "RecommendationDecisionError",
+    "RecommendationDecisionReason",
+    "RecommendationDecisionType",
+    "decide_plan_adjustment",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

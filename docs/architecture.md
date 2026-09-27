@@ -133,6 +133,25 @@ client consumes this operation rather than duplicating calculations. It keeps pr
 and imported observations only in session memory; browser CSV/JSON import is previewed locally and
 never adds an upload or persistence boundary.
 
+## Recommendation Decision Boundary
+
+The decision layer is a latest-only, proposal-only composition over the current plan and CP28
+outcome assessment:
+
+```text
+current plan + outcome assessment + adaptive TDEE context
+    -> hold / increase / decrease / defer decision
+    -> optional proposed target
+    -> existing macro and training-aware macro pipelines
+```
+
+`defer` means the evidence or adherence is not sufficient to judge the plan; `hold` means the
+evidence is interpretable and no change is justified. Both preserve the current target. Numerical
+proposals use explicit bounded deltas and the established macro-calorie safety floor. Adaptive TDEE
+can add supporting or conflicting context but is never a second target generator. The current plan
+and progression remain unchanged; activation, cooldowns, repeated decision history, and acceptance
+workflows are reserved for Checkpoint 30.
+
 ## Preference Macro Boundary
 
 `NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the
