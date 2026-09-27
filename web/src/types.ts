@@ -518,7 +518,11 @@ export interface PlanOutcomeAssessment {
   policy_version: string;
   assumptions: string[];
 }
-export type RecommendationDecisionType = "hold" | "increase" | "decrease" | "defer";
+export type RecommendationDecisionType =
+  | "hold"
+  | "increase"
+  | "decrease"
+  | "defer";
 export type RecommendationDecisionReason = string;
 export interface RecommendationDecision {
   decision: RecommendationDecisionType;

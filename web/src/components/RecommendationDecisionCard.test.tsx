@@ -64,10 +64,16 @@ describe("recommendation decision presentation", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Defer plan adjustment" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Defer plan adjustment" }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/not close enough to target/i)).toBeInTheDocument();
-    expect(screen.getByText(/current plan remains active/i)).toBeInTheDocument();
-    expect(screen.getByText("Technical decision details").closest("details")).not.toHaveAttribute("open");
+    expect(
+      screen.getByText(/current plan remains active/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Technical decision details").closest("details"),
+    ).not.toHaveAttribute("open");
   });
 
   it("shows old and proposed targets and macros for an increase", () => {
@@ -90,7 +96,9 @@ describe("recommendation decision presentation", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Propose a calorie increase" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Propose a calorie increase" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Current macros")).toBeInTheDocument();
     expect(screen.getByText("Proposed macros")).toBeInTheDocument();
     expect(screen.getByText(/proposal only/i)).toBeInTheDocument();

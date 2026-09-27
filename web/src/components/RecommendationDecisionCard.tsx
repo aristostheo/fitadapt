@@ -61,18 +61,26 @@ export function RecommendationDecisionCard({
           <h2>{decisionLabels[decision.decision]}</h2>
         </div>
         <span className="status-badge">
-          {decision.attention_required ? "Review proposed change" : "Informational"}
+          {decision.attention_required
+            ? "Review proposed change"
+            : "Informational"}
         </span>
       </div>
       <p>{explanation(decision)}</p>
       <div className="metric-grid">
         <MetricCard
           label="Current calories"
-          value={whole(decision.current_calorie_target_kcal_per_day, "kcal/day")}
+          value={whole(
+            decision.current_calorie_target_kcal_per_day,
+            "kcal/day",
+          )}
         />
         <MetricCard
           label="Proposed calories"
-          value={whole(decision.proposed_calorie_target_kcal_per_day, "kcal/day")}
+          value={whole(
+            decision.proposed_calorie_target_kcal_per_day,
+            "kcal/day",
+          )}
           detail={
             decision.calorie_delta_kcal_per_day === 0
               ? "No numerical change"
@@ -92,10 +100,16 @@ export function RecommendationDecisionCard({
         </div>
       ) : null}
       {decision.decision === "defer" && (
-        <Notice tone="warning">The current plan remains active while more reliable evidence is collected.</Notice>
+        <Notice tone="warning">
+          The current plan remains active while more reliable evidence is
+          collected.
+        </Notice>
       )}
       {decision.decision !== "defer" && decision.decision !== "hold" && (
-        <Notice>This is a proposal only. FitAdapt has not activated a new plan or changed plan history.</Notice>
+        <Notice>
+          This is a proposal only. FitAdapt has not activated a new plan or
+          changed plan history.
+        </Notice>
       )}
       <details>
         <summary>Technical decision details</summary>

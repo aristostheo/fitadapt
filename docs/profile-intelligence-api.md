@@ -53,20 +53,20 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 
 `ProfileIntelligenceResponse` preserves full calculation precision and has these sections:
 
-| Field                | Existing source                                                                                     |
-| -------------------- | --------------------------------------------------------------------------------------------------- |
-| `baseline`           | `calculate_calorie_target` output.                                                                  |
-| `trends`             | Calendar-aware trend points and data quality.                                                       |
-| `adaptive_tdee`      | Daily eligibility, aggregate TDEE, MAD, and aggregation evidence.                                   |
-| `lifecycle`          | Evidence readiness and requirements.                                                                |
-| `recommendation`     | Existing conservative recommendation or ordered insufficiency reasons.                              |
-| `latest_plan`        | Current selected calorie basis, exact preference-driven macro plan, and target envelope.            |
-| `dietary_assessment` | Current/latest-plan category constraints, preferences, conflicts, notices, and protein flexibility. |
-| `plan_outcome`       | Current-target intake adherence, observed weight-rate progress, evidence sufficiency, and reasons.  |
-| `recommendation_decision` | Proposal-only hold/increase/decrease/defer decision with target delta, attention state, and reasons. |
-| `proposed_macro_plan` | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target. |
-| `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal. |
-| `plan_progression`   | `null` unless requested; otherwise one prefix snapshot per submitted entry.                         |
+| Field                      | Existing source                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `baseline`                 | `calculate_calorie_target` output.                                                                   |
+| `trends`                   | Calendar-aware trend points and data quality.                                                        |
+| `adaptive_tdee`            | Daily eligibility, aggregate TDEE, MAD, and aggregation evidence.                                    |
+| `lifecycle`                | Evidence readiness and requirements.                                                                 |
+| `recommendation`           | Existing conservative recommendation or ordered insufficiency reasons.                               |
+| `latest_plan`              | Current selected calorie basis, exact preference-driven macro plan, and target envelope.             |
+| `dietary_assessment`       | Current/latest-plan category constraints, preferences, conflicts, notices, and protein flexibility.  |
+| `plan_outcome`             | Current-target intake adherence, observed weight-rate progress, evidence sufficiency, and reasons.   |
+| `recommendation_decision`  | Proposal-only hold/increase/decrease/defer decision with target delta, attention state, and reasons. |
+| `proposed_macro_plan`      | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target.         |
+| `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
+| `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
 and logged numeric zero as zero. Nutrition preferences affect macro allocation only; they do not

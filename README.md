@@ -8,15 +8,15 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 
 FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans with flexible target envelopes, calendar-aware trends, adaptive observed-data TDEE, lifecycle readiness, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. `POST /v1/profile-intelligence` composes those existing outputs into one stateless client response. Synthetic histories support evaluation and ML experiments only; FastAPI has no formulas or persistence.
 
-| Layer           | Role                                                                                                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Baseline        | Deterministic REE, activity-adjusted TDEE, calorie and macro targets.                                                                                                                 |
-| Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                                                  |
-| Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                                                        |
-| Recommendations | Conservative decision support; never automatically applied.                                                                                                                           |
+| Layer           | Role                                                                                                                                                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline        | Deterministic REE, activity-adjusted TDEE, calorie and macro targets.                                                                                                                                                         |
+| Adaptive        | Intake and weight-trend observed-data approximation.                                                                                                                                                                          |
+| Research        | Fixed-seed synthetic evaluation and leakage-safe ML benchmark.                                                                                                                                                                |
+| Recommendations | Conservative decision support; never automatically applied.                                                                                                                                                                   |
 | Personalization | Lifecycle readiness, proposed plans, macro strategies/ranges, dietary preferences, training-aware macro composition, nutrition-feasibility guidance, current-plan outcome review, and proposal-only recommendation decisions. |
-| API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                                                 |
-| Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                                                     |
+| API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                                                                                         |
+| Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                                                                                             |
 
 ## Fixed-Seed Synthetic Results
 
