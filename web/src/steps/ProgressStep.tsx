@@ -76,7 +76,9 @@ export function ProgressStep({
             <PlanAdaptationCard assessment={result.plan_adaptation} />
           )}
           {result.recommendation_history && (
-            <RecommendationHistoryCard history={result.recommendation_history} />
+            <RecommendationHistoryCard
+              history={result.recommendation_history}
+            />
           )}
           <div className="chart-grid">
             <TrendChart

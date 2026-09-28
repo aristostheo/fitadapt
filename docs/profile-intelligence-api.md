@@ -67,7 +67,7 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `proposed_macro_plan`      | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target.         |
 | `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
 | `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
-| `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                  |
+| `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                   |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,

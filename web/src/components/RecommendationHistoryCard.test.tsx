@@ -23,7 +23,8 @@ const history: RecommendationHistory = {
       observation_window_days: 28,
       high_level_reason: "progress_adaptation",
       reason_codes: ["proposal_activated"],
-      user_summary: "Your calorie target decreased based on recent progress evidence.",
+      user_summary:
+        "Your calorie target decreased based on recent progress evidence.",
       policy_versions: ["recommendation_history_v1"],
       assumptions: [],
     },
@@ -45,7 +46,8 @@ const history: RecommendationHistory = {
       observation_window_days: 28,
       high_level_reason: "reversal_suppressed",
       reason_codes: ["reversal_needs_more_evidence"],
-      user_summary: "A reversal was suppressed because your plan was adjusted recently.",
+      user_summary:
+        "A reversal was suppressed because your plan was adjusted recently.",
       policy_versions: ["recommendation_history_v1"],
       assumptions: [],
     },
@@ -63,10 +65,16 @@ describe("recommendation history presentation", () => {
   it("shows the latest change and current-plan marker", () => {
     render(<RecommendationHistoryCard history={history} />);
 
-    expect(screen.getByRole("heading", { name: "Calories decreased" })).toBeInTheDocument();
-    expect(screen.getByText(/This entry represents a plan change/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Calories decreased" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/This entry represents a plan change/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("Current active plan")).toBeInTheDocument();
     expect(screen.getByText(/reversal was suppressed/i)).toBeInTheDocument();
-    expect(screen.getByText("Technical history details").closest("details")).not.toHaveAttribute("open");
+    expect(
+      screen.getByText("Technical history details").closest("details"),
+    ).not.toHaveAttribute("open");
   });
 });
