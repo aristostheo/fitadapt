@@ -30,9 +30,9 @@ equation, height, weight, activity, BMI-valid profiles, and allowed loss rates p
 binding counts:
 
 | Candidate cap | Weekly-rate cap | TDEE deficit cap | Calorie floor | BMI policy |
-| --- | ---: | ---: | ---: | ---: |
-| 20% | 20 | 174 | 19 | 0 |
-| 25% | 76 | 106 | 26 | 0 |
+| ------------- | --------------: | ---------------: | ------------: | ---------: |
+| 20%           |              20 |              174 |            19 |          0 |
+| 25%           |              76 |              106 |            26 |          0 |
 
 The remaining cases were already safe without a guardrail binding. The default remains `25%`: it
 allows the existing profile/rate policy to remain active in more ordinary cases while the absolute
