@@ -42,6 +42,16 @@ from fitadapt.personalization.dietary import (
     ProteinFlexibilityStatus,
     assess_nutrition_preferences,
 )
+from fitadapt.personalization.history import (
+    RECOMMENDATION_HISTORY_POLICY_VERSION,
+    MacroSummary,
+    RecommendationChangeReason,
+    RecommendationChangeType,
+    RecommendationHistory,
+    RecommendationHistoryEntry,
+    RecommendationHistoryError,
+    build_recommendation_history,
+)
 from fitadapt.personalization.intelligence import (
     PROFILE_INTELLIGENCE_POLICY_VERSION,
     ProfileIntelligenceError,
@@ -232,6 +242,14 @@ __all__ = [
     "PlanAdaptationReason",
     "PlanAdaptationSource",
     "evaluate_plan_adaptation",
+    "RECOMMENDATION_HISTORY_POLICY_VERSION",
+    "MacroSummary",
+    "RecommendationChangeReason",
+    "RecommendationChangeType",
+    "RecommendationHistory",
+    "RecommendationHistoryEntry",
+    "RecommendationHistoryError",
+    "build_recommendation_history",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

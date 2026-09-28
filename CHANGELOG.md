@@ -37,3 +37,8 @@ Checkpoint 30 adds stateless longitudinal plan adaptation with immutable events,
 evidence requirements, anti-oscillation reversal suppression, activate/hold/defer/suppress actions,
 caller-owned history, and Progress/API activation eligibility. It does not persist or automatically
 activate plans.
+
+Checkpoint 31 adds immutable recommendation history and explainability derived from caller-supplied
+adaptation events. It distinguishes profile recalculation, progress adaptation, actual plan changes,
+and evaluation-only hold/defer/suppression events, with deterministic summaries and notification-ready
+latest-change fields. It does not add persistence or notification delivery.

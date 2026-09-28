@@ -47,6 +47,12 @@ from fitadapt.personalization.dietary import (
     NutritionPreferenceProfile,
     ProteinFlexibilityStatus,
 )
+from fitadapt.personalization.history import (
+    RecommendationChangeReason,
+    RecommendationChangeType,
+    RecommendationHistory,
+    RecommendationHistoryEntry,
+)
 from fitadapt.personalization.intelligence import ProfileIntelligenceResult
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
@@ -793,6 +799,47 @@ class PlanAdaptationResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class MacroSummaryResponse(ApiModel):
+    protein_g_per_day: float
+    carbohydrate_g_per_day: float
+    fat_g_per_day: float
+    calorie_target_kcal_per_day: float
+    macro_policy_version: str
+
+
+class RecommendationHistoryEntryResponse(ApiModel):
+    effective_date: date
+    source: PlanAdaptationSource
+    action: PlanAdaptationAction
+    change_type: RecommendationChangeType
+    is_plan_change: bool
+    is_evaluation_only: bool
+    is_current_active_plan: bool
+    previous_calorie_target_kcal_per_day: float
+    resulting_or_proposed_calorie_target_kcal_per_day: float
+    calorie_delta_kcal_per_day: float
+    previous_macro_summary: MacroSummaryResponse | None
+    resulting_or_proposed_macro_summary: MacroSummaryResponse | None
+    recommendation_decision: RecommendationDecisionType
+    evidence_as_of_date: date | None
+    observation_window_days: int | None
+    high_level_reason: RecommendationChangeReason
+    reason_codes: tuple[str, ...]
+    user_summary: str
+    policy_versions: tuple[str, ...]
+    assumptions: tuple[str, ...]
+
+
+class RecommendationHistoryResponse(ApiModel):
+    entries: tuple[RecommendationHistoryEntryResponse, ...]
+    latest_change: RecommendationHistoryEntryResponse | None
+    has_new_recommendation_event: bool
+    actionable_event_available: bool
+    current_active_target_kcal_per_day: float
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -844,6 +891,7 @@ class ProfileIntelligenceResponse(ApiModel):
     proposed_macro_plan: PersonalizedMacroPlanResponse | None
     proposed_target_envelope: NutritionTargetEnvelopeResponse | None
     plan_adaptation: PlanAdaptationResponse
+    recommendation_history: RecommendationHistoryResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1276,6 +1324,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
             else map_nutrition_target_envelope(result.proposed_target_envelope)
         ),
         plan_adaptation=map_plan_adaptation(result.plan_adaptation),
+        recommendation_history=map_recommendation_history(result.recommendation_history),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1322,4 +1371,40 @@ def map_plan_adaptation(result: PlanAdaptationDecision) -> PlanAdaptationRespons
         ),
         policy_version=result.policy_version,
         assumptions=result.assumptions,
+    )
+
+
+def map_recommendation_history(result: RecommendationHistory) -> RecommendationHistoryResponse:
+    return RecommendationHistoryResponse(
+        entries=tuple(map_recommendation_history_entry(entry) for entry in result.entries),
+        latest_change=(
+            None
+            if result.latest_change is None
+            else map_recommendation_history_entry(result.latest_change)
+        ),
+        has_new_recommendation_event=result.has_new_recommendation_event,
+        actionable_event_available=result.actionable_event_available,
+        current_active_target_kcal_per_day=result.current_active_target_kcal_per_day,
+        policy_version=result.policy_version,
+        assumptions=result.assumptions,
+    )
+
+
+def map_recommendation_history_entry(
+    entry: RecommendationHistoryEntry,
+) -> RecommendationHistoryEntryResponse:
+    return RecommendationHistoryEntryResponse(
+        **{
+            **asdict(entry),
+            "previous_macro_summary": (
+                None
+                if entry.previous_macro_summary is None
+                else asdict(entry.previous_macro_summary)
+            ),
+            "resulting_or_proposed_macro_summary": (
+                None
+                if entry.resulting_or_proposed_macro_summary is None
+                else asdict(entry.resulting_or_proposed_macro_summary)
+            ),
+        }
     )

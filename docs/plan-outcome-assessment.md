@@ -27,3 +27,6 @@ dates and invalid domain inputs use the existing validation boundaries. No meal,
 or medical conclusions are produced.
 CP30 may consume this assessment to gate activation, but does not alter its evidence or
 interpretation. Activation cooldown and reversal history are separate adaptation policy concerns.
+
+Checkpoint 31 history summaries consume the resulting adaptation events and retain the outcome's
+evidence date and structured provenance; they do not reinterpret CP28 evidence.

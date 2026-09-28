@@ -167,6 +167,13 @@ days plus stronger fresh weight and intake evidence. The evaluator uses observat
 wall-clock time, and does not persist or mutate the active plan. Progression remains prefix-based;
 storage, acceptance, activation, and notifications remain caller responsibilities.
 
+## Recommendation History Boundary
+
+Recommendation history is a deterministic explainability projection over caller-supplied adaptation
+events. It separates profile recalculation from progress adaptation and marks activated plan changes
+separately from evaluation-only hold, defer, and suppressed entries. It does not change activation
+eligibility, persist state, or rewrite earlier entries when newer observations arrive.
+
 ## Preference Macro Boundary
 
 `NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the

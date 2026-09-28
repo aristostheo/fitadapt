@@ -3,6 +3,7 @@ import { TrainingAssessmentCard } from "../components/TrainingAssessmentCard";
 import { PlanOutcomeCard } from "../components/PlanOutcomeCard";
 import { RecommendationDecisionCard } from "../components/RecommendationDecisionCard";
 import { PlanAdaptationCard } from "../components/PlanAdaptationCard";
+import { RecommendationHistoryCard } from "../components/RecommendationHistoryCard";
 import { ActionBar, MetricCard, StepHeader } from "../components/ui";
 import type { ProfileIntelligenceResponse } from "../types";
 import { whole } from "../utils/presentation";
@@ -73,6 +74,9 @@ export function ProgressStep({
           )}
           {result.plan_adaptation && (
             <PlanAdaptationCard assessment={result.plan_adaptation} />
+          )}
+          {result.recommendation_history && (
+            <RecommendationHistoryCard history={result.recommendation_history} />
           )}
           <div className="chart-grid">
             <TrendChart

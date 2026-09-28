@@ -67,6 +67,7 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `proposed_macro_plan`      | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target.         |
 | `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
 | `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
+| `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                  |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
@@ -82,6 +83,11 @@ completeness, evidence source, stable reason codes, and an interpretability grad
 history is limited rather than treated as adherence or non-adherence. The optional
 `outcome_as_of_date` field filters out later observations; by default the latest observation date is
 used. It does not alter any target, recommendation, macro calculation, or progression.
+The additive `recommendation_history` is built from caller-supplied adaptation events. It separates
+profile recalculation from progress adaptation and distinguishes actual plan changes from
+evaluation-only hold, defer, and suppressed entries. `latest_change`, `actionable_event_available`,
+and structured target/source fields are notification-ready; summaries are deterministic and reason
+codes remain available for technical details.
 The additive `nutrition_feasibility` assessment uses only an explicitly supplied dietary profile
 and the final effective macro plan. When dietary information is omitted or a selected-food profile
 is empty, feasibility is unavailable rather than assumed easy. Practical guidance is category-level

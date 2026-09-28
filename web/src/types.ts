@@ -581,6 +581,52 @@ export interface PlanAdaptationAssessment {
   policy_version: string;
   assumptions: string[];
 }
+export type RecommendationChangeType =
+  | "initial_plan"
+  | "profile_update"
+  | "calorie_increase"
+  | "calorie_decrease"
+  | "hold"
+  | "defer"
+  | "suppressed";
+export interface MacroSummary {
+  protein_g_per_day: number;
+  carbohydrate_g_per_day: number;
+  fat_g_per_day: number;
+  calorie_target_kcal_per_day: number;
+  macro_policy_version: string;
+}
+export interface RecommendationHistoryEntry {
+  effective_date: string;
+  source: "progress_adaptation" | "profile_recalculation";
+  action: PlanAdaptationAction;
+  change_type: RecommendationChangeType;
+  is_plan_change: boolean;
+  is_evaluation_only: boolean;
+  is_current_active_plan: boolean;
+  previous_calorie_target_kcal_per_day: number;
+  resulting_or_proposed_calorie_target_kcal_per_day: number;
+  calorie_delta_kcal_per_day: number;
+  previous_macro_summary: MacroSummary | null;
+  resulting_or_proposed_macro_summary: MacroSummary | null;
+  recommendation_decision: RecommendationDecisionType;
+  evidence_as_of_date: string | null;
+  observation_window_days: number | null;
+  high_level_reason: string;
+  reason_codes: string[];
+  user_summary: string;
+  policy_versions: string[];
+  assumptions: string[];
+}
+export interface RecommendationHistory {
+  entries: RecommendationHistoryEntry[];
+  latest_change: RecommendationHistoryEntry | null;
+  has_new_recommendation_event: boolean;
+  actionable_event_available: boolean;
+  current_active_target_kcal_per_day: number;
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -633,6 +679,7 @@ export interface ProfileIntelligenceResponse {
   proposed_macro_plan?: PersonalizedMacroPlan | null;
   proposed_target_envelope?: NutritionTargetEnvelope | null;
   plan_adaptation?: PlanAdaptationAssessment;
+  recommendation_history?: RecommendationHistory;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

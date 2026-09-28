@@ -29,6 +29,7 @@ from fitadapt.personalization.dietary import (
     NutritionPreferenceProfile,
     assess_nutrition_preferences,
 )
+from fitadapt.personalization.history import RecommendationHistory, build_recommendation_history
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
     PersonalizationLifecycleResult,
@@ -99,6 +100,7 @@ class ProfileIntelligenceResult:
     proposed_macro_plan: PersonalizedMacroPlan | None
     proposed_target_envelope: NutritionTargetEnvelope | None
     plan_adaptation: PlanAdaptationDecision
+    recommendation_history: RecommendationHistory
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -237,6 +239,14 @@ def analyze_profile_intelligence(
         plan_outcome,
         source=adaptation_source,
     )
+    recommendation_history = build_recommendation_history(
+        adaptation_history,
+        current_active_macro_plan=plan_adaptation.next_active_macro_plan,
+        proposed_macro_plan=proposed_macro_plan,
+        initial_plan_date=(
+            None if not decision_observations else decision_observations[0].observed_on
+        ),
+    )
     return ProfileIntelligenceResult(
         baseline=baseline,
         trends=trends,
@@ -252,6 +262,7 @@ def analyze_profile_intelligence(
         proposed_macro_plan=proposed_macro_plan,
         proposed_target_envelope=proposed_target_envelope,
         plan_adaptation=plan_adaptation,
+        recommendation_history=recommendation_history,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,

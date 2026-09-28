@@ -52,3 +52,8 @@ The Progress screen shows whether a plan update is available, whether more evide
 whether a reversal was suppressed. Activation is eligibility only; no notification, persistence,
 or active-plan mutation occurs. Checkpoint 31 or the main application may store accepted events and
 active-plan transitions.
+
+Checkpoint 31 converts the supplied adaptation-event tuple into a separate explainability history.
+It does not change activation eligibility. Activated changes, profile recalculations, holds, defers,
+and suppressed reversals remain distinguishable, and evaluation-only entries do not imply that the
+active plan changed.

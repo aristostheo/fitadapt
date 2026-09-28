@@ -59,3 +59,7 @@ historical decisions.
 CP30 adds a separate activation gate after this decision. It may defer or suppress an otherwise
 valid proposal because of cooldown, insufficient fresh contributors, or reversal risk. It does not
 alter CP29 direction or magnitude logic.
+
+Checkpoint 31 presents CP30 events as an immutable audit stream. The history layer derives summaries
+and change types from structured source/action/reason fields; it does not alter decisions or create
+new recommendation logic.

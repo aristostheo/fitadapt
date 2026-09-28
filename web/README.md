@@ -67,6 +67,9 @@ activated or added to plan history.
 Progress also shows longitudinal activation eligibility, cooldown deferral, and reversal suppression.
 The browser does not persist adaptation events or activate plans; it displays the stateless API result
 for caller review.
+Progress also shows recommendation history, with the latest change, a compact timeline, and a clear
+distinction between actual plan changes and evaluation-only decisions. History is supplied by the
+caller and is not persisted by the browser.
 
 The interface uses keyboard-navigable journey stages, visible focus states, labeled controls,
 responsive cards and tables, and reduced-motion support. The browser keeps profile, dietary inputs,
