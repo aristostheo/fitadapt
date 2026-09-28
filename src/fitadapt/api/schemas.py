@@ -92,6 +92,11 @@ from fitadapt.personalization.planning import (
     PersonalizedPlanSnapshot,
     PlanCalorieBasis,
 )
+from fitadapt.personalization.safety import (
+    TargetEligibilityAssessment,
+    TargetEligibilityStatus,
+    TargetSafetyReason,
+)
 from fitadapt.personalization.targets import (
     NutritionRangeKind,
     NutritionTargetEnvelope,
@@ -391,7 +396,7 @@ class ProfileIntelligenceRequest(ApiModel):
     """Main client request using existing engine defaults and strict progression opt-in."""
 
     profile: ProfileRequest
-    observations: list[ObservationRequest]
+    observations: list[ObservationRequest] = Field(default_factory=list, max_length=1095)
     nutrition_preferences: NutritionPreferencesRequest
     dietary_preference_profile: NutritionPreferenceProfileRequest | None = None
     training_context: TrainingContextRequest | None = None
@@ -868,6 +873,27 @@ class IntegrationStatusResponse(ApiModel):
     policy_version: str
 
 
+class TargetEligibilityAssessmentResponse(ApiModel):
+    status: TargetEligibilityStatus
+    bmi: float
+    minimum_bmi_for_weight_loss: float
+    near_underweight_bmi_upper_bound: float
+    near_underweight_maximum_deficit_fraction_of_tdee: float
+    baseline_tdee_kcal_per_day: float
+    requested_target_kcal_per_day: float
+    effective_target_kcal_per_day: float | None
+    applied_calorie_floor_kcal_per_day: float | None
+    maximum_permitted_deficit_kcal_per_day: float | None
+    requested_deficit_kcal_per_day: float
+    effective_deficit_kcal_per_day: float | None
+    effective_weekly_change_kg: float | None
+    requested_weekly_change_kg: float
+    goal: Goal
+    reason_codes: tuple[TargetSafetyReason, ...]
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -922,6 +948,7 @@ class ProfileIntelligenceResponse(ApiModel):
     recommendation_history: RecommendationHistoryResponse
     current_recommendation: CurrentRecommendationResponse
     integration_status: IntegrationStatusResponse
+    target_safety: TargetEligibilityAssessmentResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1357,6 +1384,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         recommendation_history=map_recommendation_history(result.recommendation_history),
         current_recommendation=map_current_recommendation(result.current_recommendation),
         integration_status=map_integration_status(result.integration_status),
+        target_safety=map_target_safety(result.target_safety),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1460,3 +1488,9 @@ def map_current_recommendation(result: CurrentRecommendation) -> CurrentRecommen
 
 def map_integration_status(result: IntegrationStatus) -> IntegrationStatusResponse:
     return IntegrationStatusResponse(**asdict(result))
+
+
+def map_target_safety(
+    result: TargetEligibilityAssessment,
+) -> TargetEligibilityAssessmentResponse:
+    return TargetEligibilityAssessmentResponse(**asdict(result))

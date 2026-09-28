@@ -117,6 +117,16 @@ from fitadapt.personalization.planning import (
     build_personalized_plan_progression,
     build_personalized_plan_snapshot,
 )
+from fitadapt.personalization.safety import (
+    MINIMUM_BMI_FOR_WEIGHT_LOSS,
+    TARGET_SAFETY_POLICY_VERSION,
+    TargetEligibilityAssessment,
+    TargetEligibilityStatus,
+    TargetSafetyConfig,
+    TargetSafetyError,
+    TargetSafetyReason,
+    assess_target_eligibility,
+)
 from fitadapt.personalization.training import (
     MAXIMUM_TYPICAL_STEPS,
     MAXIMUM_WEEKLY_CARDIO_MINUTES,
@@ -260,6 +270,14 @@ __all__ = [
     "CurrentRecommendation",
     "IntegrationPlanSource",
     "IntegrationStatus",
+    "TARGET_SAFETY_POLICY_VERSION",
+    "MINIMUM_BMI_FOR_WEIGHT_LOSS",
+    "TargetEligibilityAssessment",
+    "TargetEligibilityStatus",
+    "TargetSafetyConfig",
+    "TargetSafetyError",
+    "TargetSafetyReason",
+    "assess_target_eligibility",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

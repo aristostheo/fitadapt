@@ -71,6 +71,10 @@ Use `integration_status` without parsing prose:
 targets, change type, and reason codes are structured notification-ready data. FitAdapt does not send
 notifications.
 
+Inspect `target_safety` as well: `eligible` means no safety guardrail constrained the request,
+`constrained` means a safer target was applied, and `ineligible` means FitAdapt will not generate an
+automated weight-loss target for the current body-size threshold.
+
 ## Historical safety
 
 For an earlier `outcome_as_of_date`, future observations are excluded from trends, adaptive TDEE,

@@ -58,6 +58,10 @@ caller action: send the accepted activation event in `adaptation_history` on the
 engine can reconstruct that active target. A returned proposal or activation eligibility alone does
 not mean the plan became active.
 
+Safety guardrails remain authoritative during adaptation: repeated decreases cannot cross the
+configured calorie floor or deficit cap, and an ineligible weight-loss profile cannot activate an
+automated loss target.
+
 Checkpoint 31 converts the supplied adaptation-event tuple into a separate explainability history.
 It does not change activation eligibility. Activated changes, profile recalculations, holds, defers,
 and suppressed reversals remain distinguishable, and evaluation-only entries do not imply that the

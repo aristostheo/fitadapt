@@ -11,6 +11,7 @@ from fitadapt.domain.profile import (
 
 MAXIMUM_MINUTES_PER_DAY = 1440.0
 MAXIMUM_SLEEP_HOURS = 24.0
+MAXIMUM_ENERGY_INTAKE_KCAL = 10000.0
 MINIMUM_RATING = 1
 MAXIMUM_RATING = 5
 
@@ -54,7 +55,7 @@ class DailyObservation:
             self.energy_intake_kcal,
             field_name="energy_intake_kcal",
             minimum=0.0,
-            maximum=None,
+            maximum=MAXIMUM_ENERGY_INTAKE_KCAL,
             unit="kcal",
         )
         protein_g = _validate_optional_float(

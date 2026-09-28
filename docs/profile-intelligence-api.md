@@ -68,9 +68,13 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
 | `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
 | `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                   |
+| `target_safety`            | BMI eligibility, calorie floor, deficit cap, effective target, and safety reason codes.              |
 | `current_recommendation`   | One authoritative active calorie/macro summary for the consuming app.                                |
 | `integration_status`       | Consolidated attention, update-available, more-data, reversal, and current-plan signals.             |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
+
+`target_safety` is structured eligibility information; valid but ineligible weight-loss goals are
+returned as data rather than transport errors.
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
 and logged numeric zero as zero. Nutrition preferences affect macro allocation only; they do not

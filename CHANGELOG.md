@@ -46,3 +46,7 @@ latest-change fields. It does not add persistence or notification delivery.
 Checkpoint 32 hardens engine integration with an authoritative `current_recommendation`, consolidated
 `integration_status`, accepted-plan handoff behavior, profile-recalculation isolation, end-to-end
 prefix safety, and an app integration guide. It does not add persistence or notification delivery.
+
+Checkpoint 33 adds deterministic target-safety guardrails: BMI eligibility, sex-equation calorie
+floors, a 25% baseline-TDEE deficit cap, constrained/ineligible statuses, observation bounds, and
+CP29/CP30 safety enforcement. These are product guardrails, not individualized medical advice.

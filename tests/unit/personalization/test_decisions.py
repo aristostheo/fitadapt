@@ -238,3 +238,23 @@ def test_invalid_decision_inputs_are_rejected() -> None:
         RecommendationDecisionConfig(maximum_adjustment_kcal_per_day=10)
     with pytest.raises(RecommendationDecisionError):
         RecommendationDecisionConfig(standard_adjustment_kcal_per_day="100")  # type: ignore[arg-type]
+
+
+def test_ineligible_target_safety_defers_decision() -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    outcome = _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED)
+    from fitadapt.baseline.energy import calculate_baseline_energy
+    from fitadapt.personalization.safety import (
+        TargetEligibilityStatus,
+        TargetSafetyReason,
+        assess_target_eligibility,
+    )
+
+    underweight = replace(profile, weight_kg=45, height_cm=180, requested_weekly_change_kg=-0.2)
+    safety = assess_target_eligibility(underweight, calculate_baseline_energy(underweight))
+    assert safety.status is TargetEligibilityStatus.INELIGIBLE
+    result = decide_plan_adjustment(
+        underweight, plan.calorie_target_kcal_per_day, plan, outcome, target_safety=safety
+    )
+    assert TargetSafetyReason.BMI_BELOW_WEIGHT_LOSS_THRESHOLD in result.reason_codes

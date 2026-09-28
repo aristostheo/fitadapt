@@ -14,6 +14,7 @@ from fitadapt.personalization.outcomes import (
     PlanOutcomeAssessment,
     WeightTrendStatus,
 )
+from fitadapt.personalization.safety import TargetEligibilityAssessment, TargetEligibilityStatus
 
 RECOMMENDATION_DECISION_POLICY_VERSION = "recommendation_decision_v1"
 
@@ -47,6 +48,7 @@ class RecommendationDecisionReason(StrEnum):
     ADJUSTMENT_CLAMPED_TO_MINIMUM_TARGET = "adjustment_clamped_to_minimum_target"
     ADJUSTMENT_CLAMPED_TO_MAXIMUM_TARGET = "adjustment_clamped_to_maximum_target"
     CURRENT_TARGET_BELOW_SAFETY_FLOOR = "current_target_below_safety_floor"
+    SAFETY_TARGET_BOUND = "safety_target_bound"
     CONSERVATIVE_STANDARD_ADJUSTMENT = "conservative_standard_adjustment"
 
 
@@ -139,6 +141,7 @@ def decide_plan_adjustment(
     outcome_assessment: PlanOutcomeAssessment,
     adaptive_tdee_kcal_per_day: float | None = None,
     config: RecommendationDecisionConfig | None = None,
+    target_safety: TargetEligibilityAssessment | None = None,
 ) -> RecommendationDecision:
     """Decide hold, increase, decrease, or defer from existing evidence only."""
     if not isinstance(profile, UserProfile):
@@ -147,6 +150,10 @@ def decide_plan_adjustment(
         raise RecommendationDecisionError("current_macro_plan must be a PersonalizedMacroPlan.")
     if not isinstance(outcome_assessment, PlanOutcomeAssessment):
         raise RecommendationDecisionError("outcome_assessment must be a PlanOutcomeAssessment.")
+    if target_safety is not None and not isinstance(target_safety, TargetEligibilityAssessment):
+        raise RecommendationDecisionError(
+            "target_safety must be a TargetEligibilityAssessment or None."
+        )
     current_target = validate_finite_number(
         current_calorie_target_kcal_per_day,
         field_name="current_calorie_target_kcal_per_day",
@@ -165,6 +172,17 @@ def decide_plan_adjustment(
     effective = config or RecommendationDecisionConfig()
     if not isinstance(effective, RecommendationDecisionConfig):
         raise RecommendationDecisionError("config must be a RecommendationDecisionConfig or None.")
+    if target_safety is not None and target_safety.status is TargetEligibilityStatus.INELIGIBLE:
+        return _result(
+            RecommendationDecisionType.DEFER,
+            current_target,
+            profile,
+            outcome_assessment,
+            adaptive_tdee_kcal_per_day,
+            tuple(target_safety.reason_codes),
+            None,
+            effective,
+        )
     if current_target < minimum_macro_calories_kcal_per_day(profile):
         return _result(
             RecommendationDecisionType.DEFER,
@@ -212,6 +230,29 @@ def decide_plan_adjustment(
         effective.standard_adjustment_kcal_per_day, effective.maximum_adjustment_kcal_per_day
     )
     proposed = current_target + direction * delta
+    if (
+        direction < 0
+        and target_safety is not None
+        and (
+            proposed < (target_safety.applied_calorie_floor_kcal_per_day or 0.0)
+            or (
+                target_safety.maximum_permitted_deficit_kcal_per_day is not None
+                and proposed
+                < target_safety.baseline_tdee_kcal_per_day
+                - target_safety.maximum_permitted_deficit_kcal_per_day
+            )
+        )
+    ):
+        return _result(
+            RecommendationDecisionType.HOLD,
+            current_target,
+            profile,
+            outcome_assessment,
+            adaptive_tdee_kcal_per_day,
+            (RecommendationDecisionReason.SAFETY_TARGET_BOUND,),
+            None,
+            effective,
+        )
     bounds_reason = None
     minimum_target = minimum_macro_calories_kcal_per_day(profile)
     if proposed < minimum_target:

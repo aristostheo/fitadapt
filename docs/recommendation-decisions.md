@@ -63,3 +63,7 @@ alter CP29 direction or magnitude logic.
 Checkpoint 31 presents CP30 events as an immutable audit stream. The history layer derives summaries
 and change types from structured source/action/reason fields; it does not alter decisions or create
 new recommendation logic.
+
+CP33 safety is evaluated before this decision. Underweight loss is ineligible; otherwise the
+configured calorie floor and maximum TDEE-deficit cap prevent a decrease from crossing a safe
+target boundary.

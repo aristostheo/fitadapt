@@ -4,6 +4,7 @@ import { PlanOutcomeCard } from "../components/PlanOutcomeCard";
 import { RecommendationDecisionCard } from "../components/RecommendationDecisionCard";
 import { PlanAdaptationCard } from "../components/PlanAdaptationCard";
 import { RecommendationHistoryCard } from "../components/RecommendationHistoryCard";
+import { TargetSafetyCard } from "../components/TargetSafetyCard";
 import { ActionBar, MetricCard, StepHeader } from "../components/ui";
 import type { ProfileIntelligenceResponse } from "../types";
 import { whole } from "../utils/presentation";
@@ -62,6 +63,7 @@ export function ProgressStep({
             </div>
           </article>
           <TrainingAssessmentCard assessment={result.training_assessment} />
+          <TargetSafetyCard assessment={result.target_safety} />
           {result.plan_outcome && (
             <PlanOutcomeCard assessment={result.plan_outcome} />
           )}

@@ -57,6 +57,7 @@ from fitadapt.personalization.planning import (
     build_personalized_plan_progression,
     build_personalized_plan_snapshot,
 )
+from fitadapt.personalization.safety import TargetEligibilityAssessment, assess_target_eligibility
 from fitadapt.personalization.targets import (
     NutritionTargetEnvelope,
     calculate_nutrition_target_envelope,
@@ -73,6 +74,7 @@ from fitadapt.recommendation.calories import (
 )
 
 PROFILE_INTELLIGENCE_POLICY_VERSION = "profile_intelligence_v1"
+MAX_PROFILE_INTELLIGENCE_OBSERVATIONS = 1095
 PROFILE_INTELLIGENCE_ASSUMPTIONS = (
     "All sections are recomputed from the same supplied profile and observation history.",
     "This orchestration adds no independent energy, trend, adaptive, lifecycle, recommendation, "
@@ -109,6 +111,7 @@ class ProfileIntelligenceResult:
     recommendation_history: RecommendationHistory
     current_recommendation: CurrentRecommendation
     integration_status: IntegrationStatus
+    target_safety: TargetEligibilityAssessment
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -141,6 +144,7 @@ def analyze_profile_intelligence(
     effective_dietary_profile = dietary_profile or DEFAULT_NUTRITION_PREFERENCE_PROFILE
     submitted = tuple(observations)
     baseline = calculate_calorie_target(profile)
+    target_safety = assess_target_eligibility(profile, baseline.baseline_energy)
     trends = analyze_observation_trends(submitted, trend_config)
     adaptive_tdee = estimate_adaptive_tdee(trends, adaptive_config)
     lifecycle = assess_personalization_lifecycle(
@@ -236,6 +240,7 @@ def analyze_profile_intelligence(
         active_macro_plan,
         plan_outcome,
         decision_adaptive_tdee,
+        target_safety=target_safety,
     )
     proposed_macro_plan = None
     proposed_target_envelope = None
@@ -322,6 +327,7 @@ def analyze_profile_intelligence(
         recommendation_history=recommendation_history,
         current_recommendation=current_recommendation,
         integration_status=integration_status,
+        target_safety=target_safety,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,
@@ -387,6 +393,11 @@ def _validate_inputs(
     ):
         raise ProfileIntelligenceError(
             "observations must be a list or tuple of DailyObservation instances."
+        )
+    if len(observations) > MAX_PROFILE_INTELLIGENCE_OBSERVATIONS:
+        raise ProfileIntelligenceError(
+            "observations cannot contain more than "
+            f"{MAX_PROFILE_INTELLIGENCE_OBSERVATIONS} records."
         )
     if not isinstance(include_plan_progression, bool):
         raise ProfileIntelligenceError("include_plan_progression must be a bool.")

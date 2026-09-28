@@ -9,7 +9,7 @@ from fitadapt.adaptive.tdee import AdaptiveTdeeConfig
 from fitadapt.analysis.trends import TrendAnalysisConfig, analyze_observation_trends
 from fitadapt.baseline.targets import calculate_calorie_target
 from fitadapt.domain.observation import DailyObservation
-from fitadapt.domain.profile import UserProfile
+from fitadapt.domain.profile import Goal, UserProfile
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
     PersonalizationRequirement,
@@ -22,6 +22,7 @@ from fitadapt.personalization.macros import (
     PersonalizedMacroPlan,
     calculate_personalized_macro_plan,
 )
+from fitadapt.personalization.safety import assess_target_eligibility
 from fitadapt.personalization.targets import (
     NutritionTargetEnvelope,
     calculate_nutrition_target_envelope,
@@ -221,12 +222,16 @@ def _build_snapshot(
     training_assessment: TrainingDemandAssessment | None = None,
 ) -> PersonalizedPlanSnapshot:
     baseline = calculate_calorie_target(profile)
+    safety = assess_target_eligibility(profile, baseline.baseline_energy)
     lifecycle = assess_personalization_lifecycle(
         profile, observations, lifecycle_config, trend_config, adaptive_config
     )
     recommendation = recommend_calorie_adjustment(
         profile, observations, recommendation_config, trend_config, adaptive_config
     )
+    safe_target = safety.effective_target_kcal_per_day
+    if safe_target is None:
+        safe_target = baseline.baseline_energy.estimated_tdee_kcal_per_day
     if (
         lifecycle.stage is PersonalizationStage.PERSONALIZED
         and recommendation.proposed_intake_target_kcal_per_day is not None
@@ -237,7 +242,7 @@ def _build_snapshot(
         selection_assumption = "The existing actionable recommendation target is selected."
     elif lifecycle.stage is PersonalizationStage.PERSONALIZED:
         calorie_basis = PlanCalorieBasis.BASELINE
-        selected_target = baseline.target_calories_kcal_per_day
+        selected_target = safe_target
         macro_source = MacroCalorieSource.BASELINE
         selection_assumption = (
             "The personalized lifecycle has no actionable safe recommendation; "
@@ -245,11 +250,18 @@ def _build_snapshot(
         )
     else:
         calorie_basis = PlanCalorieBasis.BASELINE
-        selected_target = baseline.target_calories_kcal_per_day
+        selected_target = safe_target
         macro_source = MacroCalorieSource.BASELINE
         selection_assumption = (
             "The existing baseline target is retained until adaptive personalization is available."
         )
+    if profile.goal is Goal.CUT:
+        if safety.effective_target_kcal_per_day is None:
+            selected_target = baseline.baseline_energy.estimated_tdee_kcal_per_day
+            macro_source = MacroCalorieSource.BASELINE
+            calorie_basis = PlanCalorieBasis.BASELINE
+        else:
+            selected_target = max(selected_target, safety.effective_target_kcal_per_day)
     macro_plan = calculate_personalized_macro_plan(
         profile,
         selected_target,

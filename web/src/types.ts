@@ -653,6 +653,25 @@ export interface IntegrationStatus {
   summary: string;
   policy_version: string;
 }
+export type TargetEligibilityStatus = "eligible" | "constrained" | "ineligible";
+export interface TargetSafetyAssessment {
+  status: TargetEligibilityStatus;
+  bmi: number;
+  minimum_bmi_for_weight_loss: number;
+  baseline_tdee_kcal_per_day: number;
+  requested_target_kcal_per_day: number;
+  effective_target_kcal_per_day: number | null;
+  applied_calorie_floor_kcal_per_day: number | null;
+  maximum_permitted_deficit_kcal_per_day: number | null;
+  requested_deficit_kcal_per_day: number;
+  effective_deficit_kcal_per_day: number | null;
+  effective_weekly_change_kg: number | null;
+  requested_weekly_change_kg: number;
+  goal: Goal;
+  reason_codes: string[];
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -708,6 +727,7 @@ export interface ProfileIntelligenceResponse {
   recommendation_history?: RecommendationHistory;
   current_recommendation?: CurrentRecommendation;
   integration_status?: IntegrationStatus;
+  target_safety?: TargetSafetyAssessment;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

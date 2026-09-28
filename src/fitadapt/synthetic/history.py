@@ -7,7 +7,7 @@ import numpy as np
 from numpy.random import Generator
 
 from fitadapt.domain._validation import validate_finite_number
-from fitadapt.domain.observation import DailyObservation
+from fitadapt.domain.observation import MAXIMUM_ENERGY_INTAKE_KCAL, DailyObservation
 from fitadapt.domain.profile import MAXIMUM_WEIGHT_KG, MINIMUM_WEIGHT_KG
 
 SIMULATION_POLICY_VERSION = "synthetic_history_v2"
@@ -289,6 +289,7 @@ def _generate_observation(
             + config.calorie_logging_bias_kcal
             + float(rng.normal(0.0, config.calorie_logging_error_standard_deviation_kcal)),
         )
+        energy_intake_kcal = min(energy_intake_kcal, MAXIMUM_ENERGY_INTAKE_KCAL)
 
     steps: int | None = None
     strength_training_minutes: float | None = None
