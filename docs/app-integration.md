@@ -22,7 +22,7 @@ context, observations, and any caller-owned `adaptation_history`. Newer request 
     "requested_weekly_change_kg": -0.4
   },
   "observations": [],
-  "nutrition_preferences": {"macro_strategy": "balanced"}
+  "nutrition_preferences": { "macro_strategy": "balanced" }
 }
 ```
 

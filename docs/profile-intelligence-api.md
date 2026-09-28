@@ -69,7 +69,7 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
 | `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                   |
 | `current_recommendation`   | One authoritative active calorie/macro summary for the consuming app.                                |
-| `integration_status`       | Consolidated attention, update-available, more-data, reversal, and current-plan signals.            |
+| `integration_status`       | Consolidated attention, update-available, more-data, reversal, and current-plan signals.             |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
