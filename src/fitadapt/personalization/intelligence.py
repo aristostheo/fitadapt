@@ -241,6 +241,11 @@ def analyze_profile_intelligence(
         plan_outcome,
         decision_adaptive_tdee,
         target_safety=target_safety,
+        adaptive_tdee_stability=(
+            estimate_adaptive_tdee(
+                analyze_observation_trends(decision_observations, trend_config), adaptive_config
+            ).stability
+        ),
     )
     proposed_macro_plan = None
     proposed_target_envelope = None

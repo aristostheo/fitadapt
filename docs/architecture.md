@@ -179,6 +179,10 @@ next plans remain inactive until the caller accepts them.
 Target safety runs before automated loss recommendations. BMI eligibility, the absolute calorie floor,
 and the TDEE deficit cap constrain CP29/CP30 without changing baseline or adaptive-TDEE formulas.
 
+Adaptive TDEE V2 is a downstream observed-data estimator: it aligns raw intake and weight evidence
+over one trailing calendar window, applies a deterministic Theil-Sen slope, and reports categorical
+stability. It does not overwrite baseline TDEE or independently generate targets.
+
 ## Recommendation History Boundary
 
 Recommendation history is a deterministic explainability projection over caller-supplied adaptation

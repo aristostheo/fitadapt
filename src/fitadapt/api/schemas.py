@@ -12,6 +12,7 @@ from fitadapt.adaptive.tdee import (
     AdaptiveTdeeResult,
     DailyTdeeEstimate,
     TdeeEligibility,
+    TdeeStability,
 )
 from fitadapt.analysis.trends import (
     DailyTrendPoint,
@@ -527,6 +528,16 @@ class AdaptiveTdeeResponse(ApiModel):
     aggregation_start_date: date | None
     aggregation_end_date: date | None
     assumptions: tuple[str, ...]
+    observed_weight_slope_kg_per_day: float | None
+    observed_weight_slope_kg_per_week: float | None
+    aligned_mean_intake_kcal_per_day: float | None
+    weight_contributor_count: int
+    intake_contributor_count: int
+    intake_completeness: float
+    evidence_calendar_span_days: int
+    estimator_method: str
+    stability: TdeeStability
+    reason_codes: tuple[str, ...]
 
 
 class CalorieRecommendationResponse(ApiModel):
@@ -1069,6 +1080,16 @@ def map_adaptive_tdee(result: AdaptiveTdeeResult) -> AdaptiveTdeeResponse:
         aggregation_start_date=result.aggregation_start_date,
         aggregation_end_date=result.aggregation_end_date,
         assumptions=result.assumptions,
+        observed_weight_slope_kg_per_day=result.observed_weight_slope_kg_per_day,
+        observed_weight_slope_kg_per_week=result.observed_weight_slope_kg_per_week,
+        aligned_mean_intake_kcal_per_day=result.aligned_mean_intake_kcal_per_day,
+        weight_contributor_count=result.weight_contributor_count,
+        intake_contributor_count=result.intake_contributor_count,
+        intake_completeness=result.intake_completeness,
+        evidence_calendar_span_days=result.evidence_calendar_span_days,
+        estimator_method=result.estimator_method,
+        stability=result.stability,
+        reason_codes=result.reason_codes,
     )
 
 

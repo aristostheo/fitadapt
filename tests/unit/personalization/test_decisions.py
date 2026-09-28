@@ -258,3 +258,21 @@ def test_ineligible_target_safety_defers_decision() -> None:
         underweight, plan.calorie_target_kcal_per_day, plan, outcome, target_safety=safety
     )
     assert TargetSafetyReason.BMI_BELOW_WEIGHT_LOSS_THRESHOLD in result.reason_codes
+
+
+def test_unstable_adaptive_tdee_defers_change() -> None:
+    from fitadapt.adaptive.tdee import TdeeStability
+
+    profile = _profile()
+    plan = _plan(profile)
+    outcome = _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED)
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        outcome,
+        adaptive_tdee_stability=TdeeStability.UNSTABLE,
+    )
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert RecommendationDecisionReason.ADAPTIVE_TDEE_UNSTABLE in result.reason_codes

@@ -286,6 +286,16 @@ export interface AdaptiveResult {
   total_eligible_points: number;
   aggregation_start_date: string | null;
   aggregation_end_date: string | null;
+  observed_weight_slope_kg_per_day?: number | null;
+  observed_weight_slope_kg_per_week?: number | null;
+  aligned_mean_intake_kcal_per_day?: number | null;
+  weight_contributor_count?: number;
+  intake_contributor_count?: number;
+  intake_completeness?: number;
+  evidence_calendar_span_days?: number;
+  estimator_method?: string;
+  stability?: "insufficient" | "unstable" | "stable";
+  reason_codes?: string[];
   assumptions: string[];
 }
 export interface LifecycleResult {

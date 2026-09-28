@@ -224,7 +224,7 @@ def test_benchmark_definitions_are_unique_ordered_and_reproducible_with_provenan
         for item in first.scenario_results
     )
     assert all(
-        item.evaluation.adaptive_policy_version == "adaptive_tdee_v1"
+        item.evaluation.adaptive_policy_version == "adaptive_tdee_v2"
         for item in first.scenario_results
     )
 

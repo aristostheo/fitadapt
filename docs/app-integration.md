@@ -75,6 +75,10 @@ Inspect `target_safety` as well: `eligible` means no safety guardrail constraine
 `constrained` means a safer target was applied, and `ineligible` means FitAdapt will not generate an
 automated weight-loss target for the current body-size threshold.
 
+Adaptive TDEE responses include `stable`, `unstable`, or `insufficient` evidence status. Treat
+unstable/insufficient estimates as context requiring more evidence, not measured expenditure or an
+automatic plan change.
+
 ## Historical safety
 
 For an earlier `outcome_as_of_date`, future observations are excluded from trends, adaptive TDEE,

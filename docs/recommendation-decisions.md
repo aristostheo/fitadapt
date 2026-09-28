@@ -67,3 +67,7 @@ new recommendation logic.
 CP33 safety is evaluated before this decision. Underweight loss is ineligible; otherwise the
 configured calorie floor and maximum TDEE-deficit cap prevent a decrease from crossing a safe
 target boundary.
+
+CP34 adaptive-TDEE evidence is aligned, robust, and categorical in stability. Unstable estimates do
+not strengthen plan-change decisions; adaptive TDEE remains supporting context rather than a target
+generator.

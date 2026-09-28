@@ -247,7 +247,7 @@ def test_custom_existing_configs_are_composed(profile: UserProfile) -> None:
     assert result.stage is PersonalizationStage.PERSONALIZED
     assert result.required_eligible_estimate_count == adaptive_config.minimum_estimate_points
     assert result.trend_policy_version == "calendar_trends_v1"
-    assert result.adaptive_policy_version == "adaptive_tdee_v1"
+    assert result.adaptive_policy_version == "adaptive_tdee_v2"
 
 
 @pytest.mark.parametrize(

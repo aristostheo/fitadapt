@@ -60,6 +60,11 @@ export function ProgressStep({
                 )}
                 detail="A spread in observed estimates, not confidence"
               />
+              <MetricCard
+                label="Adaptive estimate stability"
+                value={result.adaptive_tdee.stability ?? "insufficient"}
+                detail={`${result.adaptive_tdee.weight_contributor_count ?? "-"} weigh-ins · ${result.adaptive_tdee.intake_contributor_count ?? "-"} intake contributors`}
+              />
             </div>
           </article>
           <TrainingAssessmentCard assessment={result.training_assessment} />

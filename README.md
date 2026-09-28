@@ -106,6 +106,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 ## Documentation
 
 - [Target safety](docs/target-safety.md)
+- [Adaptive TDEE](docs/adaptive-tdee.md)
 - [App integration](docs/app-integration.md)
 - [Target safety](docs/target-safety.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).

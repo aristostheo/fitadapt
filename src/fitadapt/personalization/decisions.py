@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
+from fitadapt.adaptive.tdee import TdeeStability
 from fitadapt.baseline.targets import minimum_macro_calories_kcal_per_day
 from fitadapt.domain._validation import validate_finite_number
 from fitadapt.domain.profile import Goal, UserProfile
@@ -49,6 +50,7 @@ class RecommendationDecisionReason(StrEnum):
     ADJUSTMENT_CLAMPED_TO_MAXIMUM_TARGET = "adjustment_clamped_to_maximum_target"
     CURRENT_TARGET_BELOW_SAFETY_FLOOR = "current_target_below_safety_floor"
     SAFETY_TARGET_BOUND = "safety_target_bound"
+    ADAPTIVE_TDEE_UNSTABLE = "adaptive_tdee_unstable"
     CONSERVATIVE_STANDARD_ADJUSTMENT = "conservative_standard_adjustment"
 
 
@@ -142,6 +144,7 @@ def decide_plan_adjustment(
     adaptive_tdee_kcal_per_day: float | None = None,
     config: RecommendationDecisionConfig | None = None,
     target_safety: TargetEligibilityAssessment | None = None,
+    adaptive_tdee_stability: TdeeStability | None = None,
 ) -> RecommendationDecision:
     """Decide hold, increase, decrease, or defer from existing evidence only."""
     if not isinstance(profile, UserProfile):
@@ -172,6 +175,12 @@ def decide_plan_adjustment(
     effective = config or RecommendationDecisionConfig()
     if not isinstance(effective, RecommendationDecisionConfig):
         raise RecommendationDecisionError("config must be a RecommendationDecisionConfig or None.")
+    if adaptive_tdee_stability is not None and not isinstance(
+        adaptive_tdee_stability, TdeeStability
+    ):
+        raise RecommendationDecisionError(
+            "adaptive_tdee_stability must be a TdeeStability or None."
+        )
     if target_safety is not None and target_safety.status is TargetEligibilityStatus.INELIGIBLE:
         return _result(
             RecommendationDecisionType.DEFER,
@@ -180,6 +189,17 @@ def decide_plan_adjustment(
             outcome_assessment,
             adaptive_tdee_kcal_per_day,
             tuple(target_safety.reason_codes),
+            None,
+            effective,
+        )
+    if adaptive_tdee_stability is TdeeStability.UNSTABLE:
+        return _result(
+            RecommendationDecisionType.DEFER,
+            current_target,
+            profile,
+            outcome_assessment,
+            adaptive_tdee_kcal_per_day,
+            (RecommendationDecisionReason.ADAPTIVE_TDEE_UNSTABLE,),
             None,
             effective,
         )

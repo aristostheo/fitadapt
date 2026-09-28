@@ -50,3 +50,7 @@ prefix safety, and an app integration guide. It does not add persistence or noti
 Checkpoint 33 adds deterministic target-safety guardrails: BMI eligibility, sex-equation calorie
 floors, a 25% baseline-TDEE deficit cap, constrained/ineligible statuses, observation bounds, and
 CP29/CP30 safety enforcement. These are product guardrails, not individualized medical advice.
+
+Checkpoint 34 replaces the production adaptive-TDEE aggregate with an aligned 28-day Theil-Sen
+estimate, explicit evidence span/contributors, categorical stability, and V2 reason/provenance
+fields. It does not change the adaptive-TDEE formula family or add product features.

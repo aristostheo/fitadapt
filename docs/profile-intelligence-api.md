@@ -75,6 +75,8 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 
 `target_safety` is structured eligibility information; valid but ineligible weight-loss goals are
 returned as data rather than transport errors.
+Adaptive TDEE responses additionally expose V2 slope, aligned intake, evidence span/contributors,
+method, stability, and reason codes; clients should not interpret stability as a confidence percentage.
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
 and logged numeric zero as zero. Nutrition preferences affect macro allocation only; they do not
