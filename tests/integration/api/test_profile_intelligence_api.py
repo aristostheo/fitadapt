@@ -159,6 +159,26 @@ def test_decision_cutoff_isolated_from_future_observation() -> None:
     assert isolated["recommendation_decision"] == baseline["recommendation_decision"]
 
 
+def test_unified_response_evaluates_first_activation_and_cooldown() -> None:
+    payload = _payload(28)
+    payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
+    client = TestClient(create_app())
+    first = client.post("/v1/profile-intelligence", json=payload).json()
+
+    assert first["plan_adaptation"]["action"] == "activate"
+    assert first["plan_adaptation"]["activation_available"] is True
+    assert len(first["plan_adaptation"]["adaptation_history"]) == 1
+    payload["adaptation_history"] = first["plan_adaptation"]["adaptation_history"]
+    second = client.post("/v1/profile-intelligence", json=payload).json()
+
+    assert second["plan_adaptation"]["action"] == "defer"
+    assert "cooldown_active" in second["plan_adaptation"]["reason_codes"]
+    assert (
+        second["plan_adaptation"]["next_active_target_kcal_per_day"]
+        == second["plan_adaptation"]["current_active_target_kcal_per_day"]
+    )
+
+
 def test_explicit_dietary_profile_adds_feasibility_without_changing_targets() -> None:
     payload = _payload(0)
     payload["dietary_preference_profile"] = {

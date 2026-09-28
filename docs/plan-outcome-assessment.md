@@ -25,3 +25,5 @@ By default, the effective date is the latest observation date. The API's optiona
 `outcome_as_of_date` and the domain function's `as_of_date` exclude later observations. Duplicate
 dates and invalid domain inputs use the existing validation boundaries. No meal, clinical, causal,
 or medical conclusions are produced.
+CP30 may consume this assessment to gate activation, but does not alter its evidence or
+interpretation. Activation cooldown and reversal history are separate adaptation policy concerns.

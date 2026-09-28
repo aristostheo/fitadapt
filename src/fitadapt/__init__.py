@@ -50,6 +50,17 @@ from fitadapt.ml.weight_change import (
     build_synthetic_weight_change_dataset,
     run_weight_change_benchmark,
 )
+from fitadapt.personalization.adaptation import (
+    PLAN_ADAPTATION_POLICY_VERSION,
+    PlanAdaptationAction,
+    PlanAdaptationConfig,
+    PlanAdaptationDecision,
+    PlanAdaptationError,
+    PlanAdaptationEvent,
+    PlanAdaptationReason,
+    PlanAdaptationSource,
+    evaluate_plan_adaptation,
+)
 from fitadapt.personalization.decisions import (
     RECOMMENDATION_DECISION_POLICY_VERSION,
     RecommendationDecision,
@@ -310,6 +321,15 @@ __all__ = [
     "RecommendationDecisionReason",
     "RecommendationDecisionType",
     "decide_plan_adjustment",
+    "PLAN_ADAPTATION_POLICY_VERSION",
+    "PlanAdaptationAction",
+    "PlanAdaptationConfig",
+    "PlanAdaptationDecision",
+    "PlanAdaptationError",
+    "PlanAdaptationEvent",
+    "PlanAdaptationReason",
+    "PlanAdaptationSource",
+    "evaluate_plan_adaptation",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

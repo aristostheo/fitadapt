@@ -55,3 +55,7 @@ CP27 feasibility remains assessment-only. No plan is activated and no notificati
 The optional `outcome_as_of_date` is honored by the decision's CP28 input. Later observations cannot
 influence an earlier decision. Existing progression snapshots remain unchanged and do not receive
 historical decisions.
+
+CP30 adds a separate activation gate after this decision. It may defer or suppress an otherwise
+valid proposal because of cooldown, insufficient fresh contributors, or reversal risk. It does not
+alter CP29 direction or magnitude logic.

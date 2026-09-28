@@ -544,6 +544,43 @@ export interface RecommendationDecision {
   policy_version: string;
   assumptions: string[];
 }
+export type PlanAdaptationAction = "activate" | "hold" | "defer" | "suppress";
+export interface PlanAdaptationEvent {
+  effective_date: string;
+  previous_active_target_kcal_per_day: number;
+  new_active_target_kcal_per_day: number;
+  calorie_delta_kcal_per_day: number;
+  recommendation_decision: RecommendationDecisionType;
+  action: PlanAdaptationAction;
+  source: string;
+  reason_codes: string[];
+  evidence_as_of_date: string | null;
+  new_observation_count: number;
+  new_weight_contributor_count: number;
+  new_intake_contributor_count: number;
+  policy_version: string;
+}
+export interface PlanAdaptationAssessment {
+  action: PlanAdaptationAction;
+  activation_available: boolean;
+  user_attention_required: boolean;
+  current_active_macro_plan: PersonalizedMacroPlan;
+  proposed_macro_plan: PersonalizedMacroPlan | null;
+  next_active_macro_plan: PersonalizedMacroPlan;
+  current_active_target_kcal_per_day: number;
+  proposed_target_kcal_per_day: number;
+  next_active_target_kcal_per_day: number;
+  calorie_delta_kcal_per_day: number;
+  effective_date: string | null;
+  recommendation_decision: RecommendationDecisionType;
+  reason_codes: string[];
+  new_observation_count: number;
+  new_weight_contributor_count: number;
+  new_intake_contributor_count: number;
+  adaptation_history: PlanAdaptationEvent[];
+  policy_version: string;
+  assumptions: string[];
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -595,6 +632,7 @@ export interface ProfileIntelligenceResponse {
   recommendation_decision?: RecommendationDecision;
   proposed_macro_plan?: PersonalizedMacroPlan | null;
   proposed_target_envelope?: NutritionTargetEnvelope | null;
+  plan_adaptation?: PlanAdaptationAssessment;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

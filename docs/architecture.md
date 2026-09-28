@@ -152,6 +152,21 @@ can add supporting or conflicting context but is never a second target generator
 and progression remain unchanged; activation, cooldowns, repeated decision history, and acceptance
 workflows are reserved for Checkpoint 30.
 
+## Longitudinal Plan Adaptation Boundary
+
+Checkpoint 30 evaluates repeated CP29 proposals against caller-supplied immutable history:
+
+```text
+active plan + CP29 proposal + dated observations + prior adaptation events
+    -> activate / hold / defer / suppress
+    -> next active plan eligibility + new immutable event tuple
+```
+
+Cooldown requires 14 days and fresh contributors before another activation. Reversals require 28
+days plus stronger fresh weight and intake evidence. The evaluator uses observation dates, never
+wall-clock time, and does not persist or mutate the active plan. Progression remains prefix-based;
+storage, acceptance, activation, and notifications remain caller responsibilities.
+
 ## Preference Macro Boundary
 
 `NutritionPreferences` is separate from `UserProfile`: equation inputs and goals remain in the

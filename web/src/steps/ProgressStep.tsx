@@ -2,6 +2,7 @@ import { PlanProgression, TrendChart } from "../components/Results";
 import { TrainingAssessmentCard } from "../components/TrainingAssessmentCard";
 import { PlanOutcomeCard } from "../components/PlanOutcomeCard";
 import { RecommendationDecisionCard } from "../components/RecommendationDecisionCard";
+import { PlanAdaptationCard } from "../components/PlanAdaptationCard";
 import { ActionBar, MetricCard, StepHeader } from "../components/ui";
 import type { ProfileIntelligenceResponse } from "../types";
 import { whole } from "../utils/presentation";
@@ -69,6 +70,9 @@ export function ProgressStep({
               currentMacroPlan={result.latest_plan.macro_plan}
               proposedMacroPlan={result.proposed_macro_plan ?? null}
             />
+          )}
+          {result.plan_adaptation && (
+            <PlanAdaptationCard assessment={result.plan_adaptation} />
           )}
           <div className="chart-grid">
             <TrendChart

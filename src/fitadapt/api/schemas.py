@@ -22,6 +22,13 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
+from fitadapt.personalization.adaptation import (
+    PlanAdaptationAction,
+    PlanAdaptationDecision,
+    PlanAdaptationEvent,
+    PlanAdaptationReason,
+    PlanAdaptationSource,
+)
 from fitadapt.personalization.decisions import (
     RecommendationDecision,
     RecommendationDecisionReason,
@@ -379,6 +386,35 @@ class ProfileIntelligenceRequest(ApiModel):
     training_context: TrainingContextRequest | None = None
     include_plan_progression: StrictBool = False
     outcome_as_of_date: date | None = None
+    adaptation_history: list["PlanAdaptationEventRequest"] = Field(default_factory=list)
+    adaptation_source: PlanAdaptationSource = PlanAdaptationSource.PROGRESS_ADAPTATION
+
+
+class PlanAdaptationEventRequest(NumericRequestModel):
+    numeric_fields = frozenset(
+        {
+            "previous_active_target_kcal_per_day",
+            "new_active_target_kcal_per_day",
+            "calorie_delta_kcal_per_day",
+        }
+    )
+
+    effective_date: date
+    previous_active_target_kcal_per_day: float
+    new_active_target_kcal_per_day: float
+    calorie_delta_kcal_per_day: float
+    recommendation_decision: RecommendationDecisionType
+    action: PlanAdaptationAction
+    source: PlanAdaptationSource
+    reason_codes: tuple[PlanAdaptationReason, ...] = ()
+    evidence_as_of_date: date | None = None
+    new_observation_count: int = 0
+    new_weight_contributor_count: int = 0
+    new_intake_contributor_count: int = 0
+    policy_version: str
+
+    def to_domain(self) -> PlanAdaptationEvent:
+        return PlanAdaptationEvent(**self.model_dump())
 
 
 class BaselineEnergyResponse(ApiModel):
@@ -719,6 +755,44 @@ class RecommendationDecisionResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class PlanAdaptationEventResponse(ApiModel):
+    effective_date: date
+    previous_active_target_kcal_per_day: float
+    new_active_target_kcal_per_day: float
+    calorie_delta_kcal_per_day: float
+    recommendation_decision: RecommendationDecisionType
+    action: PlanAdaptationAction
+    source: PlanAdaptationSource
+    reason_codes: tuple[PlanAdaptationReason, ...]
+    evidence_as_of_date: date | None
+    new_observation_count: int
+    new_weight_contributor_count: int
+    new_intake_contributor_count: int
+    policy_version: str
+
+
+class PlanAdaptationResponse(ApiModel):
+    action: PlanAdaptationAction
+    activation_available: bool
+    user_attention_required: bool
+    current_active_macro_plan: PersonalizedMacroPlanResponse
+    proposed_macro_plan: PersonalizedMacroPlanResponse | None
+    next_active_macro_plan: PersonalizedMacroPlanResponse
+    current_active_target_kcal_per_day: float
+    proposed_target_kcal_per_day: float
+    next_active_target_kcal_per_day: float
+    calorie_delta_kcal_per_day: float
+    effective_date: date | None
+    recommendation_decision: RecommendationDecisionType
+    reason_codes: tuple[PlanAdaptationReason, ...]
+    new_observation_count: int
+    new_weight_contributor_count: int
+    new_intake_contributor_count: int
+    adaptation_history: tuple[PlanAdaptationEventResponse, ...]
+    policy_version: str
+    assumptions: tuple[str, ...]
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -769,6 +843,7 @@ class ProfileIntelligenceResponse(ApiModel):
     recommendation_decision: RecommendationDecisionResponse
     proposed_macro_plan: PersonalizedMacroPlanResponse | None
     proposed_target_envelope: NutritionTargetEnvelopeResponse | None
+    plan_adaptation: PlanAdaptationResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1200,6 +1275,7 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
             if result.proposed_target_envelope is None
             else map_nutrition_target_envelope(result.proposed_target_envelope)
         ),
+        plan_adaptation=map_plan_adaptation(result.plan_adaptation),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1217,3 +1293,33 @@ def map_recommendation_decision(
     result: RecommendationDecision,
 ) -> RecommendationDecisionResponse:
     return RecommendationDecisionResponse(**asdict(result))
+
+
+def map_plan_adaptation(result: PlanAdaptationDecision) -> PlanAdaptationResponse:
+    return PlanAdaptationResponse(
+        action=result.action,
+        activation_available=result.activation_available,
+        user_attention_required=result.user_attention_required,
+        current_active_macro_plan=map_personalized_macro_plan(result.current_active_macro_plan),
+        proposed_macro_plan=(
+            None
+            if result.proposed_macro_plan is None
+            else map_personalized_macro_plan(result.proposed_macro_plan)
+        ),
+        next_active_macro_plan=map_personalized_macro_plan(result.next_active_macro_plan),
+        current_active_target_kcal_per_day=result.current_active_target_kcal_per_day,
+        proposed_target_kcal_per_day=result.proposed_target_kcal_per_day,
+        next_active_target_kcal_per_day=result.next_active_target_kcal_per_day,
+        calorie_delta_kcal_per_day=result.calorie_delta_kcal_per_day,
+        effective_date=result.effective_date,
+        recommendation_decision=result.recommendation_decision,
+        reason_codes=result.reason_codes,
+        new_observation_count=result.new_observation_count,
+        new_weight_contributor_count=result.new_weight_contributor_count,
+        new_intake_contributor_count=result.new_intake_contributor_count,
+        adaptation_history=tuple(
+            PlanAdaptationEventResponse(**asdict(event)) for event in result.adaptation_history
+        ),
+        policy_version=result.policy_version,
+        assumptions=result.assumptions,
+    )

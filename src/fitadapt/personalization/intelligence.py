@@ -13,6 +13,12 @@ from fitadapt.analysis.trends import (
 from fitadapt.baseline.targets import CalorieTargetEstimate, calculate_calorie_target
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import UserProfile
+from fitadapt.personalization.adaptation import (
+    PlanAdaptationDecision,
+    PlanAdaptationEvent,
+    PlanAdaptationSource,
+    evaluate_plan_adaptation,
+)
 from fitadapt.personalization.decisions import (
     RecommendationDecision,
     decide_plan_adjustment,
@@ -92,6 +98,7 @@ class ProfileIntelligenceResult:
     recommendation_decision: RecommendationDecision
     proposed_macro_plan: PersonalizedMacroPlan | None
     proposed_target_envelope: NutritionTargetEnvelope | None
+    plan_adaptation: PlanAdaptationDecision
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -109,6 +116,8 @@ def analyze_profile_intelligence(
     dietary_profile: NutritionPreferenceProfile | None = None,
     training_context: TrainingContext | None = None,
     outcome_as_of_date: date | None = None,
+    adaptation_history: Sequence[PlanAdaptationEvent] = (),
+    adaptation_source: PlanAdaptationSource = PlanAdaptationSource.PROGRESS_ADAPTATION,
 ) -> ProfileIntelligenceResult:
     """Compose current FitAdapt outputs without altering their individual policies."""
     _validate_inputs(
@@ -166,6 +175,11 @@ def analyze_profile_intelligence(
             assess_training_demand(training_context, decision_observations),
         )
     )
+    decision_training_assessment = (
+        training_assessment
+        if outcome_as_of_date is None
+        else assess_training_demand(training_context, decision_observations)
+    )
     plan_outcome = assess_plan_outcome(
         profile,
         submitted,
@@ -190,14 +204,14 @@ def analyze_profile_intelligence(
             recommendation_decision.proposed_calorie_target_kcal_per_day,
             decision_plan.macro_plan.calorie_source,
             preferences,
-            training_assessment=training_assessment,
+            training_assessment=decision_training_assessment,
         )
         proposed_target_envelope = calculate_nutrition_target_envelope(
             profile,
             recommendation_decision.proposed_calorie_target_kcal_per_day,
             decision_plan.macro_plan.calorie_source,
             preferences,
-            training_assessment=training_assessment,
+            training_assessment=decision_training_assessment,
         )
     progression = (
         build_personalized_plan_progression(
@@ -211,6 +225,17 @@ def analyze_profile_intelligence(
         )
         if include_plan_progression
         else None
+    )
+    plan_adaptation = evaluate_plan_adaptation(
+        decision_plan.macro_plan,
+        recommendation_decision,
+        proposed_macro_plan,
+        outcome_as_of_date
+        or (None if not decision_observations else decision_observations[-1].observed_on),
+        adaptation_history,
+        decision_observations,
+        plan_outcome,
+        source=adaptation_source,
     )
     return ProfileIntelligenceResult(
         baseline=baseline,
@@ -226,6 +251,7 @@ def analyze_profile_intelligence(
         recommendation_decision=recommendation_decision,
         proposed_macro_plan=proposed_macro_plan,
         proposed_target_envelope=proposed_target_envelope,
+        plan_adaptation=plan_adaptation,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,

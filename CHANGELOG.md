@@ -32,3 +32,8 @@ Checkpoint 29 adds a deterministic proposal-only recommendation decision layer w
 hold/increase/decrease/defer outcomes, conservative goal-aware adjustment sizes, adherence gates,
 target-floor constraints, adaptive-TDEE context, and proposed macro/envelope recalculation. It does
 not activate plans, retain adaptation history, or change progression.
+
+Checkpoint 30 adds stateless longitudinal plan adaptation with immutable events, cooldown and fresh
+evidence requirements, anti-oscillation reversal suppression, activate/hold/defer/suppress actions,
+caller-owned history, and Progress/API activation eligibility. It does not persist or automatically
+activate plans.

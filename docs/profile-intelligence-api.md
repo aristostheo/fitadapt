@@ -66,6 +66,7 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `recommendation_decision`  | Proposal-only hold/increase/decrease/defer decision with target delta, attention state, and reasons. |
 | `proposed_macro_plan`      | `null` for hold/defer; otherwise the existing macro pipeline applied to the proposed target.         |
 | `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
+| `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
@@ -100,6 +101,10 @@ The additive `recommendation_decision` is proposal-only. `latest_plan` remains t
 plan; hold and defer preserve its target exactly. Increase/decrease proposals use the existing macro
 and training-aware macro pipelines and do not alter progression or activate history. CP28 outcome
 assessment supplies adherence and progress evidence; CP29 does not duplicate those calculations.
+The additive `plan_adaptation` layer accepts optional chronological `adaptation_history` and
+evaluates cooldown, fresh contributors, and reversal guards using observation dates. It never
+persists or activates a plan. `next_active_macro_plan` indicates the plan eligible for caller
+acceptance when action is `activate`.
 
 ## Latest-Only And Progression
 

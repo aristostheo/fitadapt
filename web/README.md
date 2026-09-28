@@ -64,6 +64,9 @@ is informational and never adjusts the current plan.
 Progress also shows a proposal-only recommendation decision. Hold and defer keep the current plan;
 increase/decrease proposals show old and proposed calories plus recalculated macros. No proposal is
 activated or added to plan history.
+Progress also shows longitudinal activation eligibility, cooldown deferral, and reversal suppression.
+The browser does not persist adaptation events or activate plans; it displays the stateless API result
+for caller review.
 
 The interface uses keyboard-navigable journey stages, visible focus states, labeled controls,
 responsive cards and tables, and reduced-motion support. The browser keeps profile, dietary inputs,
