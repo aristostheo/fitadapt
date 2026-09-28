@@ -102,6 +102,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Recommendation decisions](docs/recommendation-decisions.md)
 - [Plan adaptation](docs/plan-adaptation.md)
 - [Recommendation history](docs/recommendation-history.md)
+- [App integration](docs/app-integration.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 

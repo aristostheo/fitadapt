@@ -67,6 +67,8 @@ activated or added to plan history.
 Progress also shows longitudinal activation eligibility, cooldown deferral, and reversal suppression.
 The browser does not persist adaptation events or activate plans; it displays the stateless API result
 for caller review.
+The consuming app should use `current_recommendation` as the authoritative active-plan summary and
+accept/store `next_active_macro_plan` itself before resubmitting adaptation history.
 Progress also shows recommendation history, with the latest change, a compact timeline, and a clear
 distinction between actual plan changes and evaluation-only decisions. History is supplied by the
 caller and is not persisted by the browser.

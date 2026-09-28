@@ -53,6 +53,11 @@ whether a reversal was suppressed. Activation is eligibility only; no notificati
 or active-plan mutation occurs. Checkpoint 31 or the main application may store accepted events and
 active-plan transitions.
 
+The main app should treat `current_recommendation` as the authoritative active plan. Acceptance is a
+caller action: send the accepted activation event in `adaptation_history` on the next request so the
+engine can reconstruct that active target. A returned proposal or activation eligibility alone does
+not mean the plan became active.
+
 Checkpoint 31 converts the supplied adaptation-event tuple into a separate explainability history.
 It does not change activation eligibility. Activated changes, profile recalculations, holds, defers,
 and suppressed reversals remain distinguishable, and evaluation-only entries do not imply that the

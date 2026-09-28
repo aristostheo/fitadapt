@@ -627,6 +627,32 @@ export interface RecommendationHistory {
   policy_version: string;
   assumptions: string[];
 }
+export type IntegrationPlanSource =
+  | "baseline"
+  | "personalized"
+  | "profile_recalculation"
+  | "progress_adaptation";
+export interface CurrentRecommendation {
+  calorie_target_kcal_per_day: number;
+  macro_plan: PersonalizedMacroPlan;
+  target_envelope: NutritionTargetEnvelope | null;
+  effective_date: string | null;
+  source: IntegrationPlanSource;
+  is_active: boolean;
+  is_authoritative: boolean;
+}
+export interface IntegrationStatus {
+  user_attention_required: boolean;
+  plan_update_available: boolean;
+  more_data_needed: boolean;
+  reversal_suppressed: boolean;
+  current_plan_appropriate: boolean;
+  recommendation_decision: RecommendationDecisionType;
+  adaptation_action: PlanAdaptationAction;
+  adaptation_source: "progress_adaptation" | "profile_recalculation";
+  summary: string;
+  policy_version: string;
+}
 export interface PersonalizedPlanSnapshot {
   as_of_date: string | null;
   lifecycle_stage: PersonalizationStage;
@@ -680,6 +706,8 @@ export interface ProfileIntelligenceResponse {
   proposed_target_envelope?: NutritionTargetEnvelope | null;
   plan_adaptation?: PlanAdaptationAssessment;
   recommendation_history?: RecommendationHistory;
+  current_recommendation?: CurrentRecommendation;
+  integration_status?: IntegrationStatus;
   plan_progression: PlanProgression | null;
   assumptions: string[];
 }

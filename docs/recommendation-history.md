@@ -37,3 +37,7 @@ fields for future notifications without parsing prose.
 The Progress screen shows the latest change prominently and renders a compact timeline. Actual plan
 changes are distinguished from evaluation-only entries, and current active-plan context is explicit.
 Technical policy identifiers and reason codes remain collapsed.
+
+For app integration, `current_recommendation` is authoritative. History describes caller-supplied
+events and does not itself activate a proposal; `integration_status` consolidates attention,
+more-data, update-available, and reversal-suppressed signals.

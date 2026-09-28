@@ -102,6 +102,12 @@ from fitadapt.personalization.history import (
     RecommendationHistoryError,
     build_recommendation_history,
 )
+from fitadapt.personalization.integration import (
+    INTEGRATION_STATUS_POLICY_VERSION,
+    CurrentRecommendation,
+    IntegrationPlanSource,
+    IntegrationStatus,
+)
 from fitadapt.personalization.intelligence import (
     PROFILE_INTELLIGENCE_POLICY_VERSION,
     ProfileIntelligenceError,
@@ -348,6 +354,10 @@ __all__ = [
     "RecommendationHistoryEntry",
     "RecommendationHistoryError",
     "build_recommendation_history",
+    "INTEGRATION_STATUS_POLICY_VERSION",
+    "CurrentRecommendation",
+    "IntegrationPlanSource",
+    "IntegrationStatus",
     "PLAN_OUTCOME_POLICY_VERSION",
     "GoalProgressStatus",
     "IntakeAdherenceStatus",

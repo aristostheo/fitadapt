@@ -42,3 +42,7 @@ Checkpoint 31 adds immutable recommendation history and explainability derived f
 adaptation events. It distinguishes profile recalculation, progress adaptation, actual plan changes,
 and evaluation-only hold/defer/suppression events, with deterministic summaries and notification-ready
 latest-change fields. It does not add persistence or notification delivery.
+
+Checkpoint 32 hardens engine integration with an authoritative `current_recommendation`, consolidated
+`integration_status`, accepted-plan handoff behavior, profile-recalculation isolation, end-to-end
+prefix safety, and an app integration guide. It does not add persistence or notification delivery.

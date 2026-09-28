@@ -30,6 +30,12 @@ from fitadapt.personalization.dietary import (
     assess_nutrition_preferences,
 )
 from fitadapt.personalization.history import RecommendationHistory, build_recommendation_history
+from fitadapt.personalization.integration import (
+    INTEGRATION_STATUS_POLICY_VERSION,
+    CurrentRecommendation,
+    IntegrationPlanSource,
+    IntegrationStatus,
+)
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
     PersonalizationLifecycleResult,
@@ -101,6 +107,8 @@ class ProfileIntelligenceResult:
     proposed_target_envelope: NutritionTargetEnvelope | None
     plan_adaptation: PlanAdaptationDecision
     recommendation_history: RecommendationHistory
+    current_recommendation: CurrentRecommendation
+    integration_status: IntegrationStatus
     plan_progression: PersonalizedPlanProgression | None
     policy_version: str
     assumptions: tuple[str, ...]
@@ -152,18 +160,12 @@ def analyze_profile_intelligence(
         recommendation_config,
         training_assessment,
     )
-    dietary_assessment = assess_nutrition_preferences(
-        effective_dietary_profile, latest_plan.target_envelope
-    )
-    nutrition_feasibility = assess_nutrition_feasibility(
-        dietary_profile, dietary_assessment, latest_plan.macro_plan
-    )
     decision_observations = (
         submitted
         if outcome_as_of_date is None
         else tuple(item for item in submitted if item.observed_on <= outcome_as_of_date)
     )
-    decision_plan = (
+    scoped_plan = (
         latest_plan
         if outcome_as_of_date is None
         else build_personalized_plan_snapshot(
@@ -177,15 +179,52 @@ def analyze_profile_intelligence(
             assess_training_demand(training_context, decision_observations),
         )
     )
+    effective_adaptation_history = (
+        ()
+        if adaptation_source is PlanAdaptationSource.PROFILE_RECALCULATION
+        else adaptation_history
+    )
+    accepted_activation = _latest_accepted_activation(effective_adaptation_history)
     decision_training_assessment = (
         training_assessment
         if outcome_as_of_date is None
         else assess_training_demand(training_context, decision_observations)
     )
+    active_macro_plan = scoped_plan.macro_plan
+    active_source = _plan_source(scoped_plan, adaptation_source)
+    active_effective_date = scoped_plan.as_of_date
+    if accepted_activation is not None and (
+        accepted_activation.new_active_target_kcal_per_day
+        != scoped_plan.selected_calorie_target_kcal_per_day
+    ):
+        active_macro_plan = calculate_personalized_macro_plan(
+            profile,
+            accepted_activation.new_active_target_kcal_per_day,
+            scoped_plan.macro_plan.calorie_source,
+            preferences,
+            training_assessment=decision_training_assessment,
+        )
+        active_effective_date = accepted_activation.effective_date
+        active_source = (
+            IntegrationPlanSource.PROFILE_RECALCULATION
+            if adaptation_source is PlanAdaptationSource.PROFILE_RECALCULATION
+            else IntegrationPlanSource.PROGRESS_ADAPTATION
+        )
+    dietary_assessment = assess_nutrition_preferences(
+        effective_dietary_profile, latest_plan.target_envelope
+    )
+    nutrition_feasibility = assess_nutrition_feasibility(
+        dietary_profile, dietary_assessment, latest_plan.macro_plan
+    )
+    decision_observations = (
+        submitted
+        if outcome_as_of_date is None
+        else tuple(item for item in submitted if item.observed_on <= outcome_as_of_date)
+    )
     plan_outcome = assess_plan_outcome(
         profile,
         submitted,
-        decision_plan.selected_calorie_target_kcal_per_day,
+        active_macro_plan.calorie_target_kcal_per_day,
         as_of_date=outcome_as_of_date,
     )
     decision_adaptive_tdee = estimate_adaptive_tdee(
@@ -193,8 +232,8 @@ def analyze_profile_intelligence(
     ).adaptive_tdee_kcal_per_day
     recommendation_decision = decide_plan_adjustment(
         profile,
-        decision_plan.selected_calorie_target_kcal_per_day,
-        decision_plan.macro_plan,
+        active_macro_plan.calorie_target_kcal_per_day,
+        active_macro_plan,
         plan_outcome,
         decision_adaptive_tdee,
     )
@@ -204,14 +243,14 @@ def analyze_profile_intelligence(
         proposed_macro_plan = calculate_personalized_macro_plan(
             profile,
             recommendation_decision.proposed_calorie_target_kcal_per_day,
-            decision_plan.macro_plan.calorie_source,
+            active_macro_plan.calorie_source,
             preferences,
             training_assessment=decision_training_assessment,
         )
         proposed_target_envelope = calculate_nutrition_target_envelope(
             profile,
             recommendation_decision.proposed_calorie_target_kcal_per_day,
-            decision_plan.macro_plan.calorie_source,
+            active_macro_plan.calorie_source,
             preferences,
             training_assessment=decision_training_assessment,
         )
@@ -229,12 +268,12 @@ def analyze_profile_intelligence(
         else None
     )
     plan_adaptation = evaluate_plan_adaptation(
-        decision_plan.macro_plan,
+        active_macro_plan,
         recommendation_decision,
         proposed_macro_plan,
         outcome_as_of_date
         or (None if not decision_observations else decision_observations[-1].observed_on),
-        adaptation_history,
+        effective_adaptation_history,
         decision_observations,
         plan_outcome,
         source=adaptation_source,
@@ -246,6 +285,24 @@ def analyze_profile_intelligence(
         initial_plan_date=(
             None if not decision_observations else decision_observations[0].observed_on
         ),
+    )
+    current_recommendation = CurrentRecommendation(
+        calorie_target_kcal_per_day=active_macro_plan.calorie_target_kcal_per_day,
+        macro_plan=active_macro_plan,
+        target_envelope=calculate_nutrition_target_envelope(
+            profile,
+            active_macro_plan.calorie_target_kcal_per_day,
+            active_macro_plan.calorie_source,
+            preferences,
+            training_assessment=decision_training_assessment,
+        ),
+        effective_date=active_effective_date,
+        source=active_source,
+        is_active=True,
+        is_authoritative=True,
+    )
+    integration_status = _integration_status(
+        recommendation_decision, plan_adaptation, adaptation_source
     )
     return ProfileIntelligenceResult(
         baseline=baseline,
@@ -263,9 +320,53 @@ def analyze_profile_intelligence(
         proposed_target_envelope=proposed_target_envelope,
         plan_adaptation=plan_adaptation,
         recommendation_history=recommendation_history,
+        current_recommendation=current_recommendation,
+        integration_status=integration_status,
         plan_progression=progression,
         policy_version=PROFILE_INTELLIGENCE_POLICY_VERSION,
         assumptions=PROFILE_INTELLIGENCE_ASSUMPTIONS,
+    )
+
+
+def _latest_accepted_activation(adaptation_history: Sequence[PlanAdaptationEvent]):
+    activations = tuple(event for event in adaptation_history if event.action.value == "activate")
+    return max(activations, key=lambda event: event.effective_date) if activations else None
+
+
+def _plan_source(latest_plan: PersonalizedPlanSnapshot, source: PlanAdaptationSource):
+    if source is PlanAdaptationSource.PROFILE_RECALCULATION:
+        return IntegrationPlanSource.PROFILE_RECALCULATION
+    return (
+        IntegrationPlanSource.PERSONALIZED
+        if latest_plan.calorie_basis.value == "personalized"
+        else IntegrationPlanSource.BASELINE
+    )
+
+
+def _integration_status(
+    decision: RecommendationDecision,
+    adaptation: PlanAdaptationDecision,
+    source: PlanAdaptationSource,
+) -> IntegrationStatus:
+    return IntegrationStatus(
+        user_attention_required=adaptation.user_attention_required,
+        plan_update_available=adaptation.activation_available,
+        more_data_needed=adaptation.action.value == "defer",
+        reversal_suppressed=adaptation.action.value == "suppress",
+        current_plan_appropriate=adaptation.action.value == "hold",
+        recommendation_decision=decision.decision,
+        adaptation_action=adaptation.action,
+        adaptation_source=source,
+        summary=(
+            "A plan update is available for review."
+            if adaptation.activation_available
+            else "More data is needed before another plan change."
+            if adaptation.action.value == "defer"
+            else "A reversal was suppressed pending stronger evidence."
+            if adaptation.action.value == "suppress"
+            else "The current plan remains appropriate."
+        ),
+        policy_version=INTEGRATION_STATUS_POLICY_VERSION,
     )
 
 

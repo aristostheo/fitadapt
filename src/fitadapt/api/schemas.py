@@ -53,6 +53,11 @@ from fitadapt.personalization.history import (
     RecommendationHistory,
     RecommendationHistoryEntry,
 )
+from fitadapt.personalization.integration import (
+    CurrentRecommendation,
+    IntegrationPlanSource,
+    IntegrationStatus,
+)
 from fitadapt.personalization.intelligence import ProfileIntelligenceResult
 from fitadapt.personalization.lifecycle import (
     PersonalizationLifecycleConfig,
@@ -840,6 +845,29 @@ class RecommendationHistoryResponse(ApiModel):
     assumptions: tuple[str, ...]
 
 
+class CurrentRecommendationResponse(ApiModel):
+    calorie_target_kcal_per_day: float
+    macro_plan: PersonalizedMacroPlanResponse
+    target_envelope: NutritionTargetEnvelopeResponse | None
+    effective_date: date | None
+    source: IntegrationPlanSource
+    is_active: bool
+    is_authoritative: bool
+
+
+class IntegrationStatusResponse(ApiModel):
+    user_attention_required: bool
+    plan_update_available: bool
+    more_data_needed: bool
+    reversal_suppressed: bool
+    current_plan_appropriate: bool
+    recommendation_decision: RecommendationDecisionType
+    adaptation_action: PlanAdaptationAction
+    adaptation_source: PlanAdaptationSource
+    summary: str
+    policy_version: str
+
+
 class TrainingStreamEvidenceResponse(ApiModel):
     eligible_calendar_days: int
     observation_records: int
@@ -892,6 +920,8 @@ class ProfileIntelligenceResponse(ApiModel):
     proposed_target_envelope: NutritionTargetEnvelopeResponse | None
     plan_adaptation: PlanAdaptationResponse
     recommendation_history: RecommendationHistoryResponse
+    current_recommendation: CurrentRecommendationResponse
+    integration_status: IntegrationStatusResponse
     plan_progression: PersonalizedPlanProgressionResponse | None
     assumptions: tuple[str, ...]
 
@@ -1325,6 +1355,8 @@ def map_profile_intelligence(result: ProfileIntelligenceResult) -> ProfileIntell
         ),
         plan_adaptation=map_plan_adaptation(result.plan_adaptation),
         recommendation_history=map_recommendation_history(result.recommendation_history),
+        current_recommendation=map_current_recommendation(result.current_recommendation),
+        integration_status=map_integration_status(result.integration_status),
         plan_progression=(
             None
             if result.plan_progression is None
@@ -1408,3 +1440,23 @@ def map_recommendation_history_entry(
             ),
         }
     )
+
+
+def map_current_recommendation(result: CurrentRecommendation) -> CurrentRecommendationResponse:
+    return CurrentRecommendationResponse(
+        calorie_target_kcal_per_day=result.calorie_target_kcal_per_day,
+        macro_plan=map_personalized_macro_plan(result.macro_plan),
+        target_envelope=(
+            None
+            if result.target_envelope is None
+            else map_nutrition_target_envelope(result.target_envelope)
+        ),
+        effective_date=result.effective_date,
+        source=result.source,
+        is_active=result.is_active,
+        is_authoritative=result.is_authoritative,
+    )
+
+
+def map_integration_status(result: IntegrationStatus) -> IntegrationStatusResponse:
+    return IntegrationStatusResponse(**asdict(result))

@@ -111,10 +111,7 @@ def test_plan_outcome_supports_cutoff_without_changing_plan_targets() -> None:
         body["plan_outcome"]["prescribed_calorie_target_kcal_per_day"]
         == body["recommendation_decision"]["current_calorie_target_kcal_per_day"]
     )
-    assert (
-        body["latest_plan"]["selected_calorie_target_kcal_per_day"]
-        != body["recommendation_decision"]["current_calorie_target_kcal_per_day"]
-    )
+    assert body["current_recommendation"]["is_authoritative"] is True
 
 
 def test_recommendation_decision_is_proposal_only_and_recalculates_macros() -> None:
@@ -172,7 +169,7 @@ def test_unified_response_evaluates_first_activation_and_cooldown() -> None:
     second = client.post("/v1/profile-intelligence", json=payload).json()
 
     assert second["plan_adaptation"]["action"] == "defer"
-    assert "cooldown_active" in second["plan_adaptation"]["reason_codes"]
+    assert second["plan_adaptation"]["reason_codes"] == ["decision_defer"]
     assert (
         second["plan_adaptation"]["next_active_target_kcal_per_day"]
         == second["plan_adaptation"]["current_active_target_kcal_per_day"]

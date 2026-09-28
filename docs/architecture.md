@@ -167,6 +167,15 @@ days plus stronger fresh weight and intake evidence. The evaluator uses observat
 wall-clock time, and does not persist or mutate the active plan. Progression remains prefix-based;
 storage, acceptance, activation, and notifications remain caller responsibilities.
 
+## Application Integration Boundary
+
+FitAdapt owns energy estimation, calorie targets, macro composition, training-aware composition,
+dietary feasibility, outcome interpretation, recommendation decisions, activation eligibility, and
+explainability. The main fitness app owns persistence, accounts/authentication, daily logging,
+notifications, meal/workout generation, and accepting/storing active-plan updates. The unified API's
+`current_recommendation` is the single app-facing authoritative active-plan summary; proposals and
+next plans remain inactive until the caller accepts them.
+
 ## Recommendation History Boundary
 
 Recommendation history is a deterministic explainability projection over caller-supplied adaptation

@@ -68,6 +68,8 @@ baseline latest plan, empty trend/adaptive collections, `baseline` lifecycle sta
 | `proposed_target_envelope` | `null` for hold/defer; otherwise the existing target-envelope pipeline for the proposal.             |
 | `plan_adaptation`          | Stateless activate/hold/defer/suppress eligibility with active/proposed/next plans and history.      |
 | `recommendation_history`   | Immutable explainability timeline with latest change and actionable-event signals.                   |
+| `current_recommendation`   | One authoritative active calorie/macro summary for the consuming app.                                |
+| `integration_status`       | Consolidated attention, update-available, more-data, reversal, and current-plan signals.            |
 | `plan_progression`         | `null` unless requested; otherwise one prefix snapshot per submitted entry.                          |
 
 Dates serialize as ISO dates, enum fields as stable JSON strings, unavailable values as JSON `null`,
@@ -111,6 +113,9 @@ The additive `plan_adaptation` layer accepts optional chronological `adaptation_
 evaluates cooldown, fresh contributors, and reversal guards using observation dates. It never
 persists or activates a plan. `next_active_macro_plan` indicates the plan eligible for caller
 acceptance when action is `activate`.
+`current_recommendation` is the authoritative active-plan summary. Proposals and next plans are not
+active until the caller accepts and resubmits the resulting adaptation history. See
+[app integration](app-integration.md) for normal request and acceptance flows.
 
 ## Latest-Only And Progression
 
