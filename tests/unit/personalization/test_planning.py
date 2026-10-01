@@ -172,26 +172,24 @@ def test_non_personalized_stages_select_baseline_target(
     assert snapshot.macro_plan.calorie_source is MacroCalorieSource.BASELINE
 
 
-def test_personalized_stage_uses_exact_existing_recommendation_target(
+def test_personalized_stage_keeps_baseline_active_pending_cp29_cp30_acceptance(
     profile: UserProfile, balanced_preferences: NutritionPreferences
 ) -> None:
     observations = _history(28, weight_change_per_day=-0.10)
     recommendation = recommend_calorie_adjustment(profile, observations)
     snapshot = build_personalized_plan_snapshot(profile, observations, balanced_preferences)
+    baseline = calculate_calorie_target(profile)
     expected_macro = calculate_personalized_macro_plan(
         profile,
-        recommendation.proposed_intake_target_kcal_per_day,
-        MacroCalorieSource.PERSONALIZED,
+        baseline.target_calories_kcal_per_day,
+        MacroCalorieSource.BASELINE,
         balanced_preferences,
     )
 
     assert snapshot.lifecycle_stage is PersonalizationStage.PERSONALIZED
     assert recommendation.status is RecommendationStatus.INCREASE_CALORIES
-    assert snapshot.calorie_basis is PlanCalorieBasis.PERSONALIZED
-    assert (
-        snapshot.selected_calorie_target_kcal_per_day
-        == recommendation.proposed_intake_target_kcal_per_day
-    )
+    assert snapshot.calorie_basis is PlanCalorieBasis.BASELINE
+    assert snapshot.selected_calorie_target_kcal_per_day == baseline.target_calories_kcal_per_day
     assert snapshot.raw_recommendation_adjustment_kcal_per_day == (
         recommendation.raw_adjustment_kcal_per_day
     )
@@ -224,7 +222,7 @@ def test_personalized_unavailable_recommendation_falls_back_to_baseline(
     )
     assert snapshot.target_envelope.calorie_source is MacroCalorieSource.BASELINE
     assert snapshot.recommendation_reasons == recommendation.reasons
-    assert "no actionable safe recommendation" in snapshot.assumptions[-1]
+    assert "accepted and represented in caller-supplied CP30 history" in snapshot.assumptions[-1]
 
 
 def test_zero_and_missing_intake_remain_distinct(
@@ -274,7 +272,7 @@ def test_existing_recommendation_hold_direction_and_cap_are_preserved(
     )
     assert (
         snapshot.selected_calorie_target_kcal_per_day
-        == recommendation.proposed_intake_target_kcal_per_day
+        == snapshot.baseline_calorie_target_kcal_per_day
     )
 
 
@@ -356,12 +354,12 @@ def test_documented_progression_example_is_generated_by_the_planning_contract(
     assert [item.calorie_basis for item in selected] == [
         PlanCalorieBasis.BASELINE,
         PlanCalorieBasis.BASELINE,
-        PlanCalorieBasis.PERSONALIZED,
+        PlanCalorieBasis.BASELINE,
     ]
     assert [item.selected_calorie_target_kcal_per_day for item in selected] == [
         2759.0,
         2759.0,
-        2550.0,
+        2759.0,
     ]
 
 

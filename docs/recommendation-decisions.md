@@ -44,6 +44,27 @@ than reversing direction. An optional absolute maximum target similarly clamps i
 explicit reason code. Adaptive TDEE is supporting context only: it may add a supporting or
 conflicting reason, but never becomes a second target generator.
 
+## CP34B conservative adaptive-evidence policy
+
+Adaptive TDEE is an observational estimate, not measured expenditure. CP29 now exposes categorical
+adaptive evidence status and structured reason codes. `insufficient`, `stabilizing`, `unstable`,
+recent intake-regime changes, or material 28/35/42-day horizon disagreement are ambiguous evidence.
+
+A calorie decrease requires interpretable CP28 outcome evidence, near-target adherence, adequate weight
+and intake data/span, safety eligibility, stable adaptive evidence, a sufficiently long decrease
+evidence span, and acceptable cross-horizon agreement. Otherwise CP29 returns `defer` with reasons
+such as `adaptive_evidence_ambiguous`, `estimator_stabilizing`,
+`estimator_sensitivity_disagreement`, `persistent_weight_drift_unidentifiable`, and
+`conservative_decrease_withheld`.
+
+Increases intentionally use a different bar: interpretable outcome, near-target adherence, direction
+and safety evidence remain required, but ambiguous adaptive TDEE is contextual and does not by itself
+block a CP28-supported increase. This asymmetry is proposal-only and is not an assertion that TDEE
+changed.
+
+No probability or confidence score is invented. A hold/defer is an intentional safety behavior when
+the available inputs cannot distinguish persistent non-energy weight drift from a true deficit.
+
 ## Proposed plans
 
 The unified response keeps `latest_plan` as the active current plan. `recommendation_decision`

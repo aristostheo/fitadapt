@@ -31,6 +31,7 @@ from fitadapt.personalization.adaptation import (
     PlanAdaptationSource,
 )
 from fitadapt.personalization.decisions import (
+    AdaptiveEvidenceStatus,
     RecommendationDecision,
     RecommendationDecisionReason,
     RecommendationDecisionType,
@@ -56,6 +57,7 @@ from fitadapt.personalization.history import (
 )
 from fitadapt.personalization.integration import (
     CurrentRecommendation,
+    IntegrationAppStatus,
     IntegrationPlanSource,
     IntegrationStatus,
 )
@@ -778,6 +780,7 @@ class RecommendationDecisionResponse(ApiModel):
     limiting_reason: RecommendationDecisionReason | None
     reason_codes: tuple[RecommendationDecisionReason, ...]
     adaptive_tdee_kcal_per_day: float | None
+    adaptive_evidence_status: AdaptiveEvidenceStatus
     policy_version: str
     assumptions: tuple[str, ...]
 
@@ -880,6 +883,8 @@ class IntegrationStatusResponse(ApiModel):
     recommendation_decision: RecommendationDecisionType
     adaptation_action: PlanAdaptationAction
     adaptation_source: PlanAdaptationSource
+    app_status: IntegrationAppStatus
+    reason_codes: tuple[RecommendationDecisionReason, ...]
     summary: str
     policy_version: str
 

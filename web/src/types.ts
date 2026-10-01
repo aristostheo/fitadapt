@@ -294,7 +294,7 @@ export interface AdaptiveResult {
   intake_completeness?: number;
   evidence_calendar_span_days?: number;
   estimator_method?: string;
-  stability?: "insufficient" | "unstable" | "stable";
+  stability?: "insufficient" | "stabilizing" | "unstable" | "stable";
   reason_codes?: string[];
   assumptions: string[];
 }
@@ -534,6 +534,7 @@ export type RecommendationDecisionType =
   | "decrease"
   | "defer";
 export type RecommendationDecisionReason = string;
+export type AdaptiveEvidenceStatus = "stable" | "ambiguous" | "insufficient";
 export interface RecommendationDecision {
   decision: RecommendationDecisionType;
   decision_available: boolean;
@@ -551,6 +552,7 @@ export interface RecommendationDecision {
   limiting_reason: RecommendationDecisionReason | null;
   reason_codes: RecommendationDecisionReason[];
   adaptive_tdee_kcal_per_day: number | null;
+  adaptive_evidence_status: AdaptiveEvidenceStatus;
   policy_version: string;
   assumptions: string[];
 }
@@ -660,6 +662,13 @@ export interface IntegrationStatus {
   recommendation_decision: RecommendationDecisionType;
   adaptation_action: PlanAdaptationAction;
   adaptation_source: "progress_adaptation" | "profile_recalculation";
+  app_status:
+    | "plan_remains_appropriate"
+    | "more_data_needed"
+    | "deferred_estimator_stabilizing"
+    | "deferred_adaptive_evidence_ambiguous"
+    | "update_available";
+  reason_codes: RecommendationDecisionReason[];
   summary: string;
   policy_version: string;
 }

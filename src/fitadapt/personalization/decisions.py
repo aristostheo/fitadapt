@@ -31,6 +31,12 @@ class RecommendationDecisionType(StrEnum):
     DEFER = "defer"
 
 
+class AdaptiveEvidenceStatus(StrEnum):
+    STABLE = "stable"
+    AMBIGUOUS = "ambiguous"
+    INSUFFICIENT = "insufficient"
+
+
 class RecommendationDecisionReason(StrEnum):
     OUTCOME_UNAVAILABLE = "outcome_unavailable"
     OUTCOME_NOT_INTERPRETABLE = "outcome_not_interpretable"
@@ -51,6 +57,17 @@ class RecommendationDecisionReason(StrEnum):
     CURRENT_TARGET_BELOW_SAFETY_FLOOR = "current_target_below_safety_floor"
     SAFETY_TARGET_BOUND = "safety_target_bound"
     ADAPTIVE_TDEE_UNSTABLE = "adaptive_tdee_unstable"
+    ADAPTIVE_EVIDENCE_STABLE = "adaptive_evidence_stable"
+    ADAPTIVE_EVIDENCE_AMBIGUOUS = "adaptive_evidence_ambiguous"
+    RECENT_INTAKE_REGIME_CHANGE = "recent_intake_regime_change"
+    ESTIMATOR_STABILIZING = "estimator_stabilizing"
+    ESTIMATOR_SENSITIVITY_DISAGREEMENT = "estimator_sensitivity_disagreement"
+    MORE_EVIDENCE_REQUIRED = "more_evidence_required"
+    CONSERVATIVE_DECREASE_WITHHELD = "conservative_decrease_withheld"
+    PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE = "persistent_weight_drift_unidentifiable"
+    INSUFFICIENT_DECREASE_EVIDENCE_SPAN = "insufficient_decrease_evidence_span"
+    INSUFFICIENT_HORIZON_EVIDENCE = "insufficient_horizon_evidence"
+    ADAPTIVE_HORIZONS_AGREE = "adaptive_horizons_agree"
     CONSERVATIVE_STANDARD_ADJUSTMENT = "conservative_standard_adjustment"
 
 
@@ -65,6 +82,8 @@ class RecommendationDecisionConfig:
     maximum_target_kcal_per_day: float | None = None
     minimum_interpretable_span_days: int = 14
     adaptive_support_threshold_kcal_per_day: float = 150.0
+    minimum_decrease_evidence_span_days: int = 42
+    maximum_decrease_horizon_disagreement_kcal_per_day: float = 200.0
 
     def __post_init__(self) -> None:
         if not isinstance(self.policy_version, str) or not self.policy_version:
@@ -74,6 +93,7 @@ class RecommendationDecisionConfig:
             "standard_adjustment_kcal_per_day",
             "maximum_adjustment_kcal_per_day",
             "adaptive_support_threshold_kcal_per_day",
+            "maximum_decrease_horizon_disagreement_kcal_per_day",
         ):
             object.__setattr__(
                 self,
@@ -110,6 +130,14 @@ class RecommendationDecisionConfig:
             or self.minimum_interpretable_span_days <= 0
         ):
             raise RecommendationDecisionError("minimum_interpretable_span_days must be positive.")
+        if (
+            isinstance(self.minimum_decrease_evidence_span_days, bool)
+            or not isinstance(self.minimum_decrease_evidence_span_days, int)
+            or self.minimum_decrease_evidence_span_days <= 0
+        ):
+            raise RecommendationDecisionError(
+                "minimum_decrease_evidence_span_days must be positive."
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,6 +160,7 @@ class RecommendationDecision:
     limiting_reason: RecommendationDecisionReason | None
     reason_codes: tuple[RecommendationDecisionReason, ...]
     adaptive_tdee_kcal_per_day: float | None
+    adaptive_evidence_status: AdaptiveEvidenceStatus
     policy_version: str
     assumptions: tuple[str, ...]
 
@@ -145,6 +174,9 @@ def decide_plan_adjustment(
     config: RecommendationDecisionConfig | None = None,
     target_safety: TargetEligibilityAssessment | None = None,
     adaptive_tdee_stability: TdeeStability | None = None,
+    adaptive_tdee_reason_codes: tuple[str, ...] = (),
+    decrease_evidence_span_days: int = 0,
+    adaptive_tdee_horizon_disagreement_kcal_per_day: float | None = None,
 ) -> RecommendationDecision:
     """Decide hold, increase, decrease, or defer from existing evidence only."""
     if not isinstance(profile, UserProfile):
@@ -181,51 +213,77 @@ def decide_plan_adjustment(
         raise RecommendationDecisionError(
             "adaptive_tdee_stability must be a TdeeStability or None."
         )
-    if target_safety is not None and target_safety.status is TargetEligibilityStatus.INELIGIBLE:
-        return _result(
-            RecommendationDecisionType.DEFER,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
-            tuple(target_safety.reason_codes),
-            None,
-            effective,
+    if not isinstance(adaptive_tdee_reason_codes, tuple) or not all(
+        isinstance(code, str) for code in adaptive_tdee_reason_codes
+    ):
+        raise RecommendationDecisionError("adaptive_tdee_reason_codes must be a tuple of strings.")
+    if (
+        isinstance(decrease_evidence_span_days, bool)
+        or not isinstance(decrease_evidence_span_days, int)
+        or decrease_evidence_span_days < 0
+    ):
+        raise RecommendationDecisionError(
+            "decrease_evidence_span_days must be a non-negative integer."
         )
-    if adaptive_tdee_stability is TdeeStability.UNSTABLE:
+    if adaptive_tdee_horizon_disagreement_kcal_per_day is not None:
+        adaptive_tdee_horizon_disagreement_kcal_per_day = validate_finite_number(
+            adaptive_tdee_horizon_disagreement_kcal_per_day,
+            field_name="adaptive_tdee_horizon_disagreement_kcal_per_day",
+            error_type=RecommendationDecisionError,
+        )
+        if adaptive_tdee_horizon_disagreement_kcal_per_day < 0:
+            raise RecommendationDecisionError(
+                "adaptive_tdee_horizon_disagreement_kcal_per_day must be non-negative."
+            )
+    evidence_status, evidence_reasons = _adaptive_evidence(
+        adaptive_tdee_kcal_per_day, adaptive_tdee_stability, adaptive_tdee_reason_codes
+    )
+    safe_adaptive_tdee = (
+        adaptive_tdee_kcal_per_day if evidence_status is AdaptiveEvidenceStatus.STABLE else None
+    )
+
+    def finish(
+        decision: RecommendationDecisionType,
+        reasons: tuple[RecommendationDecisionReason, ...],
+        proposed: float | None = None,
+        *,
+        status: AdaptiveEvidenceStatus | None = None,
+    ) -> RecommendationDecision:
+        selected_status = status or evidence_status
+        contextual_reasons = tuple(
+            reason
+            for reason in evidence_reasons
+            if not (
+                selected_status is AdaptiveEvidenceStatus.AMBIGUOUS
+                and reason is RecommendationDecisionReason.ADAPTIVE_EVIDENCE_STABLE
+            )
+        )
+        all_reasons = tuple(dict.fromkeys((*reasons, *contextual_reasons)))
         return _result(
-            RecommendationDecisionType.DEFER,
+            decision,
             current_target,
             profile,
             outcome_assessment,
-            adaptive_tdee_kcal_per_day,
-            (RecommendationDecisionReason.ADAPTIVE_TDEE_UNSTABLE,),
-            None,
+            safe_adaptive_tdee if selected_status is AdaptiveEvidenceStatus.STABLE else None,
+            all_reasons,
+            proposed,
             effective,
+            selected_status,
+        )
+
+    if target_safety is not None and target_safety.status is TargetEligibilityStatus.INELIGIBLE:
+        return finish(
+            RecommendationDecisionType.DEFER,
+            tuple(target_safety.reason_codes),
         )
     if current_target < minimum_macro_calories_kcal_per_day(profile):
-        return _result(
+        return finish(
             RecommendationDecisionType.DEFER,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
             (RecommendationDecisionReason.CURRENT_TARGET_BELOW_SAFETY_FLOOR,),
-            None,
-            effective,
         )
     reasons = _defer_reasons(outcome_assessment, effective)
     if reasons:
-        return _result(
-            RecommendationDecisionType.DEFER,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
-            reasons,
-            None,
-            effective,
-        )
+        return finish(RecommendationDecisionType.DEFER, reasons)
     direction, direction_reason = _direction(profile.goal, outcome_assessment)
     if direction is None:
         reason = (
@@ -233,19 +291,8 @@ def decide_plan_adjustment(
             if outcome_assessment.goal_progress is GoalProgressStatus.BROADLY_ON_TRACK
             else RecommendationDecisionReason.MAINTENANCE_STABLE
         )
-        return _result(
-            RecommendationDecisionType.HOLD,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
-            (reason,),
-            None,
-            effective,
-        )
-    adaptive_reason = _adaptive_reason(
-        direction, current_target, adaptive_tdee_kcal_per_day, effective
-    )
+        return finish(RecommendationDecisionType.HOLD, (reason,))
+    adaptive_reason = _adaptive_reason(direction, current_target, safe_adaptive_tdee, effective)
     delta = min(
         effective.standard_adjustment_kcal_per_day, effective.maximum_adjustment_kcal_per_day
     )
@@ -263,16 +310,62 @@ def decide_plan_adjustment(
             )
         )
     ):
-        return _result(
-            RecommendationDecisionType.HOLD,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
-            (RecommendationDecisionReason.SAFETY_TARGET_BOUND,),
-            None,
-            effective,
+        return finish(
+            RecommendationDecisionType.DEFER, (RecommendationDecisionReason.SAFETY_TARGET_BOUND,)
         )
+    if direction < 0:
+        if evidence_status is not AdaptiveEvidenceStatus.STABLE:
+            return finish(
+                RecommendationDecisionType.DEFER,
+                (
+                    direction_reason,
+                    RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS,
+                    RecommendationDecisionReason.PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE,
+                    RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD,
+                    RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED,
+                ),
+                status=evidence_status,
+            )
+        if decrease_evidence_span_days < effective.minimum_decrease_evidence_span_days:
+            return finish(
+                RecommendationDecisionType.DEFER,
+                (
+                    direction_reason,
+                    RecommendationDecisionReason.INSUFFICIENT_DECREASE_EVIDENCE_SPAN,
+                    RecommendationDecisionReason.PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE,
+                    RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD,
+                    RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED,
+                ),
+                status=AdaptiveEvidenceStatus.AMBIGUOUS,
+            )
+        if adaptive_tdee_horizon_disagreement_kcal_per_day is None:
+            return finish(
+                RecommendationDecisionType.DEFER,
+                (
+                    direction_reason,
+                    RecommendationDecisionReason.INSUFFICIENT_HORIZON_EVIDENCE,
+                    RecommendationDecisionReason.PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE,
+                    RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD,
+                    RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED,
+                ),
+                status=AdaptiveEvidenceStatus.AMBIGUOUS,
+            )
+        if (
+            adaptive_tdee_horizon_disagreement_kcal_per_day
+            >= effective.maximum_decrease_horizon_disagreement_kcal_per_day
+        ):
+            return finish(
+                RecommendationDecisionType.DEFER,
+                (
+                    direction_reason,
+                    RecommendationDecisionReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT,
+                    RecommendationDecisionReason.PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE,
+                    RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD,
+                    RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED,
+                ),
+                status=AdaptiveEvidenceStatus.AMBIGUOUS,
+            )
+        evidence_reasons = (*evidence_reasons, RecommendationDecisionReason.ADAPTIVE_HORIZONS_AGREE)
     bounds_reason = None
     minimum_target = minimum_macro_calories_kcal_per_day(profile)
     if proposed < minimum_target:
@@ -289,32 +382,21 @@ def decide_plan_adjustment(
         bounds_reason = RecommendationDecisionReason.ADJUSTMENT_CLAMPED_TO_MAXIMUM_TARGET
     actual_delta = proposed - current_target
     if abs(actual_delta) < effective.minimum_adjustment_kcal_per_day:
-        return _result(
+        return finish(
             RecommendationDecisionType.HOLD,
-            current_target,
-            profile,
-            outcome_assessment,
-            adaptive_tdee_kcal_per_day,
             (RecommendationDecisionReason.DEVIATION_BELOW_MINIMUM_ADJUSTMENT,),
-            None,
-            effective,
         )
     ordered_reasons = tuple(
         reason
         for reason in (direction_reason, adaptive_reason, bounds_reason)
         if reason is not None
     )
-    return _result(
+    return finish(
         RecommendationDecisionType.INCREASE
         if actual_delta > 0
         else RecommendationDecisionType.DECREASE,
-        current_target,
-        profile,
-        outcome_assessment,
-        adaptive_tdee_kcal_per_day,
         ordered_reasons,
         proposed,
-        effective,
     )
 
 
@@ -377,6 +459,39 @@ def _adaptive_reason(
     return RecommendationDecisionReason.ADAPTIVE_TDEE_CONFLICTING
 
 
+def _adaptive_evidence(
+    adaptive_tdee: float | None,
+    stability: TdeeStability | None,
+    estimator_reasons: tuple[str, ...],
+) -> tuple[AdaptiveEvidenceStatus, tuple[RecommendationDecisionReason, ...]]:
+    reasons: list[RecommendationDecisionReason] = []
+    if stability is TdeeStability.STABLE and adaptive_tdee is not None and not estimator_reasons:
+        status = AdaptiveEvidenceStatus.STABLE
+        reasons.append(RecommendationDecisionReason.ADAPTIVE_EVIDENCE_STABLE)
+    elif stability is TdeeStability.INSUFFICIENT or adaptive_tdee is None:
+        status = AdaptiveEvidenceStatus.INSUFFICIENT
+        reasons.extend(
+            (
+                RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS,
+                RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED,
+            )
+        )
+    else:
+        status = AdaptiveEvidenceStatus.AMBIGUOUS
+        reasons.append(RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS)
+    if "intake_regime_change" in estimator_reasons:
+        reasons.append(RecommendationDecisionReason.RECENT_INTAKE_REGIME_CHANGE)
+    if "post_regime_stabilization" in estimator_reasons or stability is TdeeStability.STABILIZING:
+        reasons.append(RecommendationDecisionReason.ESTIMATOR_STABILIZING)
+    if any("subwindow" in code or "sensitivity" in code for code in estimator_reasons):
+        reasons.append(RecommendationDecisionReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT)
+    if stability is TdeeStability.UNSTABLE:
+        reasons.append(RecommendationDecisionReason.ADAPTIVE_TDEE_UNSTABLE)
+    if any(code.startswith("insufficient_") for code in estimator_reasons):
+        reasons.append(RecommendationDecisionReason.MORE_EVIDENCE_REQUIRED)
+    return status, tuple(dict.fromkeys(reasons))
+
+
 def _result(
     decision: RecommendationDecisionType,
     current_target: float,
@@ -386,6 +501,7 @@ def _result(
     reasons: tuple[RecommendationDecisionReason, ...],
     proposed: float | None,
     config: RecommendationDecisionConfig,
+    adaptive_evidence_status: AdaptiveEvidenceStatus,
 ) -> RecommendationDecision:
     target = current_target if proposed is None else proposed
     delta = target - current_target
@@ -404,16 +520,38 @@ def _result(
         intake_adherence=outcome.intake_adherence,
         weight_trend_status=outcome.weight_trend_status,
         goal_progress=outcome.goal_progress,
-        limiting_reason=reasons[0]
-        if decision is RecommendationDecisionType.DEFER and reasons
-        else None,
+        limiting_reason=(
+            next(
+                (
+                    reason
+                    for reason in reasons
+                    if reason
+                    in (
+                        RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD,
+                        RecommendationDecisionReason.ESTIMATOR_STABILIZING,
+                        RecommendationDecisionReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT,
+                        RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS,
+                        RecommendationDecisionReason.ADHERENCE_NOT_NEAR_TARGET,
+                        RecommendationDecisionReason.OUTCOME_NOT_INTERPRETABLE,
+                        RecommendationDecisionReason.SAFETY_TARGET_BOUND,
+                    )
+                ),
+                reasons[0] if decision is RecommendationDecisionType.DEFER and reasons else None,
+            )
+            if decision is RecommendationDecisionType.DEFER
+            else None
+        ),
         reason_codes=reasons,
         adaptive_tdee_kcal_per_day=adaptive_tdee,
+        adaptive_evidence_status=adaptive_evidence_status,
         policy_version=config.policy_version,
         assumptions=(
             "This is a proposal-only decision and never activates a new plan.",
             "Existing outcome assessment supplies adherence and weight-progress interpretation.",
-            "Adaptive TDEE is supporting context, not an independent target generator.",
+            "Adaptive TDEE is an observational estimate, not measured expenditure or an "
+            "independent target generator.",
+            "Weight, logged intake, and dates alone cannot distinguish every persistent "
+            "non-energy weight drift from energy-balance change.",
             "Hold and defer preserve the current calorie target exactly.",
         ),
     )

@@ -63,12 +63,12 @@ def _plans() -> tuple[object, object]:
         profile, 2400, MacroCalorieSource.BASELINE, preferences
     )
     proposed = calculate_personalized_macro_plan(
-        profile, 2300, MacroCalorieSource.BASELINE, preferences
+        profile, 2500, MacroCalorieSource.BASELINE, preferences
     )
     return current, proposed
 
 
-def _decision(current, proposed, progress=GoalProgressStatus.SLOWER_THAN_EXPECTED):
+def _decision(current, proposed, progress=GoalProgressStatus.FASTER_THAN_EXPECTED):
     profile = _profile()
     outcome = assess_plan_outcome(profile, _observations(date(2026, 1, 1), 28), 2400)
     outcome = outcome.__class__(
@@ -132,7 +132,7 @@ def test_enough_new_same_direction_evidence_activates_again() -> None:
     current, proposed = _plans()
     profile = _profile()
     proposed_again = calculate_personalized_macro_plan(
-        profile, 2200, MacroCalorieSource.BASELINE, NutritionPreferences(MacroStrategy.BALANCED)
+        profile, 2600, MacroCalorieSource.BASELINE, NutritionPreferences(MacroStrategy.BALANCED)
     )
     decision = _decision(current, proposed)
     first = evaluate_plan_adaptation(
@@ -155,7 +155,7 @@ def test_enough_new_same_direction_evidence_activates_again() -> None:
     assert result.action is PlanAdaptationAction.ACTIVATE
 
 
-def test_reversal_requires_stronger_fresh_evidence_then_activates() -> None:
+def test_cp30_suppresses_a_legacy_decrease_and_preserves_reversal_guard() -> None:
     current, proposed = _plans()
     decision = _decision(current, proposed)
     first = evaluate_plan_adaptation(
@@ -165,7 +165,14 @@ def test_reversal_requires_stronger_fresh_evidence_then_activates() -> None:
         date(2026, 1, 28),
         observations=_observations(date(2026, 1, 1), 28),
     )
-    reversal = _decision(proposed, current, GoalProgressStatus.FASTER_THAN_EXPECTED)
+    reversal = replace(
+        _decision(proposed, current, GoalProgressStatus.FASTER_THAN_EXPECTED),
+        decision=RecommendationDecisionType.DECREASE,
+        proposed_calorie_target_kcal_per_day=current.calorie_target_kcal_per_day,
+        calorie_delta_kcal_per_day=-100.0,
+        numerical_change_proposed=True,
+        attention_required=True,
+    )
     suppressed = evaluate_plan_adaptation(
         proposed,
         reversal,
@@ -216,16 +223,16 @@ def test_future_observations_do_not_count_before_as_of_date() -> None:
     )
     later = evaluate_plan_adaptation(
         proposed,
-        _decision(proposed, current, GoalProgressStatus.FASTER_THAN_EXPECTED),
-        current,
+        _decision(proposed, current, GoalProgressStatus.SLOWER_THAN_EXPECTED),
+        None,
         date(2026, 2, 11),
         prior_events=first.adaptation_history,
         observations=_observations(date(2026, 1, 1), 60),
     )
     prefix = evaluate_plan_adaptation(
         proposed,
-        _decision(proposed, current, GoalProgressStatus.FASTER_THAN_EXPECTED),
-        current,
+        _decision(proposed, current, GoalProgressStatus.SLOWER_THAN_EXPECTED),
+        None,
         date(2026, 2, 11),
         prior_events=first.adaptation_history,
         observations=_observations(date(2026, 1, 1), 42),

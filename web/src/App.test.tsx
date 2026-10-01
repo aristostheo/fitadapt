@@ -467,7 +467,7 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(document.getElementById("journey-plan")).toHaveAttribute(
       "aria-current",
       "step",
@@ -494,21 +494,12 @@ describe("guided FitAdapt journey", () => {
     navigate("plan");
     fireEvent.click(screen.getByLabelText("Include plan history"));
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(screen.getByText("2,350–2,550 kcal/day")).toBeInTheDocument();
     expect(
       screen.getByText("Preferred range: 144–176 g/day"),
     ).toBeInTheDocument();
     expect(screen.getByText("Higher protein")).toBeInTheDocument();
-    expect(
-      screen.getAllByText(
-        "Your recent intake differs meaningfully from the personalized target.",
-      ),
-    ).toHaveLength(2);
-    expect(
-      screen.getByText("adjustment_recommended").closest("details"),
-    ).not.toHaveAttribute("open");
-
     fireEvent.click(screen.getByRole("button", { name: "View progress" }));
     expect(document.getElementById("journey-progress")).toHaveAttribute(
       "aria-current",
@@ -536,20 +527,20 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
 
     navigate("profile");
     fill("Age", "42");
     navigate("plan");
-    expect(screen.queryByText("Current proposed plan")).not.toBeInTheDocument();
+    expect(screen.queryByText("Current plan")).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Ready for analysis" }),
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     fireEvent.click(screen.getByLabelText("Include plan history"));
-    expect(screen.queryByText("Current proposed plan")).not.toBeInTheDocument();
+    expect(screen.queryByText("Current plan")).not.toBeInTheDocument();
   });
 
   it("prevents duplicate analysis while loading", async () => {
@@ -567,7 +558,7 @@ describe("guided FitAdapt journey", () => {
     fireEvent.click(loadingButton);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     resolveResponse?.({ ok: true, status: 200, json: async () => response() });
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
   });
 
   it("preserves entered inputs across a structured API error and exact-request retry", async () => {
@@ -604,7 +595,7 @@ describe("guided FitAdapt journey", () => {
     expect(screen.getByRole("radio", { name: /^Vegan/ })).toBeChecked();
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][1]?.body).toBe(
       fetchMock.mock.calls[0][1]?.body,
@@ -639,13 +630,11 @@ describe("guided FitAdapt journey", () => {
     for (const [status, kind] of cases) {
       vi.stubGlobal(
         "fetch",
-        vi
-          .fn()
-          .mockResolvedValue({
-            ok: false,
-            status,
-            json: async () => ({ error: { message: "invalid", code: "BAD" } }),
-          }),
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status,
+          json: async () => ({ error: { message: "invalid", code: "BAD" } }),
+        }),
       );
       await expect(getProfileIntelligence({} as never)).rejects.toMatchObject({
         kind,
@@ -678,7 +667,7 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(
       screen.getByText("Add your first weight and calorie entries."),
     ).toBeInTheDocument();
@@ -693,7 +682,7 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(
       screen.getByText("Based on your observed history"),
     ).toBeInTheDocument();
@@ -711,7 +700,7 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     fireEvent.click(screen.getByRole("button", { name: "View progress" }));
     expect(
       screen.getByRole("heading", { name: "See how your plan changed" }),
@@ -902,7 +891,7 @@ describe("guided FitAdapt journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add constraint" }));
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     const body = JSON.parse(
       String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
     );
@@ -948,7 +937,7 @@ describe("guided FitAdapt journey", () => {
       fireEvent.click(
         screen.getByRole("button", { name: "Analyze my profile" }),
       );
-      await screen.findByText("Current proposed plan");
+      await screen.findByText("Current plan");
       const body = JSON.parse(
         String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
       );
@@ -964,11 +953,11 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     navigate("nutrition");
     fireEvent.click(screen.getByRole("radio", { name: /^Vegetarian/ }));
     navigate("plan");
-    expect(screen.queryByText("Current proposed plan")).not.toBeInTheDocument();
+    expect(screen.queryByText("Current plan")).not.toBeInTheDocument();
     navigate("nutrition");
     expect(screen.getByRole("radio", { name: /^Vegetarian/ })).toBeChecked();
   });
@@ -1001,7 +990,7 @@ describe("guided FitAdapt journey", () => {
       fireEvent.click(
         screen.getByRole("button", { name: "Analyze my profile" }),
       );
-      await screen.findByText("Current proposed plan");
+      await screen.findByText("Current plan");
       expect(
         screen.getByRole("heading", { name: heading }),
       ).toBeInTheDocument();
@@ -1032,7 +1021,7 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(screen.getByText("Soy, Legumes")).toBeInTheDocument();
     expect(screen.getByText("Favorite categories")).toBeInTheDocument();
     expect(screen.getAllByText("Eggs")).not.toHaveLength(0);
@@ -1060,10 +1049,10 @@ describe("guided FitAdapt journey", () => {
     render(<App />);
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    await screen.findByText("Current proposed plan");
+    await screen.findByText("Current plan");
     expect(
       screen.getByText(
-        /recommendation safety gate retained your baseline target/,
+        /baseline\/safety target remains current until a CP29 proposal is accepted/,
       ),
     ).toBeInTheDocument();
   });

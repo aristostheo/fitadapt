@@ -10,6 +10,12 @@ const decisionLabels = {
 } as const;
 
 function explanation(decision: RecommendationDecision): string {
+  if (decision.reason_codes.includes("estimator_stabilizing")) {
+    return "Your recent weight and intake pattern is still stabilizing, so FitAdapt is keeping your current plan for now.";
+  }
+  if (decision.reason_codes.includes("adaptive_evidence_ambiguous")) {
+    return "Your recent data could reflect short-term body-weight changes rather than a change in energy needs. FitAdapt is keeping your current plan while more evidence accumulates.";
+  }
   if (decision.decision === "defer") {
     if (decision.intake_adherence !== "near_target") {
       return "Your recent intake is not close enough to target to judge the plan reliably, so FitAdapt is holding off on changing it.";
@@ -20,7 +26,10 @@ function explanation(decision: RecommendationDecision): string {
     return "Your recent progress supports keeping the current plan.";
   }
   if (decision.decision === "increase") {
-    return "Your recent progress is faster than intended or weight is drifting downward. FitAdapt proposes increasing your calorie target.";
+    if (decision.adaptive_evidence_status === "stable") {
+      return "Your recent progress and intake data consistently support reviewing your calorie target.";
+    }
+    return "Your CP28 progress and adherence evidence supports reviewing an increase. Adaptive TDEE is uncertain and was not used as proof of changed expenditure.";
   }
   return "Your recent progress is slower than expected despite intake being close to target. FitAdapt proposes reducing your calorie target.";
 }

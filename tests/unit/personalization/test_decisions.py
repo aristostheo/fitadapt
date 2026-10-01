@@ -5,10 +5,11 @@ from datetime import date, timedelta
 
 import pytest
 
-from fitadapt.baseline.targets import minimum_macro_calories_kcal_per_day
+from fitadapt.adaptive.tdee import TdeeStability
 from fitadapt.domain.observation import DailyObservation
 from fitadapt.domain.profile import ActivityLevel, Goal, SexForMifflinEquation, UserProfile
 from fitadapt.personalization.decisions import (
+    AdaptiveEvidenceStatus,
     RecommendationDecisionConfig,
     RecommendationDecisionError,
     RecommendationDecisionReason,
@@ -99,7 +100,7 @@ def test_on_track_fat_loss_holds() -> None:
     assert result.calorie_delta_kcal_per_day == 0
 
 
-def test_slow_fat_loss_proposes_decrease_and_fast_loss_increase() -> None:
+def test_slow_fat_loss_defers_decrease_and_fast_loss_increase_remains_available() -> None:
     profile = _profile()
     plan = _plan(profile)
     slow = decide_plan_adjustment(
@@ -115,9 +116,10 @@ def test_slow_fat_loss_proposes_decrease_and_fast_loss_increase() -> None:
         _outcome(profile, GoalProgressStatus.FASTER_THAN_EXPECTED),
     )
 
-    assert slow.decision is RecommendationDecisionType.DECREASE
+    assert slow.decision is RecommendationDecisionType.DEFER
+    assert RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD in slow.reason_codes
+    assert slow.calorie_delta_kcal_per_day == 0
     assert fast.decision is RecommendationDecisionType.INCREASE
-    assert slow.calorie_delta_kcal_per_day == -100
     assert fast.calorie_delta_kcal_per_day == 100
 
 
@@ -125,7 +127,7 @@ def test_slow_fat_loss_proposes_decrease_and_fast_loss_increase() -> None:
     ("goal", "progress", "expected"),
     [
         (Goal.GAIN, GoalProgressStatus.SLOWER_THAN_EXPECTED, RecommendationDecisionType.INCREASE),
-        (Goal.GAIN, GoalProgressStatus.FASTER_THAN_EXPECTED, RecommendationDecisionType.DECREASE),
+        (Goal.GAIN, GoalProgressStatus.FASTER_THAN_EXPECTED, RecommendationDecisionType.DEFER),
     ],
 )
 def test_gain_direction_is_goal_aware(
@@ -160,7 +162,8 @@ def test_maintenance_drift_is_goal_aware() -> None:
     )
 
     assert down.decision is RecommendationDecisionType.INCREASE
-    assert up.decision is RecommendationDecisionType.DECREASE
+    assert up.decision is RecommendationDecisionType.DEFER
+    assert RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD in up.reason_codes
 
 
 def test_floor_constraint_is_exposed() -> None:
@@ -178,14 +181,29 @@ def test_floor_constraint_is_exposed() -> None:
         config=config,
     )
 
-    assert result.decision is RecommendationDecisionType.DECREASE
-    assert result.proposed_calorie_target_kcal_per_day == minimum_macro_calories_kcal_per_day(
-        profile
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert result.proposed_calorie_target_kcal_per_day == plan.calorie_target_kcal_per_day
+    assert RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD in result.reason_codes
+
+
+def test_adaptive_tdee_is_supporting_context_for_increase_only() -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        _outcome(profile, GoalProgressStatus.FASTER_THAN_EXPECTED),
+        adaptive_tdee_kcal_per_day=3000,
+        adaptive_tdee_stability=TdeeStability.STABLE,
     )
-    assert RecommendationDecisionReason.ADJUSTMENT_CLAMPED_TO_MINIMUM_TARGET in result.reason_codes
+
+    assert result.decision is RecommendationDecisionType.INCREASE
+    assert RecommendationDecisionReason.ADAPTIVE_TDEE_SUPPORTING in result.reason_codes
+    assert result.adaptive_evidence_status is AdaptiveEvidenceStatus.STABLE
 
 
-def test_adaptive_tdee_is_context_only() -> None:
+def test_decrease_is_withheld_even_when_28_day_estimator_reports_stable() -> None:
     profile = _profile()
     plan = _plan(profile)
     result = decide_plan_adjustment(
@@ -193,11 +211,90 @@ def test_adaptive_tdee_is_context_only() -> None:
         plan.calorie_target_kcal_per_day,
         plan,
         _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED),
-        adaptive_tdee_kcal_per_day=3000,
+        adaptive_tdee_kcal_per_day=2500.0,
+        adaptive_tdee_stability=TdeeStability.STABLE,
+    )
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert result.adaptive_evidence_status is AdaptiveEvidenceStatus.AMBIGUOUS
+    assert result.adaptive_tdee_kcal_per_day is None
+    assert (
+        RecommendationDecisionReason.PERSISTENT_WEIGHT_DRIFT_UNIDENTIFIABLE in result.reason_codes
+    )
+    assert RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD in result.reason_codes
+
+
+def test_recent_intake_change_and_sensitivity_codes_are_preserved_for_defer() -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED),
+        adaptive_tdee_kcal_per_day=2500.0,
+        adaptive_tdee_stability=TdeeStability.STABILIZING,
+        adaptive_tdee_reason_codes=("intake_regime_change", "post_regime_stabilization"),
+    )
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert RecommendationDecisionReason.RECENT_INTAKE_REGIME_CHANGE in result.reason_codes
+    assert RecommendationDecisionReason.ESTIMATOR_STABILIZING in result.reason_codes
+
+
+def test_slow_progress_decrease_is_permitted_only_after_long_horizon_agreement() -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    outcome = replace(
+        _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED),
+        weight_span_days=42,
+    )
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        outcome,
+        adaptive_tdee_kcal_per_day=2500.0,
+        adaptive_tdee_stability=TdeeStability.STABLE,
+        decrease_evidence_span_days=42,
+        adaptive_tdee_horizon_disagreement_kcal_per_day=80.0,
     )
 
     assert result.decision is RecommendationDecisionType.DECREASE
-    assert RecommendationDecisionReason.ADAPTIVE_TDEE_CONFLICTING in result.reason_codes
+    assert result.calorie_delta_kcal_per_day == -100.0
+    assert RecommendationDecisionReason.ADAPTIVE_HORIZONS_AGREE in result.reason_codes
+
+
+@pytest.mark.parametrize(
+    ("span", "disagreement", "required_reason"),
+    [
+        (28, 80.0, RecommendationDecisionReason.INSUFFICIENT_DECREASE_EVIDENCE_SPAN),
+        (42, None, RecommendationDecisionReason.INSUFFICIENT_HORIZON_EVIDENCE),
+        (42, 220.0, RecommendationDecisionReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT),
+    ],
+)
+def test_decrease_defers_without_long_span_and_horizon_agreement(
+    span, disagreement, required_reason
+) -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    outcome = replace(
+        _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED), weight_span_days=span
+    )
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        outcome,
+        adaptive_tdee_kcal_per_day=2500.0,
+        adaptive_tdee_stability=TdeeStability.STABLE,
+        decrease_evidence_span_days=span,
+        adaptive_tdee_horizon_disagreement_kcal_per_day=disagreement,
+    )
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert result.calorie_delta_kcal_per_day == 0
+    assert required_reason in result.reason_codes
 
 
 def test_explicit_upper_target_bound_is_exposed() -> None:
@@ -238,6 +335,34 @@ def test_invalid_decision_inputs_are_rejected() -> None:
         RecommendationDecisionConfig(maximum_adjustment_kcal_per_day=10)
     with pytest.raises(RecommendationDecisionError):
         RecommendationDecisionConfig(standard_adjustment_kcal_per_day="100")  # type: ignore[arg-type]
+    with pytest.raises(RecommendationDecisionError):
+        RecommendationDecisionConfig(policy_version="")
+    with pytest.raises(RecommendationDecisionError):
+        RecommendationDecisionConfig(maximum_target_kcal_per_day=0)
+    with pytest.raises(RecommendationDecisionError):
+        RecommendationDecisionConfig(minimum_interpretable_span_days=0)
+    with pytest.raises(RecommendationDecisionError):
+        RecommendationDecisionConfig(minimum_decrease_evidence_span_days=0)
+
+
+@pytest.mark.parametrize(
+    "progress",
+    [GoalProgressStatus.DIRECTION_MISMATCH, GoalProgressStatus.INSUFFICIENT_EVIDENCE],
+)
+def test_directional_or_insufficient_outcome_evidence_defers_with_specific_reason(progress) -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    outcome = replace(_outcome(profile, progress), weight_span_days=21)
+
+    result = decide_plan_adjustment(profile, plan.calorie_target_kcal_per_day, plan, outcome)
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    if progress is GoalProgressStatus.DIRECTION_MISMATCH:
+        assert (
+            RecommendationDecisionReason.DIRECTION_MISMATCH_REQUIRES_REVIEW in result.reason_codes
+        )
+    else:
+        assert RecommendationDecisionReason.INSUFFICIENT_WEIGHT_EVIDENCE in result.reason_codes
 
 
 def test_ineligible_target_safety_defers_decision() -> None:
@@ -261,8 +386,6 @@ def test_ineligible_target_safety_defers_decision() -> None:
 
 
 def test_unstable_adaptive_tdee_defers_change() -> None:
-    from fitadapt.adaptive.tdee import TdeeStability
-
     profile = _profile()
     plan = _plan(profile)
     outcome = _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED)
@@ -271,8 +394,67 @@ def test_unstable_adaptive_tdee_defers_change() -> None:
         plan.calorie_target_kcal_per_day,
         plan,
         outcome,
+        adaptive_tdee_kcal_per_day=2500.0,
         adaptive_tdee_stability=TdeeStability.UNSTABLE,
     )
 
     assert result.decision is RecommendationDecisionType.DEFER
+    assert result.adaptive_evidence_status is AdaptiveEvidenceStatus.AMBIGUOUS
     assert RecommendationDecisionReason.ADAPTIVE_TDEE_UNSTABLE in result.reason_codes
+
+
+@pytest.mark.parametrize(
+    ("stability", "expected_status"),
+    [
+        (TdeeStability.INSUFFICIENT, AdaptiveEvidenceStatus.INSUFFICIENT),
+        (TdeeStability.STABILIZING, AdaptiveEvidenceStatus.AMBIGUOUS),
+        (TdeeStability.UNSTABLE, AdaptiveEvidenceStatus.AMBIGUOUS),
+    ],
+)
+def test_ambiguous_adaptive_evidence_defers_decrease_with_specific_reason(
+    stability, expected_status
+) -> None:
+    profile = _profile()
+    plan = _plan(profile)
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        _outcome(profile, GoalProgressStatus.SLOWER_THAN_EXPECTED),
+        adaptive_tdee_kcal_per_day=2500.0,
+        adaptive_tdee_stability=stability,
+        adaptive_tdee_reason_codes=("intake_regime_change", "post_regime_stabilization")
+        if stability is TdeeStability.STABILIZING
+        else (),
+    )
+
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert result.adaptive_evidence_status is expected_status
+    assert result.adaptive_tdee_kcal_per_day is None
+    assert RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS in result.reason_codes
+    assert RecommendationDecisionReason.CONSERVATIVE_DECREASE_WITHHELD in result.reason_codes
+    if stability is TdeeStability.STABILIZING:
+        assert RecommendationDecisionReason.RECENT_INTAKE_REGIME_CHANGE in result.reason_codes
+        assert RecommendationDecisionReason.ESTIMATOR_STABILIZING in result.reason_codes
+
+
+def test_cp28_supported_increase_can_proceed_with_ambiguous_tdee_but_does_not_claim_support() -> (
+    None
+):
+    profile = _profile()
+    plan = _plan(profile)
+    result = decide_plan_adjustment(
+        profile,
+        plan.calorie_target_kcal_per_day,
+        plan,
+        _outcome(profile, GoalProgressStatus.FASTER_THAN_EXPECTED),
+        adaptive_tdee_kcal_per_day=2600.0,
+        adaptive_tdee_stability=TdeeStability.STABILIZING,
+        adaptive_tdee_reason_codes=("weight_subwindow_slope_disagreement",),
+    )
+
+    assert result.decision is RecommendationDecisionType.INCREASE
+    assert result.adaptive_evidence_status is AdaptiveEvidenceStatus.AMBIGUOUS
+    assert result.adaptive_tdee_kcal_per_day is None
+    assert RecommendationDecisionReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT in result.reason_codes
+    assert RecommendationDecisionReason.ADAPTIVE_TDEE_SUPPORTING not in result.reason_codes

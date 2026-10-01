@@ -115,7 +115,7 @@ def test_plan_outcome_supports_cutoff_without_changing_plan_targets() -> None:
 
 
 def test_recommendation_decision_is_proposal_only_and_recalculates_macros() -> None:
-    payload = _payload(28)
+    payload = _payload(42)
     payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
     response = TestClient(create_app()).post("/v1/profile-intelligence", json=payload)
     body = response.json()
@@ -157,7 +157,7 @@ def test_decision_cutoff_isolated_from_future_observation() -> None:
 
 
 def test_unified_response_evaluates_first_activation_and_cooldown() -> None:
-    payload = _payload(28)
+    payload = _payload(42)
     payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
     client = TestClient(create_app())
     first = client.post("/v1/profile-intelligence", json=payload).json()

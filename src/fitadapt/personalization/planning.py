@@ -232,29 +232,13 @@ def _build_snapshot(
     safe_target = safety.effective_target_kcal_per_day
     if safe_target is None:
         safe_target = baseline.baseline_energy.estimated_tdee_kcal_per_day
-    if (
-        lifecycle.stage is PersonalizationStage.PERSONALIZED
-        and recommendation.proposed_intake_target_kcal_per_day is not None
-    ):
-        calorie_basis = PlanCalorieBasis.PERSONALIZED
-        selected_target = recommendation.proposed_intake_target_kcal_per_day
-        macro_source = MacroCalorieSource.PERSONALIZED
-        selection_assumption = "The existing actionable recommendation target is selected."
-    elif lifecycle.stage is PersonalizationStage.PERSONALIZED:
-        calorie_basis = PlanCalorieBasis.BASELINE
-        selected_target = safe_target
-        macro_source = MacroCalorieSource.BASELINE
-        selection_assumption = (
-            "The personalized lifecycle has no actionable safe recommendation; "
-            "the existing baseline target is retained."
-        )
-    else:
-        calorie_basis = PlanCalorieBasis.BASELINE
-        selected_target = safe_target
-        macro_source = MacroCalorieSource.BASELINE
-        selection_assumption = (
-            "The existing baseline target is retained until adaptive personalization is available."
-        )
+    calorie_basis = PlanCalorieBasis.BASELINE
+    selected_target = safe_target
+    macro_source = MacroCalorieSource.BASELINE
+    selection_assumption = (
+        "Adaptive recommendations remain proposals; the baseline/safety target stays active "
+        "until a CP29 decision is accepted and represented in caller-supplied CP30 history."
+    )
     if profile.goal is Goal.CUT:
         if safety.effective_target_kcal_per_day is None:
             selected_target = baseline.baseline_energy.estimated_tdee_kcal_per_day

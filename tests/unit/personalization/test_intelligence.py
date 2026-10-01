@@ -174,9 +174,12 @@ def test_personalized_plan_and_macro_strategy_are_composed_without_changing_evid
         profile, observations, NutritionPreferences(MacroStrategy.CUSTOM, 2.2, 0.30)
     )
 
-    assert balanced.latest_plan.calorie_basis is PlanCalorieBasis.PERSONALIZED
+    assert balanced.latest_plan.calorie_basis is PlanCalorieBasis.BASELINE
+    assert balanced.current_recommendation.calorie_target_kcal_per_day == (
+        balanced.latest_plan.baseline_calorie_target_kcal_per_day
+    )
     assert balanced.latest_plan.selected_calorie_target_kcal_per_day == (
-        balanced.recommendation.proposed_intake_target_kcal_per_day
+        balanced.latest_plan.baseline_calorie_target_kcal_per_day
     )
     assert balanced.baseline == custom.baseline
     assert balanced.trends == custom.trends

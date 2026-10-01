@@ -38,6 +38,11 @@ class PlanAdaptationReason(StrEnum):
     NO_PRIOR_ACTIVATION = "no_prior_activation"
     DECISION_HOLD = "decision_hold"
     DECISION_DEFER = "decision_defer"
+    ADAPTIVE_EVIDENCE_AMBIGUOUS = "adaptive_evidence_ambiguous"
+    RECENT_INTAKE_REGIME_CHANGE = "recent_intake_regime_change"
+    ESTIMATOR_STABILIZING = "estimator_stabilizing"
+    ESTIMATOR_SENSITIVITY_DISAGREEMENT = "estimator_sensitivity_disagreement"
+    CONSERVATIVE_DECREASE_WITHHELD = "conservative_decrease_withheld"
     COOLDOWN_ACTIVE = "cooldown_active"
     INSUFFICIENT_NEW_OBSERVATIONS = "insufficient_new_observations"
     INSUFFICIENT_NEW_WEIGHT_CONTRIBUTORS = "insufficient_new_weight_contributors"
@@ -339,7 +344,22 @@ def _activation_action(
     if decision.decision is RecommendationDecisionType.HOLD:
         return PlanAdaptationAction.HOLD, (PlanAdaptationReason.DECISION_HOLD,)
     if decision.decision is RecommendationDecisionType.DEFER:
-        return PlanAdaptationAction.DEFER, (PlanAdaptationReason.DECISION_DEFER,)
+        propagated = {
+            "adaptive_evidence_ambiguous": PlanAdaptationReason.ADAPTIVE_EVIDENCE_AMBIGUOUS,
+            "recent_intake_regime_change": PlanAdaptationReason.RECENT_INTAKE_REGIME_CHANGE,
+            "estimator_stabilizing": PlanAdaptationReason.ESTIMATOR_STABILIZING,
+            "estimator_sensitivity_disagreement": (
+                PlanAdaptationReason.ESTIMATOR_SENSITIVITY_DISAGREEMENT
+            ),
+            "conservative_decrease_withheld": PlanAdaptationReason.CONSERVATIVE_DECREASE_WITHHELD,
+        }
+        reasons = [PlanAdaptationReason.DECISION_DEFER]
+        reasons.extend(
+            mapped
+            for code in decision.reason_codes
+            if (mapped := propagated.get(code.value)) is not None
+        )
+        return PlanAdaptationAction.DEFER, tuple(dict.fromkeys(reasons))
     if last_activation is None:
         return PlanAdaptationAction.ACTIVATE, (
             PlanAdaptationReason.NO_PRIOR_ACTIVATION,

@@ -1,7 +1,7 @@
 """Stateless unified composition of FitAdapt's existing profile-intelligence outputs."""
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 
 from fitadapt.adaptive.tdee import AdaptiveTdeeConfig, AdaptiveTdeeResult, estimate_adaptive_tdee
@@ -21,6 +21,7 @@ from fitadapt.personalization.adaptation import (
 )
 from fitadapt.personalization.decisions import (
     RecommendationDecision,
+    RecommendationDecisionReason,
     decide_plan_adjustment,
 )
 from fitadapt.personalization.dietary import (
@@ -33,6 +34,7 @@ from fitadapt.personalization.history import RecommendationHistory, build_recomm
 from fitadapt.personalization.integration import (
     INTEGRATION_STATUS_POLICY_VERSION,
     CurrentRecommendation,
+    IntegrationAppStatus,
     IntegrationPlanSource,
     IntegrationStatus,
 )
@@ -231,21 +233,28 @@ def analyze_profile_intelligence(
         active_macro_plan.calorie_target_kcal_per_day,
         as_of_date=outcome_as_of_date,
     )
-    decision_adaptive_tdee = estimate_adaptive_tdee(
-        analyze_observation_trends(decision_observations, trend_config), adaptive_config
-    ).adaptive_tdee_kcal_per_day
+    decision_trends = analyze_observation_trends(decision_observations, trend_config)
+    decision_adaptive_result = estimate_adaptive_tdee(decision_trends, adaptive_config)
+    decision_weight_dates = tuple(
+        item.observed_on for item in decision_observations if item.body_weight_kg is not None
+    )
+    decrease_evidence_span = (
+        0
+        if len(decision_weight_dates) < 2
+        else (max(decision_weight_dates) - min(decision_weight_dates)).days + 1
+    )
+    horizon_disagreement = _decrease_horizon_disagreement(decision_trends, adaptive_config)
     recommendation_decision = decide_plan_adjustment(
         profile,
         active_macro_plan.calorie_target_kcal_per_day,
         active_macro_plan,
         plan_outcome,
-        decision_adaptive_tdee,
+        decision_adaptive_result.adaptive_tdee_kcal_per_day,
         target_safety=target_safety,
-        adaptive_tdee_stability=(
-            estimate_adaptive_tdee(
-                analyze_observation_trends(decision_observations, trend_config), adaptive_config
-            ).stability
-        ),
+        adaptive_tdee_stability=(decision_adaptive_result.stability),
+        adaptive_tdee_reason_codes=decision_adaptive_result.reason_codes,
+        decrease_evidence_span_days=decrease_evidence_span,
+        adaptive_tdee_horizon_disagreement_kcal_per_day=horizon_disagreement,
     )
     proposed_macro_plan = None
     proposed_target_envelope = None
@@ -289,7 +298,7 @@ def analyze_profile_intelligence(
         source=adaptation_source,
     )
     recommendation_history = build_recommendation_history(
-        adaptation_history,
+        effective_adaptation_history,
         current_active_macro_plan=plan_adaptation.next_active_macro_plan,
         proposed_macro_plan=proposed_macro_plan,
         initial_plan_date=(
@@ -344,6 +353,24 @@ def _latest_accepted_activation(adaptation_history: Sequence[PlanAdaptationEvent
     return max(activations, key=lambda event: event.effective_date) if activations else None
 
 
+def _decrease_horizon_disagreement(
+    trends: TrendAnalysisResult, config: AdaptiveTdeeConfig | None
+) -> float | None:
+    base = config or AdaptiveTdeeConfig()
+    candidates: list[float] = []
+    for window_days in (28, 35, 42):
+        candidate_config = replace(
+            base,
+            estimator_window_days=window_days,
+            minimum_calendar_span_days=min(base.minimum_calendar_span_days, window_days),
+        )
+        candidate = estimate_adaptive_tdee(trends, candidate_config)
+        if candidate.adaptive_tdee_kcal_per_day is None or candidate.stability.value != "stable":
+            return None
+        candidates.append(candidate.adaptive_tdee_kcal_per_day)
+    return max(candidates) - min(candidates)
+
+
 def _plan_source(latest_plan: PersonalizedPlanSnapshot, source: PlanAdaptationSource):
     if source is PlanAdaptationSource.PROFILE_RECALCULATION:
         return IntegrationPlanSource.PROFILE_RECALCULATION
@@ -359,6 +386,24 @@ def _integration_status(
     adaptation: PlanAdaptationDecision,
     source: PlanAdaptationSource,
 ) -> IntegrationStatus:
+    reasons = decision.reason_codes
+    if adaptation.activation_available:
+        app_status = IntegrationAppStatus.UPDATE_AVAILABLE
+    elif (
+        adaptation.action.value == "defer"
+        and RecommendationDecisionReason.ESTIMATOR_STABILIZING in reasons
+    ):
+        app_status = IntegrationAppStatus.DEFERRED_ESTIMATOR_STABILIZING
+    elif (
+        adaptation.action.value == "defer"
+        and decision.adaptive_evidence_status.value == "ambiguous"
+        and RecommendationDecisionReason.ADAPTIVE_EVIDENCE_AMBIGUOUS in reasons
+    ):
+        app_status = IntegrationAppStatus.DEFERRED_ADAPTIVE_EVIDENCE_AMBIGUOUS
+    elif adaptation.action.value == "hold":
+        app_status = IntegrationAppStatus.PLAN_REMAINS_APPROPRIATE
+    else:
+        app_status = IntegrationAppStatus.MORE_DATA_NEEDED
     return IntegrationStatus(
         user_attention_required=adaptation.user_attention_required,
         plan_update_available=adaptation.activation_available,
@@ -368,9 +413,17 @@ def _integration_status(
         recommendation_decision=decision.decision,
         adaptation_action=adaptation.action,
         adaptation_source=source,
+        app_status=app_status,
+        reason_codes=reasons,
         summary=(
             "A plan update is available for review."
             if adaptation.activation_available
+            else "Your recent weight and intake pattern is still stabilizing; "
+            "the current plan is being kept."
+            if app_status is IntegrationAppStatus.DEFERRED_ESTIMATOR_STABILIZING
+            else "Recent data may not distinguish a change in energy needs from "
+            "body-weight variation; the current plan is being kept."
+            if app_status is IntegrationAppStatus.DEFERRED_ADAPTIVE_EVIDENCE_AMBIGUOUS
             else "More data is needed before another plan change."
             if adaptation.action.value == "defer"
             else "A reversal was suppressed pending stronger evidence."

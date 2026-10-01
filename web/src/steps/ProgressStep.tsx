@@ -36,9 +36,12 @@ export function ProgressStep({
         </article>
       ) : (
         <div className="result-stack">
-          <article className="result-card">
-            <p className="eyebrow">Observed evidence</p>
-            <h2>How your history is behaving</h2>
+          <details className="result-card">
+            <summary>Technical adaptive evidence</summary>
+            <p className="supporting-copy">
+              Adaptive TDEE is an observational estimate, not measured
+              expenditure, and does not change the current plan on its own.
+            </p>
             <div className="metric-grid">
               <MetricCard
                 label="Adaptive TDEE"
@@ -58,15 +61,24 @@ export function ProgressStep({
                   result.adaptive_tdee.median_absolute_deviation_kcal_per_day,
                   "kcal/day",
                 )}
-                detail="A spread in observed estimates, not confidence"
+                detail="Spread in observed estimates, not confidence"
               />
               <MetricCard
-                label="Adaptive estimate stability"
+                label="Estimator stability"
                 value={result.adaptive_tdee.stability ?? "insufficient"}
                 detail={`${result.adaptive_tdee.weight_contributor_count ?? "-"} weigh-ins · ${result.adaptive_tdee.intake_contributor_count ?? "-"} intake contributors`}
               />
             </div>
-          </article>
+          </details>
+          {result.integration_status && (
+            <article className="result-card">
+              <p className="eyebrow">Plan status</p>
+              <h2>
+                {result.integration_status.app_status.replaceAll("_", " ")}
+              </h2>
+              <p>{result.integration_status.summary}</p>
+            </article>
+          )}
           <TrainingAssessmentCard assessment={result.training_assessment} />
           <TargetSafetyCard assessment={result.target_safety} />
           {result.plan_outcome && (

@@ -5,7 +5,10 @@ from datetime import date
 from enum import StrEnum
 
 from fitadapt.personalization.adaptation import PlanAdaptationAction, PlanAdaptationSource
-from fitadapt.personalization.decisions import RecommendationDecisionType
+from fitadapt.personalization.decisions import (
+    RecommendationDecisionReason,
+    RecommendationDecisionType,
+)
 from fitadapt.personalization.macros import PersonalizedMacroPlan
 from fitadapt.personalization.targets import NutritionTargetEnvelope
 
@@ -17,6 +20,14 @@ class IntegrationPlanSource(StrEnum):
     PERSONALIZED = "personalized"
     PROFILE_RECALCULATION = "profile_recalculation"
     PROGRESS_ADAPTATION = "progress_adaptation"
+
+
+class IntegrationAppStatus(StrEnum):
+    PLAN_REMAINS_APPROPRIATE = "plan_remains_appropriate"
+    MORE_DATA_NEEDED = "more_data_needed"
+    DEFERRED_ESTIMATOR_STABILIZING = "deferred_estimator_stabilizing"
+    DEFERRED_ADAPTIVE_EVIDENCE_AMBIGUOUS = "deferred_adaptive_evidence_ambiguous"
+    UPDATE_AVAILABLE = "update_available"
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,5 +55,7 @@ class IntegrationStatus:
     recommendation_decision: RecommendationDecisionType
     adaptation_action: PlanAdaptationAction
     adaptation_source: PlanAdaptationSource
+    app_status: IntegrationAppStatus
+    reason_codes: tuple[RecommendationDecisionReason, ...]
     summary: str
     policy_version: str

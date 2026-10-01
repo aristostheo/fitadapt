@@ -12,6 +12,11 @@ valid but no change is needed. `defer` means the proposal cannot be reconsidered
 cooldown, fresh-evidence, effective-date, or CP29 decision gate is not satisfied. `suppress` means a
 reversal is likely to be noise or oscillation and needs stronger evidence.
 
+CP30 trusts CP29's decision contract. If CP29 returns `defer` because adaptive evidence is
+`insufficient`, `stabilizing`, `unstable`, or sensitivity-ambiguous, CP30 cannot activate a calorie
+decrease and carries the structured reason codes into its evaluation event. CP30 does not duplicate
+or reinterpret estimator logic.
+
 The default `PlanAdaptationConfig` requires:
 
 - 14 calendar days between activated changes
@@ -49,7 +54,8 @@ next active macro plan, action, activation/user-attention signals, target values
 counts, reason codes, and resulting history. `latest_plan` and progression remain unchanged.
 
 The Progress screen shows whether a plan update is available, whether more evidence is needed, or
-whether a reversal was suppressed. Activation is eligibility only; no notification, persistence,
+whether a reversal was suppressed. It can distinguish estimator stabilization from broader ambiguous
+adaptive evidence through structured status/reason fields. Activation is eligibility only; no notification, persistence,
 or active-plan mutation occurs. Checkpoint 31 or the main application may store accepted events and
 active-plan transitions.
 

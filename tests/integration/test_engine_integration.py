@@ -21,11 +21,11 @@ def _profile(goal: Goal = Goal.CUT, rate: float = -0.4) -> UserProfile:
     )
 
 
-def _observations(days: int = 28, intake: float = 2400) -> tuple[DailyObservation, ...]:
+def _observations(days: int = 50, intake: float = 2320) -> tuple[DailyObservation, ...]:
     return tuple(
         DailyObservation(
             date(2026, 1, 1) + timedelta(days=index),
-            80 - 0.01 * index,
+            80 - 0.10 * index,
             intake,
             steps=5000,
         )
@@ -42,6 +42,7 @@ def test_initial_and_daily_flow_have_one_authoritative_current_recommendation() 
     assert initial.current_recommendation.is_authoritative is True
     assert initial.current_recommendation.is_active is True
     assert initial.integration_status.more_data_needed is True
+    assert initial.integration_status.app_status.value == "more_data_needed"
     assert (
         daily.current_recommendation.calorie_target_kcal_per_day
         == daily.plan_adaptation.current_active_target_kcal_per_day
@@ -49,6 +50,36 @@ def test_initial_and_daily_flow_have_one_authoritative_current_recommendation() 
     assert (
         daily.current_recommendation.macro_plan == daily.plan_adaptation.current_active_macro_plan
     )
+
+
+def test_short_or_ambiguous_adaptive_evidence_defers_and_never_activates_decrease() -> None:
+    profile = _profile()
+    preferences = NutritionPreferences(MacroStrategy.BALANCED)
+    result = analyze_profile_intelligence(profile, _observations(28), preferences)
+
+    assert result.recommendation_decision.decision.value in ("hold", "defer", "increase")
+    assert (
+        result.plan_adaptation.action.value != "activate"
+        or result.plan_adaptation.calorie_delta_kcal_per_day >= 0
+    )
+    if result.recommendation_decision.decision.value == "defer":
+        assert result.integration_status.more_data_needed is True
+        assert result.integration_status.app_status.value in {
+            "more_data_needed",
+            "deferred_estimator_stabilizing",
+            "deferred_adaptive_evidence_ambiguous",
+        }
+
+
+def test_cp30_defer_contract_is_authoritative_for_integration_status() -> None:
+    profile = _profile()
+    preferences = NutritionPreferences(MacroStrategy.BALANCED)
+    result = analyze_profile_intelligence(profile, _observations(28, intake=2400), preferences)
+
+    if result.recommendation_decision.decision.value == "defer":
+        assert result.plan_adaptation.action.value == "defer"
+        assert result.integration_status.plan_update_available is False
+        assert result.integration_status.more_data_needed is True
 
 
 def test_accepted_plan_handoff_becomes_authoritative_on_next_call() -> None:

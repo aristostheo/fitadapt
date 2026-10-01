@@ -66,6 +66,9 @@ Use `integration_status` without parsing prose:
 - `more_data_needed`: no activation should be offered yet.
 - `reversal_suppressed`: a contradictory reversal was blocked.
 - `current_plan_appropriate`: the current plan is the recommended state.
+- `app_status`: one of `plan_remains_appropriate`, `more_data_needed`,
+  `deferred_estimator_stabilizing`, `deferred_adaptive_evidence_ambiguous`, or `update_available`.
+- `reason_codes`: structured CP29 adaptive-evidence and CP30 activation reasons.
 
 `recommendation_history.latest_change`, `actionable_event_available`, source, effective date, old/new
 targets, change type, and reason codes are structured notification-ready data. FitAdapt does not send
@@ -76,8 +79,10 @@ Inspect `target_safety` as well: `eligible` means no safety guardrail constraine
 automated weight-loss target for the current body-size threshold.
 
 Adaptive TDEE responses include `stable`, `unstable`, or `insufficient` evidence status. Treat
-unstable/insufficient estimates as context requiring more evidence, not measured expenditure or an
-automatic plan change.
+`stabilizing`, `unstable`, and `insufficient` estimates as context requiring more evidence, not
+measured expenditure or an automatic plan change. With weight, logged intake, and dates alone, some
+persistent non-energy weight changes cannot be distinguished from true energy-balance change; FitAdapt
+may intentionally hold/defer in that case. Do not market adaptive TDEE as measured metabolism.
 
 ## Historical safety
 

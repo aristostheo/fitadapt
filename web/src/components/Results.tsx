@@ -24,8 +24,6 @@ import {
   lifecycleLabels,
   percent,
   planBasisCopy,
-  reasonCopy,
-  statusCopy,
   strategyLabels,
   targetRange,
   whole,
@@ -148,7 +146,7 @@ export function CurrentPlan({
     <article className="result-card current-plan">
       <div className="plan-heading">
         <div>
-          <p className="eyebrow">Current proposed plan</p>
+          <p className="eyebrow">Current plan</p>
           <p className="plan-label">What to do now</p>
           <h2>
             {whole(plan.selected_calorie_target_kcal_per_day, "kcal/day")}
@@ -169,8 +167,9 @@ export function CurrentPlan({
       </div>
       {fallback && (
         <Notice tone="warning">
-          Personalized evidence exists, but the current recommendation safety
-          gate retained your baseline target.
+          Personalized evidence is supporting context. The baseline/safety
+          target remains current until a CP29 proposal is accepted through the
+          CP30 activation flow.
         </Notice>
       )}
       {envelope ? (
@@ -265,80 +264,80 @@ export function RecommendationPanel({
 }: {
   result: ProfileIntelligenceResponse;
 }) {
+  const decision = result.recommendation_decision;
+  if (!decision) {
+    return (
+      <article className="result-card">
+        <p className="eyebrow">Recommendation decision</p>
+        <h2>Keep the current plan</h2>
+        <p className="primary-reason">
+          A proposal decision is unavailable; no calorie change is being made.
+        </p>
+      </article>
+    );
+  }
+  const labels = {
+    hold: "Keep the current plan",
+    increase: "Review a calorie increase",
+    decrease: "Review a calorie decrease",
+    defer: "Keep the current plan for now",
+  } as const;
+  const reasons = decision.reason_codes;
+  const isStabilizing = reasons.includes("estimator_stabilizing");
+  const isAmbiguous = reasons.includes("adaptive_evidence_ambiguous");
+  const explanation = isStabilizing
+    ? "Your recent weight and intake pattern is still stabilizing, so FitAdapt is keeping your current plan for now."
+    : isAmbiguous
+      ? "Your recent data could reflect short-term body-weight changes rather than a change in energy needs. FitAdapt is keeping your current plan while more evidence accumulates."
+      : decision.decision === "increase" &&
+          decision.adaptive_evidence_status === "stable"
+        ? "Your recent progress and intake data consistently support reviewing your calorie target."
+        : decision.decision === "increase"
+          ? "Your plan outcome supports reviewing an increase; adaptive TDEE remains uncertain and was not used as proof of expenditure change."
+          : decision.decision === "hold"
+            ? "Your recent progress and near-target intake support keeping the current plan."
+            : "The current plan is being kept while FitAdapt gathers enough interpretable evidence.";
   return (
     <article className="result-card">
-      <p className="eyebrow">Why this plan</p>
-      <h2>{statusCopy[result.recommendation.status]}</h2>
-      <p className="primary-reason">
-        {reasonCopy[result.recommendation.reasons[0]] ||
-          "Review your logged evidence before changing intake."}
-      </p>
+      <p className="eyebrow">CP29 recommendation decision</p>
+      <h2>{labels[decision.decision]}</h2>
+      <p className="primary-reason">{explanation}</p>
       <div className="evidence-grid">
         <span>
-          Observed history{" "}
+          Outcome evidence{" "}
           <strong>
-            {whole(result.adaptive_tdee.adaptive_tdee_kcal_per_day, "kcal/day")}
+            {decision.outcome_interpretability.replaceAll("_", " ")}
           </strong>
         </span>
         <span>
-          Observed variability{" "}
-          <strong>
-            {whole(
-              result.adaptive_tdee.median_absolute_deviation_kcal_per_day,
-              "kcal/day",
-            )}
-          </strong>
+          Intake adherence{" "}
+          <strong>{decision.intake_adherence.replaceAll("_", " ")}</strong>
         </span>
         <span>
-          Recent intake{" "}
-          <strong>
-            {whole(
-              result.recommendation.recent_mean_intake_kcal_per_day,
-              "kcal/day",
-            )}
-          </strong>
+          Adaptive evidence <strong>{decision.adaptive_evidence_status}</strong>
         </span>
         <span>
-          Calculated goal intake{" "}
+          Proposed target{" "}
           <strong>
-            {whole(
-              result.recommendation.personalized_goal_target_kcal_per_day,
-              "kcal/day",
-            )}
-          </strong>
-        </span>
-        <span>
-          Recommended adjustment{" "}
-          <strong>
-            {whole(
-              result.recommendation.recommended_adjustment_kcal_per_day,
-              "kcal/day",
-            )}
+            {whole(decision.proposed_calorie_target_kcal_per_day, "kcal/day")}
           </strong>
         </span>
       </div>
-      <p className="supporting-copy">
-        Adjustments are deliberately gradual and are never applied
-        automatically.
-      </p>
+      {result.integration_status && (
+        <Notice tone={isAmbiguous ? "warning" : "info"}>
+          {result.integration_status.summary}
+        </Notice>
+      )}
       <details>
-        <summary>Technical recommendation details</summary>
-        <ul>
-          {result.recommendation.reasons.map((reason) => (
-            <li key={reason}>
-              {reasonCopy[reason]} <code>{reason}</code>
-            </li>
-          ))}
-        </ul>
-        {result.recommendation.raw_adjustment_kcal_per_day != null && (
-          <p>
-            Raw adjustment:{" "}
-            {whole(
-              result.recommendation.raw_adjustment_kcal_per_day,
-              "kcal/day",
-            )}
-          </p>
-        )}
+        <summary>Technical evidence details</summary>
+        <p>
+          Adaptive TDEE is an observational estimate, not measured expenditure.
+        </p>
+        <p>
+          Adaptive TDEE context:{" "}
+          {whole(decision.adaptive_tdee_kcal_per_day, "kcal/day")}
+        </p>
+        <p>Reason codes: {decision.reason_codes.join(", ") || "None"}</p>
       </details>
     </article>
   );

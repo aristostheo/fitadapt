@@ -49,6 +49,7 @@ const baseDecision: RecommendationDecision = {
   goal_progress: "slower_than_expected",
   limiting_reason: "adherence_not_near_target",
   reason_codes: ["adherence_not_near_target"],
+  adaptive_evidence_status: "insufficient",
   adaptive_tdee_kcal_per_day: null,
   policy_version: "recommendation_decision_v1",
   assumptions: [],

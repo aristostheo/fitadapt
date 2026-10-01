@@ -40,6 +40,25 @@ behavior changes can still distort the result. Synthetic stress benchmarks are e
 clinical validation. Missing intake or weight evidence returns insufficient output rather than a
 fabricated TDEE.
 
-The current default is 28 days. A 21-day candidate remains available through configuration for
-evaluation comparisons; the longer default was selected to provide more robust slope evidence before
-downstream decisions.
+The current production default is 28 days. This is a product compromise between responsiveness and
+noise, not a claim of physiological optimality. CP34A/A2/A3 evaluated longer horizons, sensitivity
+warnings, and synthetic disturbance scenarios, but did not promote them as a new default.
+
+## Product evidence contract
+
+Adaptive TDEE is an observational estimate of logged intake and scale trends. It is not measured
+expenditure, measured metabolism, or sufficient by itself to change calories. CP29 combines outcome
+interpretability, adherence, completeness, safety, and adaptive evidence; CP30 activates only the
+decision contract it receives.
+
+`stable` adaptive evidence can support a CP29 proposal. `insufficient`, `stabilizing`, or `unstable`
+evidence is ambiguous for calorie decreases and produces a structured defer/hold outcome with reason
+codes. Recent intake-regime changes and material horizon/sensitivity disagreement are also explicit
+ambiguity reasons. A decrease requires a long evidence span and agreement across the 28/35/42-day
+comparison inputs; an increase may proceed from strong CP28 outcome/adherence evidence even when
+adaptive TDEE is only contextual, and does not claim that expenditure changed.
+
+With weight, logged calorie intake, and dates alone, some persistent non-energy weight changes cannot
+be distinguished from true energy-balance change. In those cases, FitAdapt intentionally holds or
+defers rather than presenting certainty. Synthetic benchmarks are **in-model synthetic evaluation**,
+not external, real-world, or clinical validation.

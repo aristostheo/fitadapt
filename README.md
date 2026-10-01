@@ -4,6 +4,12 @@
 
 FitAdapt is a transparent fitness-intelligence engine that combines deterministic baseline calculations, longitudinal trend analysis, adaptive energy-expenditure estimation, synthetic evaluation, leakage-safe ML experimentation, conservative recommendations, and a stateless FastAPI interface.
 
+Adaptive TDEE is observational supporting evidence, not measured metabolism. Persistent non-energy
+weight drift can be indistinguishable from true energy-balance change using only dates, scale weight,
+and logged intake, so FitAdapt may deliberately hold or defer calorie changes. Calorie decreases use
+a stricter CP29 evidence gate; proposals are never automatically applied. All benchmark claims are
+**in-model synthetic evaluation**, not real-world or clinical validation.
+
 ## What It Does
 
 FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans with flexible target envelopes, calendar-aware trends, adaptive observed-data TDEE, lifecycle readiness, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. `POST /v1/profile-intelligence` composes those existing outputs into one stateless client response. Synthetic histories support evaluation and ML experiments only; FastAPI has no formulas or persistence.

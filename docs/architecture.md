@@ -79,6 +79,12 @@ The adaptive result is an observed-data estimate only. It does not overwrite the
 or change baseline calorie or macro targets. The recommendation layer composes baseline, trend, and
 adaptive outputs behind an eligibility gate without mutating any of them.
 
+CP34B makes that boundary explicit in the product path: CP29 treats adaptive TDEE as supporting
+evidence, requires stable evidence and long-horizon agreement before a calorie decrease, and returns
+structured defer reasons when evidence is ambiguous. CP30 trusts that decision and does not duplicate
+estimator logic. The active plan remains caller-owned and baseline/safety constrained until an
+activation event is accepted.
+
 ## Personalization Lifecycle Boundary
 
 The lifecycle is a separate readiness/status composition. It recalculates existing calendar trends
