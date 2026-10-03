@@ -193,6 +193,33 @@ def test_unified_response_evaluates_first_activation_and_cooldown() -> None:
     )
 
 
+def test_unified_response_serializes_constrained_and_ineligible_safety() -> None:
+    client = TestClient(create_app())
+    payload = _payload(0)
+    payload["profile"] = {
+        **_profile_payload(),
+        "height_cm": 170,
+        "weight_kg": 56,
+        "goal": "cut",
+        "requested_weekly_change_kg": -0.3,
+    }
+    constrained = client.post("/v1/profile-intelligence", json=payload)
+    payload["profile"] = {
+        **payload["profile"],
+        "weight_kg": 50,
+        "requested_weekly_change_kg": -0.2,
+    }
+    ineligible = client.post("/v1/profile-intelligence", json=payload)
+
+    assert constrained.status_code == 200
+    assert constrained.json()["target_safety"]["status"] == "constrained"
+    assert ineligible.status_code == 200
+    assert ineligible.json()["target_safety"]["status"] == "ineligible"
+    assert "bmi_below_weight_loss_threshold" in ineligible.json()["target_safety"]["reason_codes"]
+    assert ineligible.json()["recommendation_decision"]["decision"] == "defer"
+    assert "safety_target_bound" in ineligible.json()["recommendation_decision"]["reason_codes"]
+
+
 def test_explicit_dietary_profile_adds_feasibility_without_changing_targets() -> None:
     payload = _payload(0)
     payload["dietary_preference_profile"] = {

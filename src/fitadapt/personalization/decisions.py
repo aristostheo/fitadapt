@@ -284,7 +284,7 @@ def decide_plan_adjustment(
     if target_safety is not None and target_safety.status is TargetEligibilityStatus.INELIGIBLE:
         return finish(
             RecommendationDecisionType.DEFER,
-            tuple(target_safety.reason_codes),
+            (RecommendationDecisionReason.SAFETY_TARGET_BOUND,),
         )
     if current_target < minimum_macro_calories_kcal_per_day(profile):
         return finish(

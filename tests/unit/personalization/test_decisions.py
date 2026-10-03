@@ -383,7 +383,6 @@ def test_ineligible_target_safety_defers_decision() -> None:
     from fitadapt.baseline.energy import calculate_baseline_energy
     from fitadapt.personalization.safety import (
         TargetEligibilityStatus,
-        TargetSafetyReason,
         assess_target_eligibility,
     )
 
@@ -393,7 +392,8 @@ def test_ineligible_target_safety_defers_decision() -> None:
     result = decide_plan_adjustment(
         underweight, plan.calorie_target_kcal_per_day, plan, outcome, target_safety=safety
     )
-    assert TargetSafetyReason.BMI_BELOW_WEIGHT_LOSS_THRESHOLD in result.reason_codes
+    assert result.decision is RecommendationDecisionType.DEFER
+    assert RecommendationDecisionReason.SAFETY_TARGET_BOUND in result.reason_codes
 
 
 def test_unstable_adaptive_tdee_keeps_decrease_visible_for_review() -> None:

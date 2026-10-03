@@ -26,8 +26,9 @@ adjusted by a rough population-level activity multiplier. Goal and requested wee
 validated profile inputs but do not affect energy estimates until the calorie-target checkpoint.
 
 The activity multipliers are intentionally isolated from the REE formula because they represent
-a separate, weaker static assumption. The adaptive-estimation layer is intended to improve on
-these population-level assumptions using reliable longitudinal observations.
+a separate, weaker static assumption. The adaptive-estimation layer adds observed-data context to
+these population-level assumptions using submitted longitudinal observations; it remains sensitive
+to missingness, logging bias, and non-energy weight changes.
 
 The target layer composes, rather than copies, `BaselineEnergyEstimate`:
 
@@ -117,7 +118,8 @@ an existing adaptive aggregate can responsibly support an actionable recommendat
 the baseline target. A personalized lifecycle with an unavailable or unsafe recommendation also
 falls back explicitly to baseline while retaining recommendation reasons. Future observations cannot
 change earlier snapshots, and the layer remains stateless. The standalone web client renders this
-contract; integration into external products remains a separate future boundary.
+contract. The main fitness app consumes the typed API and owns app-level orchestration, persistence,
+and accepted-plan storage.
 
 ## Unified Profile Intelligence Boundary
 
@@ -175,12 +177,14 @@ storage, acceptance, activation, and notifications remain caller responsibilitie
 
 ## Application Integration Boundary
 
-FitAdapt owns energy estimation, calorie targets, macro composition, training-aware composition,
-dietary feasibility, outcome interpretation, recommendation decisions, activation eligibility, and
-explainability. The main fitness app owns persistence, accounts/authentication, daily logging,
-notifications, meal/workout generation, and accepting/storing active-plan updates. The unified API's
-`current_recommendation` is the single app-facing authoritative active-plan summary; proposals and
-next plans remain inactive until the caller accepts them.
+FitAdapt owns profile-based calculations, baseline/adaptive energy estimation, calorie targets,
+macro policy, training-aware macro composition, dietary feasibility, outcome assessment,
+recommendation decisions, safety guardrails, adaptation eligibility, history/explainability, and
+app-facing integration status. The main fitness app owns user accounts, persistence, active-plan
+storage and accepted adaptation history, daily logging UI, notifications, meal/workout generation,
+and app-level orchestration. The unified API's `current_recommendation` is the single app-facing
+authoritative active-plan summary; proposals and next plans remain inactive until the caller accepts
+them.
 
 Target safety runs before automated loss recommendations. BMI eligibility, the absolute calorie floor,
 and the TDEE deficit cap constrain CP29/CP30 without changing baseline or adaptive-TDEE formulas.

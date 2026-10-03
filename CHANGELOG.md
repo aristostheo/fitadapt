@@ -15,6 +15,10 @@ Structured API/app statuses and concise review/pending copy expose those states.
 and held-out synthetic cohorts are reported separately; explicit-review counterfactuals are not
 automatic activation evidence.
 
+CP35B adds a final independent 1,500-user **in-model synthetic evaluation** cohort over 15 frozen
+scenarios. All 17 unchanged CP35A release criteria passed. The earlier one-in-16 CP35A pre-onset false
+positive remains preserved, documented, and classified as a genuine observation rather than leakage.
+
 CP34B adds conservative adaptive-evidence integration: categorical ambiguity reasons, stable-only
 decrease proposals, CP30 propagation of estimator defer reasons, structured app-facing status values,
 and baseline-active planning until caller acceptance. Persistent weight drift remains an explicit
@@ -72,3 +76,7 @@ CP29/CP30 safety enforcement. These are product guardrails, not individualized m
 Checkpoint 34 replaces the production adaptive-TDEE aggregate with an aligned 28-day Theil-Sen
 estimate, explicit evidence span/contributors, categorical stability, and V2 reason/provenance
 fields. It does not change the adaptive-TDEE formula family or add product features.
+
+CP35B adds a final independent 1,500-user **in-model synthetic evaluation** cohort across 15 frozen
+scenarios. All 17 unchanged CP35A release criteria passed. The earlier one-in-16 CP35A pre-onset false
+positive remains preserved, documented, and classified as a genuine observation rather than leakage.

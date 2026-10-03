@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/aristostheo/fitadapt/actions/workflows/ci.yml/badge.svg)](https://github.com/aristostheo/fitadapt/actions/workflows/ci.yml)
 
-FitAdapt is a transparent fitness-intelligence engine that combines deterministic baseline calculations, longitudinal trend analysis, adaptive energy-expenditure estimation, synthetic evaluation, leakage-safe ML experimentation, conservative recommendations, and a stateless FastAPI interface.
+FitAdapt is a deterministic, explainable diet-planning and intelligence engine for a consuming fitness app. It calculates baseline energy needs, estimates adaptive TDEE from longitudinal observations, composes calorie and macro plans, assesses adherence and outcomes, and returns conservative proposals with safety and activation gates through a stateless API.
 
 Adaptive TDEE is observational supporting evidence, not measured metabolism. Persistent non-energy
 weight drift can be indistinguishable from true energy-balance change using only dates, scale weight,
@@ -14,7 +14,16 @@ cycle. Proposals are never automatically applied. All benchmark claims are
 
 ## What It Does
 
-FitAdapt keeps explainable decision support separate from research: versioned REE/TDEE, calorie and macro targets, explicit preference-driven macro plans with flexible target envelopes, calendar-aware trends, adaptive observed-data TDEE, lifecycle readiness, entry-by-entry proposed planning, and a conservative eligibility-gated recommendation policy. `POST /v1/profile-intelligence` composes those existing outputs into one stateless client response. Synthetic histories support evaluation and ML experiments only; FastAPI has no formulas or persistence.
+FitAdapt can:
+
+- Calculate profile-based REE, baseline TDEE, calorie targets, and macros.
+- Estimate observational adaptive TDEE from dated weight and logged-intake histories.
+- Compose macro plans from explicit preferences and training context, and assess dietary feasibility.
+- Assess adherence and recent plan outcomes.
+- Propose calorie changes, gate repeated adaptations conservatively, and return history/explainability.
+- Expose one app-facing `current_recommendation` and structured `integration_status` through `POST /v1/profile-intelligence`.
+
+FitAdapt returns typed decision support; the consuming app decides what to display and what accepted plan to store.
 
 | Layer           | Role                                                                                                                                                                                                                         |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -26,7 +35,9 @@ FitAdapt keeps explainable decision support separate from research: versioned RE
 | API             | Stateless typed adapter, including unified profile intelligence; no stored user data.                                                                                                                                        |
 | Web client      | Session-only five-stage guided experience with dietary onboarding, historical import, flexible Plan targets, and Progress charts.                                                                                            |
 
-## Fixed-Seed Synthetic Results
+## Fixed-Seed Results
+
+All benchmark tables below are **in-model synthetic evaluation**, not external, real-world, or clinical validation.
 
 Adaptive TDEE paired MAE results (`kcal/day`):
 
@@ -40,6 +51,8 @@ Adaptive TDEE paired MAE results (`kcal/day`):
 | Baseline mismatch          |             47 |        0.000 |          100.000% |
 
 The complete-history ML split is `18 / 6 / 6`. Selected `linear` validation MAE is `0.175475` kg, versus dummy `0.405652`, Ridge `0.175525`, and random forest `0.310848`; held-out MAE/RMSE/R² are `0.159362 / 0.200325 / 0.716630` (dummy MAE `0.369595`). These are synthetic-only results, not claims about real people. Leading permutation diagnostics are window weight change (`0.11913`) and trailing intake (`0.09338`); correlated features make these non-causal.
+
+The final CP35B confirmatory cohort passed all 17 frozen synthetic release criteria across 1,500 users. An earlier independent CP35A held-out cohort contained one genuine pre-onset false positive (seed `150011`); it was reproduced, audited for leakage, and retained in the validation record. The larger independent CP35B result is consistent with that small-sample observation; neither result was hidden or retuned. See [the complete validation record](docs/cp35-final-validation.md).
 
 ## Architecture
 
@@ -77,8 +90,6 @@ uv run pytest
 
 Technology: Python 3.12, NumPy, pandas, scikit-learn, FastAPI, Pydantic, pytest, Ruff, and uv.
 
-## API
-
 ## Standalone Web App
 
 Run the FastAPI service, then start the React/Vite client from [`web/`](web/README.md). The client uses session-only state, fictional sample history, and the public HTTP API; it is not the future main fitness-app integration.
@@ -91,9 +102,22 @@ curl -X POST http://127.0.0.1:8000/v1/baseline -H 'content-type: application/jso
 
 Swagger is at `http://127.0.0.1:8000/docs`; see [API documentation](docs/api.md) and the [recommendation request](examples/recommendation_request.json).
 
-## Responsible Use
+## What FitAdapt Is Not
 
-FitAdapt is decision support, not medical treatment. It has no clinical validation and is sensitive to logging bias, scale noise, water/glycogen change, and the Mifflin-St Jeor sex-category limitation. Synthetic benchmarks do not establish real-world accuracy. The API stores no data; personal fitness data must not be committed. Multi-user use requires authentication and authorization, and outputs must not be automatically applied.
+FitAdapt does not provide meal generation, workout generation, medical diagnosis, clinical nutrition, measured metabolism, or guaranteed real-world weight outcomes. Meal and workout generation belong in the consuming fitness app. The engine does not provide accounts, persistence, authentication, or notification delivery.
+
+## Known Limitations
+
+- Adaptive TDEE is inferred from observations; it is not measured expenditure or metabolism.
+- Water, glycogen, sodium, illness, and other non-energy weight changes can distort trends.
+- Logging bias and hidden non-adherence can be indistinguishable from a true expenditure change when only weight, logged intake, and dates are available.
+- Calorie decreases intentionally require conservative evidence and explicit review; proposals are not automatically applied.
+- Real logged-data validation is limited. Synthetic benchmarks do not establish external accuracy, clinical validity, or likely weight outcomes.
+- Safety decisions depend on self-reported profile data. BMI is a screening/product-policy input, not a diagnosis; a stateless API cannot prevent deliberate misreporting.
+- The API stores no profile, observations, active plan, or adaptation history. The consuming app owns persistence, accounts, authentication, daily logging UI, notifications, and acceptance of active-plan changes.
+- FitAdapt is decision support, not medical treatment. It does not offer individual food selection, recipes, micronutrient analysis, or medical nutrition therapy.
+
+Do not commit personal fitness data. Multi-user deployments require app-level authorization and appropriate user safeguards.
 
 ## Documentation
 
@@ -111,15 +135,13 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 - [Recommendation decisions](docs/recommendation-decisions.md)
 - [Plan adaptation](docs/plan-adaptation.md)
 - [Recommendation history](docs/recommendation-history.md)
-
-## Documentation
-
-- [Adaptive TDEE](docs/adaptive-tdee.md)
 - [App integration](docs/app-integration.md)
 - [Target safety](docs/target-safety.md)
 - The web client guides users through Profile, Nutrition, History, Plan, and Progress in session-only browser state; see [web README](web/README.md).
 - [Historical import](docs/historical-import.md), [standalone web client](web/README.md)
 
-## Roadmap
+## Release Readiness
 
-Real-world evaluation, storage, authentication, client integration, and license selection remain release work. The CP35 12-week synthetic simulation does not establish real-world accuracy. FitAdapt does not yet provide frontend dietary onboarding, individual food selection, recipes, meal generation, medical nutrition therapy, micronutrient analysis, training-day/rest-day targets, or budget/cuisine/cooking/schedule optimization.
+The Python package metadata is currently `0.1.0`; `1.0.0` is the recommended first stable release version. No Git tag has been created. The repository has no `LICENSE` file and no license choice has been established; license selection remains a manual legal release decision.
+
+The standalone web build currently emits Vite's advisory for a minified JavaScript chunk above 500 kB, largely due to charting dependencies. It is non-blocking for the engine package; code splitting is deferred rather than expanding the frontend release-hardening scope.

@@ -31,37 +31,39 @@ and macro plan, effective date, source, and `is_authoritative: true`. `latest_pl
 backward-compatible detailed calculation view. Do not treat `proposed_macro_plan` or
 `next_active_macro_plan` as active until the app accepts and stores the update.
 
-## Normal flows
+## End-to-End Request Cycle
 
-**Initial/profile recalculation:** send the new profile with no or limited observations. Use
-`current_recommendation` for the current plan. Set `adaptation_source` to `profile_recalculation`
-when representing a profile-driven recalculation. This does not create a progress-adaptation event.
+1. **Initial user:** send profile, training/dietary context, and any existing observations to
+  `POST /v1/profile-intelligence`. Use `current_recommendation` as the authoritative plan. With no
+  history, FitAdapt still returns a complete baseline response.
+2. **Daily use:** resend the profile, caller-owned `adaptation_history`, and updated dated
+  observations. FitAdapt recomputes trends, adaptive evidence, adherence/outcome, safety, and status.
+3. **No change:** a `hold` or `defer` leaves `current_recommendation` unchanged. Keep the stored plan;
+  use `more_data_needed` and reason codes to decide whether to wait or collect better evidence.
+4. **Proposed update:** if `recommendation_decision.numerical_change_proposed` is true, review the
+  `proposed_macro_plan` and `proposed_target_envelope`. These and `next_active_macro_plan` are not
+  active merely because FitAdapt returned them.
+5. **Review-required decrease:** keep the proposal visible and leave the active plan unchanged. Only
+  after the user explicitly accepts that exact proposal, resend the response's exact date and target:
 
-**Daily reassessment:** resend the same profile and caller-owned active history with updated
-observations. FitAdapt returns CP28 outcome evidence, CP29 `recommendation_decision`, CP30
-`plan_adaptation`, CP31 `recommendation_history`, and consolidated `integration_status`.
+  ```json
+  {
+    "review_confirmation": {
+     "effective_date": "2026-01-28",
+     "proposed_target_kcal_per_day": 2300
+    }
+  }
+  ```
 
-**Proposal:** when `recommendation_decision.numerical_change_proposed` is true, review
-`proposed_macro_plan` and `proposed_target_envelope`. This is not an active plan.
-
-For a decrease, `recommendation_decision.activation_readiness` is `review_required`. Keep the
-proposal visible and preserve the active plan. If the user explicitly accepts it, send
-`review_confirmation` containing the response's exact `effective_date` and
-`proposed_target_kcal_per_day`. Confirmation is bound to that evaluation and target; stale or
-different values do not count. This requirement is decrease-specific; do not impose it on increases.
-
-**Activation eligibility:** when `integration_status.plan_update_available` is true and
-`plan_adaptation.activation_available` is true, the app may present the update for acceptance.
-FitAdapt has not activated it.
-
-**Accepted update:** after user acceptance, store the new active plan and append the returned
-activation event to the app-owned `adaptation_history`. Include that history on the next request;
-FitAdapt then reconstructs the accepted target as `current_recommendation` through the existing macro
-pipeline.
-
-**Profile update:** send the updated profile and `adaptation_source: "profile_recalculation"`.
-Stale progress-adaptation activation state is not reused for the new profile evaluation. The response
-source identifies the recalculation separately.
+  A stale date or different target does not confirm it. This decrease-specific requirement does not
+  apply to increases. CP30's other cooldown and evidence gates still apply.
+6. **Accepted update:** when CP30 returns activation eligibility and the user accepts, store the new
+  active plan and returned activation event in the app. Resend the event in caller-owned
+  `adaptation_history` so the next `current_recommendation` reconstructs the accepted target. FitAdapt
+  does not persist or activate the plan on the app's behalf.
+7. **Profile update:** send the changed profile with `adaptation_source: "profile_recalculation"`.
+  Do not reuse stale progress-adaptation events as current-profile activation state. The response
+  source identifies profile recalculation separately.
 
 ## Status and notifications
 

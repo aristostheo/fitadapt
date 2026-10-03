@@ -42,18 +42,17 @@ def test_bmi_boundaries_are_deterministic() -> None:
         is not TargetEligibilityStatus.INELIGIBLE
     )
 
-    def test_near_underweight_protection_band_boundaries() -> None:
-        lower_band = _profile(weight=44.9, height=150, rate=-0.3)
-        upper_edge = _profile(weight=45.0, height=150, rate=-0.3)
-        lower_result = assess_target_eligibility(lower_band, calculate_baseline_energy(lower_band))
-        edge_result = assess_target_eligibility(upper_edge, calculate_baseline_energy(upper_edge))
 
-        assert lower_result.bmi < 20.0
-        assert TargetSafetyReason.NEAR_UNDERWEIGHT_PROTECTION_APPLIED in lower_result.reason_codes
-        assert edge_result.bmi == pytest.approx(20.0)
-        assert (
-            TargetSafetyReason.NEAR_UNDERWEIGHT_PROTECTION_APPLIED not in edge_result.reason_codes
-        )
+def test_near_underweight_protection_band_boundaries() -> None:
+    lower_band = _profile(weight=44.9, height=150, rate=-0.3)
+    upper_edge = _profile(weight=45.0, height=150, rate=-0.3)
+    lower_result = assess_target_eligibility(lower_band, calculate_baseline_energy(lower_band))
+    edge_result = assess_target_eligibility(upper_edge, calculate_baseline_energy(upper_edge))
+
+    assert lower_result.bmi < 20.0
+    assert TargetSafetyReason.NEAR_UNDERWEIGHT_PROTECTION_APPLIED in lower_result.reason_codes
+    assert edge_result.bmi == pytest.approx(20.0)
+    assert TargetSafetyReason.NEAR_UNDERWEIGHT_PROTECTION_APPLIED not in edge_result.reason_codes
 
 
 def test_underweight_cut_is_ineligible_but_maintenance_and_gain_work() -> None:

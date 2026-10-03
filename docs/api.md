@@ -49,6 +49,16 @@ All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements
 are `null`. Numeric zero is an observed value, not missing data.
 
+Profile inputs are bounded to age `18–80` years, height `100–250 cm`, and weight `30–300 kg`.
+Requested cut rates are negative and no more than `0.75%` of body weight per week; gain rates are
+positive and no more than `0.5%`; maintenance requires exactly zero. Each observation needs at least
+one measurement. Weight is `30–300 kg`, intake is `0–10000 kcal/day`, and protein/carbohydrate/fat
+grams are non-negative. Steps are a non-negative integer; strength/cardio minutes are `0–1440`, sleep
+is `0–24 hours`, and hunger/energy ratings are integers from `1–5`. Other numeric inputs must be finite.
+`POST /v1/profile-intelligence` accepts at most `1095` observations; larger histories are rejected
+with `422`, not silently truncated. Duplicate observation dates are a domain error. Other request-
+specific limits are defined by their schemas and domain contracts.
+
 Profile enums are `female`/`male`, `sedentary`/`lightly_active`/`moderately_active`/
 `very_active`/`extra_active`, and `cut`/`maintain`/`gain`. Recommendation statuses and reasons are
 returned as their stable string enum values. All unavailable engine outputs are JSON `null`.
@@ -151,6 +161,33 @@ request includes `review_confirmation: { "effective_date": "YYYY-MM-DD",
 "proposed_target_kcal_per_day": number }` matching that response exactly. Reversal proposals use
 `reversal_pending` until later evaluations meet the documented new-evidence and consistency gates.
 The API remains stateless; clients retain and resend adaptation history and any explicit confirmation.
+
+The unified response's `current_recommendation` is the authoritative active plan (`is_active` and
+`is_authoritative` are explicit). `latest_plan` is the detailed current calculation. A
+`proposed_macro_plan` or `next_active_macro_plan` is not active until the caller accepts and stores
+the transition. `adaptation_history` is caller-owned and must be resubmitted to reconstruct accepted
+state. Set `adaptation_source` to `profile_recalculation` for a profile-driven recalculation; this
+does not masquerade as progress adaptation and stale progress-adaptation state is not reused.
+
+`integration_status` provides structured booleans for `user_attention_required`,
+`plan_update_available`, `more_data_needed`, `reversal_suppressed`, `current_plan_appropriate`,
+`proposal_available`, `proposal_requires_review`, `activation_ready`, and
+`reversal_pending_confirmation`. Its `app_status` is one of `plan_remains_appropriate`,
+`more_data_needed`, `deferred_estimator_stabilizing`, `deferred_adaptive_evidence_ambiguous`,
+`proposal_available`, `proposal_requires_review`, `reversal_pending_confirmation`, or
+`update_available`. Parse these fields and enum values, not summary prose.
+
+`target_safety` returns `status` (`eligible`, `constrained`, or `ineligible`), BMI and screening
+thresholds, baseline TDEE, requested/effective target, applied calorie floor, permitted/effective
+deficit, requested/effective weekly change, goal, reason codes, policy version, and assumptions.
+`ineligible` means no automated weight-loss target is provided; BMI is not a diagnosis.
+
+Adaptive TDEE serializes stability as `stable`, `stabilizing`, `unstable`, or `insufficient`.
+These are evidence categories, not confidence or measured-metabolism claims. A decrease may remain
+visible as a numerical CP29 proposal with `activation_readiness: review_required`; it is not
+activation-ready until the caller confirms the exact `effective_date` and proposed target through
+`review_confirmation` and CP30's remaining evidence gates pass. Increases retain their existing
+readiness policy. The API does not store the confirmation or activate the plan.
 
 Run the supplied non-identifying recommendation example with:
 
