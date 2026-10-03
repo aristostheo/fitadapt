@@ -484,8 +484,7 @@ day 28. The deterministic trace was `((+1, 28), (+1, 49), (+1, 63))`; the first 
 false for the future mismatch. The initial target generated all 28 prefix records. The new target
 applies only to subsequent intake generation after the checkpoint. `expected_direction` is used only
 for metric classification after evaluation; it is not passed into CP29/CP30. The checkpoint receives
-the current observation list, and the TDEE generator does not apply the configured change until index
-28. No future observation, target, or change-state leakage was found. This is a genuine pre-onset false
+the current observation list, and the TDEE generator does not apply the configured change until index 28. No future observation, target, or change-state leakage was found. This is a genuine pre-onset false
 positive caused by the observed pre-change outcome and is not grounds for tuning to seed `150011`.
 
 ### Frozen Confirmatory Cohort
@@ -525,25 +524,25 @@ All 15 scenarios completed for 100 users each. The full result, including the de
 scenario-to-seed map and user-level confidence intervals, is
 `evaluation/cp35-results/confirmatory-v1.json`. All 17 frozen criteria pass on this cohort.
 
-| Frozen criterion | CP35B observed | Threshold | Verdict |
-| --- | ---: | ---: | --- |
-| Worst ordinary false decrease proposal | `1.44%` | `<= 10%` | PASS |
-| Worst ordinary false increase proposal | `0.78%` | `<= 10%` | PASS |
-| Worst ordinary false activation | `0.78%` | `<= 10%` | PASS |
-| Correct clean `+/-300` proposal by day 56 | `100%` | `>= 60%` | PASS |
-| Opposite/pre-onset activation on clean `+/-300` | `0%` | `<= 5%` | PASS |
-| Median correct clean `+/-300` proposal latency | `13 days` | `<= 56 days` | PASS |
-| Noisy/transient users with automatic reversal activation | `0%` | `<= 10%` | PASS |
-| Maximum ordinary stationary mean activations/user | `0.07` | `<= 2` | PASS |
-| Automatic decrease activation in ambiguity cases | `0%` | `0` | PASS |
-| Activation-ready CP29 decreases | `0%` | `0` | PASS |
-| Clean `-300` users with review-required proposals | `100%` | `>= 60%` | PASS |
-| Clean `+300` users activation-ready by day 56 | `100%` | `>= 60%` | PASS |
-| Clean `+/-300` users with no directional proposal by day 84 | `0%` | `<= 20%` | PASS |
-| Safety-bound/ineligible activation violations | `0%` | `0` | PASS |
-| Missed clean `+/-300` proposal by day 84 | `0%` | `<= 40%` | PASS |
-| Clean `+/-300` users deferred at every checkpoint | `0%` | `<= 20%` | PASS |
-| Median recovery after modeled transient | `9 days` | `<= 28 days` | PASS |
+| Frozen criterion                                            | CP35B observed |    Threshold | Verdict |
+| ----------------------------------------------------------- | -------------: | -----------: | ------- |
+| Worst ordinary false decrease proposal                      |        `1.44%` |     `<= 10%` | PASS    |
+| Worst ordinary false increase proposal                      |        `0.78%` |     `<= 10%` | PASS    |
+| Worst ordinary false activation                             |        `0.78%` |     `<= 10%` | PASS    |
+| Correct clean `+/-300` proposal by day 56                   |         `100%` |     `>= 60%` | PASS    |
+| Opposite/pre-onset activation on clean `+/-300`             |           `0%` |      `<= 5%` | PASS    |
+| Median correct clean `+/-300` proposal latency              |      `13 days` | `<= 56 days` | PASS    |
+| Noisy/transient users with automatic reversal activation    |           `0%` |     `<= 10%` | PASS    |
+| Maximum ordinary stationary mean activations/user           |         `0.07` |       `<= 2` | PASS    |
+| Automatic decrease activation in ambiguity cases            |           `0%` |          `0` | PASS    |
+| Activation-ready CP29 decreases                             |           `0%` |          `0` | PASS    |
+| Clean `-300` users with review-required proposals           |         `100%` |     `>= 60%` | PASS    |
+| Clean `+300` users activation-ready by day 56               |         `100%` |     `>= 60%` | PASS    |
+| Clean `+/-300` users with no directional proposal by day 84 |           `0%` |     `<= 20%` | PASS    |
+| Safety-bound/ineligible activation violations               |           `0%` |          `0` | PASS    |
+| Missed clean `+/-300` proposal by day 84                    |           `0%` |     `<= 40%` | PASS    |
+| Clean `+/-300` users deferred at every checkpoint           |           `0%` |     `<= 20%` | PASS    |
+| Median recovery after modeled transient                     |       `9 days` | `<= 28 days` | PASS    |
 
 #### Activation Outcomes
 
@@ -553,23 +552,23 @@ activations on or before `change_day + 1`. `Correct by 56d` and latency use the 
 convention. `No activation` means no CP30 activation during 84 simulated days; it is not synonymous
 with CP29 deferring at every checkpoint.
 
-| Scenario | Pre-onset | Opposite / frozen | Correct by 56d | Correct activation latency, median [P25, P75] | No activation | CP29 deferred all 9 checks |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `stationary_clean` | N/A | N/A | N/A | N/A | `99/100 (99%; 94.55-99.82%)` | `0/100` |
-| `scale_noise` | N/A | N/A | N/A | N/A | `93/100 (93%; 86.25-96.57%)` | `0/100` |
-| `intake_variation` (scale + intake noise) | N/A | N/A | N/A | N/A | `98/100 (98%; 93.00-99.45%)` | `0/100` |
-| `tdee_plus_300` | `0/100 (0%; 0-3.70%)` | `0/100 / 0/100` | `100/100 (100%; 96.30-100%)` | `13 [13, 20] days`, n=100 | `0/100` | `0/100` |
-| `tdee_minus_300` | `0/100 (0%; 0-3.70%)` | `0/100 / 0/100` | `0/100 (0%; 0-3.70%)` | No activation, n=0 | `100/100` | `0/100` |
-| `autocorrelated_water` | N/A | N/A | N/A | N/A | `4/100 (4%; 1.57-9.84%)` | `0/100` |
-| `water_rebound` | N/A | N/A | N/A | N/A | `0/100` | `0/100` |
-| `illness_like_disturbance` | N/A | N/A | N/A | N/A | `0/100` | `0/100` |
-| `sodium_carb_weight_spike` | N/A | N/A | N/A | N/A | `0/100` | `0/100` |
-| `persistent_water_drift` | N/A | N/A | N/A | N/A | `0/100` | `0/100` |
-| `poor_adherence_with_water` | N/A | N/A | N/A | N/A | `24/100 (24%; 16.69-33.23%)` | `0/100` |
-| `tdee_decline_underreporting` | `0/100 (0%; 0-3.70%)` | `0/100 / 0/100` | `0/100 (0%; 0-3.70%)` | No activation, n=0 | `100/100` | `99/100 (99%; 94.55-99.82%)` |
-| `repeated_slow_progress_near_floor` | `0/100 (0%; 0-3.70%)` | `0/100 / 0/100` | `0/100 (0%; 0-3.70%)` | No activation, n=0 | `100/100` | `0/100` |
-| `repeated_proposals_near_bmi_band` | N/A | N/A | N/A | N/A | `100/100` | `100/100 (100%; 96.30-100%)` |
-| `profile_update_below_bmi_18_5` | N/A | N/A | N/A | N/A | `97/100 (97%; 91.55-98.97%)` | `0/100` |
+| Scenario                                  |             Pre-onset | Opposite / frozen |               Correct by 56d | Correct activation latency, median [P25, P75] |                No activation |   CP29 deferred all 9 checks |
+| ----------------------------------------- | --------------------: | ----------------: | ---------------------------: | --------------------------------------------: | ---------------------------: | ---------------------------: |
+| `stationary_clean`                        |                   N/A |               N/A |                          N/A |                                           N/A | `99/100 (99%; 94.55-99.82%)` |                      `0/100` |
+| `scale_noise`                             |                   N/A |               N/A |                          N/A |                                           N/A | `93/100 (93%; 86.25-96.57%)` |                      `0/100` |
+| `intake_variation` (scale + intake noise) |                   N/A |               N/A |                          N/A |                                           N/A | `98/100 (98%; 93.00-99.45%)` |                      `0/100` |
+| `tdee_plus_300`                           | `0/100 (0%; 0-3.70%)` |   `0/100 / 0/100` | `100/100 (100%; 96.30-100%)` |                     `13 [13, 20] days`, n=100 |                      `0/100` |                      `0/100` |
+| `tdee_minus_300`                          | `0/100 (0%; 0-3.70%)` |   `0/100 / 0/100` |        `0/100 (0%; 0-3.70%)` |                            No activation, n=0 |                    `100/100` |                      `0/100` |
+| `autocorrelated_water`                    |                   N/A |               N/A |                          N/A |                                           N/A |     `4/100 (4%; 1.57-9.84%)` |                      `0/100` |
+| `water_rebound`                           |                   N/A |               N/A |                          N/A |                                           N/A |                      `0/100` |                      `0/100` |
+| `illness_like_disturbance`                |                   N/A |               N/A |                          N/A |                                           N/A |                      `0/100` |                      `0/100` |
+| `sodium_carb_weight_spike`                |                   N/A |               N/A |                          N/A |                                           N/A |                      `0/100` |                      `0/100` |
+| `persistent_water_drift`                  |                   N/A |               N/A |                          N/A |                                           N/A |                      `0/100` |                      `0/100` |
+| `poor_adherence_with_water`               |                   N/A |               N/A |                          N/A |                                           N/A | `24/100 (24%; 16.69-33.23%)` |                      `0/100` |
+| `tdee_decline_underreporting`             | `0/100 (0%; 0-3.70%)` |   `0/100 / 0/100` |        `0/100 (0%; 0-3.70%)` |                            No activation, n=0 |                    `100/100` | `99/100 (99%; 94.55-99.82%)` |
+| `repeated_slow_progress_near_floor`       | `0/100 (0%; 0-3.70%)` |   `0/100 / 0/100` |        `0/100 (0%; 0-3.70%)` |                            No activation, n=0 |                    `100/100` |                      `0/100` |
+| `repeated_proposals_near_bmi_band`        |                   N/A |               N/A |                          N/A |                                           N/A |                    `100/100` | `100/100 (100%; 96.30-100%)` |
+| `profile_update_below_bmi_18_5`           |                   N/A |               N/A |                          N/A |                                           N/A | `97/100 (97%; 91.55-98.97%)` |                      `0/100` |
 
 For clean `-300`, all 100 users received a review-required proposal, but the main cohort supplies no
 review confirmation; therefore no plan activated. This is a review-gated state, not all-checkpoint
@@ -581,23 +580,23 @@ received a review-required proposal; none activated.
 Review-required decrease user incidence and checkpoint frequency are separate; the latter denominator
 is 900 evaluations per scenario. User rates include Wilson 95% intervals.
 
-| Scenario | Users with review-required decrease | Review-required checkpoints / 900 |
-| --- | ---: | ---: |
-| `stationary_clean` | `9/100 (9%; 4.81-16.23%)` | `10/900` |
-| `scale_noise` | `10/100 (10%; 5.52-17.44%)` | `13/900` |
-| `intake_variation` | `11/100 (11%; 6.25-18.63%)` | `12/900` |
-| `tdee_plus_300` | `8/100 (8%; 4.11-15.00%)` | `8/900` |
-| `tdee_minus_300` | `100/100 (100%; 96.30-100%)` | `662/900` |
-| `autocorrelated_water` | `99/100 (99%; 94.55-99.82%)` | `308/900` |
-| `water_rebound` | `100/100 (100%; 96.30-100%)` | `352/900` |
-| `illness_like_disturbance` | `100/100 (100%; 96.30-100%)` | `193/900` |
-| `sodium_carb_weight_spike` | `100/100 (100%; 96.30-100%)` | `113/900` |
-| `persistent_water_drift` | `6/100 (6%; 2.78-12.48%)` | `7/900` |
-| `poor_adherence_with_water` | `91/100 (91%; 83.77-95.19%)` | `225/900` |
-| `tdee_decline_underreporting` | `1/100 (1%; 0.18-5.45%)` | `1/900` |
-| `repeated_slow_progress_near_floor` | `100/100 (100%; 96.30-100%)` | `886/900` |
-| `repeated_proposals_near_bmi_band` | `0/100 (0%; 0-3.70%)` | `0/900` |
-| `profile_update_below_bmi_18_5` | `6/100 (6%; 2.78-12.48%)` | `6/900` |
+| Scenario                            | Users with review-required decrease | Review-required checkpoints / 900 |
+| ----------------------------------- | ----------------------------------: | --------------------------------: |
+| `stationary_clean`                  |           `9/100 (9%; 4.81-16.23%)` |                          `10/900` |
+| `scale_noise`                       |         `10/100 (10%; 5.52-17.44%)` |                          `13/900` |
+| `intake_variation`                  |         `11/100 (11%; 6.25-18.63%)` |                          `12/900` |
+| `tdee_plus_300`                     |           `8/100 (8%; 4.11-15.00%)` |                           `8/900` |
+| `tdee_minus_300`                    |        `100/100 (100%; 96.30-100%)` |                         `662/900` |
+| `autocorrelated_water`              |        `99/100 (99%; 94.55-99.82%)` |                         `308/900` |
+| `water_rebound`                     |        `100/100 (100%; 96.30-100%)` |                         `352/900` |
+| `illness_like_disturbance`          |        `100/100 (100%; 96.30-100%)` |                         `193/900` |
+| `sodium_carb_weight_spike`          |        `100/100 (100%; 96.30-100%)` |                         `113/900` |
+| `persistent_water_drift`            |           `6/100 (6%; 2.78-12.48%)` |                           `7/900` |
+| `poor_adherence_with_water`         |        `91/100 (91%; 83.77-95.19%)` |                         `225/900` |
+| `tdee_decline_underreporting`       |            `1/100 (1%; 0.18-5.45%)` |                           `1/900` |
+| `repeated_slow_progress_near_floor` |        `100/100 (100%; 96.30-100%)` |                         `886/900` |
+| `repeated_proposals_near_bmi_band`  |               `0/100 (0%; 0-3.70%)` |                           `0/900` |
+| `profile_update_below_bmi_18_5`     |           `6/100 (6%; 2.78-12.48%)` |                           `6/900` |
 
 Automatic ambiguous decrease activation was `0/300` users across `persistent_water_drift`,
 `poor_adherence_with_water`, and `tdee_decline_underreporting` (95% Wilson interval `0-1.26%`).
