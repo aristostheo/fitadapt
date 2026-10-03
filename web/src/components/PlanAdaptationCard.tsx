@@ -7,6 +7,8 @@ const actionLabels = {
   hold: "Current plan remains appropriate",
   defer: "Collect more evidence first",
   suppress: "Reversal suppressed",
+  review_required: "Decrease requires review",
+  reversal_pending: "Reversal pending confirmation",
 } as const;
 
 function message(assessment: PlanAdaptationAssessment): string {
@@ -15,6 +17,15 @@ function message(assessment: PlanAdaptationAssessment): string {
   }
   if (assessment.action === "suppress") {
     return "Recent data points in the opposite direction, but there is not enough new evidence to reverse the last adjustment yet.";
+  }
+  if (assessment.action === "review_required") {
+    return "A potential calorie decrease is available for explicit review. FitAdapt cannot distinguish every persistent weight effect or hidden logging bias from a true expenditure change, so the active plan remains unchanged.";
+  }
+  if (assessment.action === "reversal_pending") {
+    if (assessment.review_required) {
+      return "FitAdapt is waiting for another evaluation period with new evidence. If the decrease remains supported, it will still need your explicit review before the active plan changes.";
+    }
+    return "Your recent data points toward reversing the last adjustment. FitAdapt is waiting for another evaluation period with new evidence before making the reversal activation-ready.";
   }
   if (assessment.action === "defer") {
     return "Your plan was adjusted recently or does not have enough fresh evidence. FitAdapt is collecting more data before recommending another activation.";
@@ -71,6 +82,16 @@ export function PlanAdaptationCard({
         <Notice tone="warning">
           The current active plan remains unchanged while reversal evidence
           accumulates.
+        </Notice>
+      )}
+      {(assessment.action === "review_required" ||
+        assessment.action === "reversal_pending") && (
+        <Notice tone="warning">
+          {assessment.action === "review_required"
+            ? "Review the proposed adjustment before changing your plan."
+            : assessment.review_required
+              ? "The current active plan remains unchanged while reversal evidence accumulates; explicit decrease review is still required."
+              : "The current active plan remains unchanged while reversal evidence accumulates."}
         </Notice>
       )}
       <details>

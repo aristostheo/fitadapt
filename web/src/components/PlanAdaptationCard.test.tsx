@@ -36,6 +36,8 @@ const macro: PersonalizedMacroPlan = {
 const assessment: PlanAdaptationAssessment = {
   action: "activate",
   activation_available: true,
+  activation_ready: true,
+  review_required: false,
   user_attention_required: true,
   current_active_macro_plan: macro,
   proposed_macro_plan: { ...macro, calorie_target_kcal_per_day: 2300 },
@@ -88,5 +90,83 @@ describe("plan adaptation presentation", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/not enough new evidence/i)).toBeInTheDocument();
     expect(screen.getByText(/remains unchanged/i)).toBeInTheDocument();
+  });
+
+  it("distinguishes review-required decreases from activation-ready updates", () => {
+    render(
+      <PlanAdaptationCard
+        assessment={{
+          ...assessment,
+          action: "review_required",
+          activation_available: false,
+          activation_ready: false,
+          review_required: true,
+          user_attention_required: true,
+          next_active_target_kcal_per_day: 2400,
+          next_active_macro_plan: macro,
+          reason_codes: ["decrease_requires_review"],
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Decrease requires review" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/active plan remains unchanged/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Current plan retained")).toBeInTheDocument();
+  });
+
+  it("explains a reversal confirmation cycle", () => {
+    render(
+      <PlanAdaptationCard
+        assessment={{
+          ...assessment,
+          action: "reversal_pending",
+          activation_available: false,
+          activation_ready: false,
+          review_required: false,
+          next_active_target_kcal_per_day: 2400,
+          next_active_macro_plan: macro,
+          reason_codes: ["reversal_pending_confirmation"],
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Reversal pending confirmation" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/another evaluation period with new evidence/i),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps decrease review visible during a reversal confirmation cycle", () => {
+    render(
+      <PlanAdaptationCard
+        assessment={{
+          ...assessment,
+          action: "reversal_pending",
+          activation_available: false,
+          activation_ready: false,
+          review_required: true,
+          next_active_target_kcal_per_day: 2400,
+          next_active_macro_plan: macro,
+          reason_codes: [
+            "reversal_pending_confirmation",
+            "decrease_requires_review",
+          ],
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByText(/still need your explicit review/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/explicit decrease review is still required/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Current plan retained")).toBeInTheDocument();
   });
 });

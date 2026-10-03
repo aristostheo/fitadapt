@@ -160,16 +160,33 @@ def test_unified_response_evaluates_first_activation_and_cooldown() -> None:
     payload = _payload(42)
     payload["profile"] = {**_profile_payload(), "goal": "cut", "requested_weekly_change_kg": -0.4}
     client = TestClient(create_app())
+    review = client.post("/v1/profile-intelligence", json=payload).json()
+
+    assert review["plan_adaptation"]["action"] == "review_required"
+    assert review["plan_adaptation"]["review_required"] is True
+    assert review["plan_adaptation"]["activation_ready"] is False
+    assert (
+        review["plan_adaptation"]["next_active_target_kcal_per_day"]
+        == (review["plan_adaptation"]["current_active_target_kcal_per_day"])
+    )
+    payload["review_confirmation"] = {
+        "effective_date": review["plan_adaptation"]["effective_date"],
+        "proposed_target_kcal_per_day": review["recommendation_decision"][
+            "proposed_calorie_target_kcal_per_day"
+        ],
+    }
     first = client.post("/v1/profile-intelligence", json=payload).json()
 
     assert first["plan_adaptation"]["action"] == "activate"
     assert first["plan_adaptation"]["activation_available"] is True
     assert len(first["plan_adaptation"]["adaptation_history"]) == 1
     payload["adaptation_history"] = first["plan_adaptation"]["adaptation_history"]
+    payload.pop("review_confirmation")
     second = client.post("/v1/profile-intelligence", json=payload).json()
 
     assert second["plan_adaptation"]["action"] == "defer"
     assert second["plan_adaptation"]["reason_codes"] == ["decision_defer"]
+    assert len(second["plan_adaptation"]["adaptation_history"]) == 1
     assert (
         second["plan_adaptation"]["next_active_target_kcal_per_day"]
         == second["plan_adaptation"]["current_active_target_kcal_per_day"]

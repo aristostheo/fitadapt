@@ -266,6 +266,11 @@ def create_app() -> FastAPI:
                 outcome_as_of_date=request.outcome_as_of_date,
                 adaptation_history=tuple(item.to_domain() for item in request.adaptation_history),
                 adaptation_source=request.adaptation_source,
+                review_confirmation=(
+                    None
+                    if request.review_confirmation is None
+                    else request.review_confirmation.to_domain()
+                ),
             )
         )
 

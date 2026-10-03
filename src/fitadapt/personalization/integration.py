@@ -12,7 +12,7 @@ from fitadapt.personalization.decisions import (
 from fitadapt.personalization.macros import PersonalizedMacroPlan
 from fitadapt.personalization.targets import NutritionTargetEnvelope
 
-INTEGRATION_STATUS_POLICY_VERSION = "profile_intelligence_integration_v1"
+INTEGRATION_STATUS_POLICY_VERSION = "profile_intelligence_integration_v2"
 
 
 class IntegrationPlanSource(StrEnum):
@@ -27,6 +27,9 @@ class IntegrationAppStatus(StrEnum):
     MORE_DATA_NEEDED = "more_data_needed"
     DEFERRED_ESTIMATOR_STABILIZING = "deferred_estimator_stabilizing"
     DEFERRED_ADAPTIVE_EVIDENCE_AMBIGUOUS = "deferred_adaptive_evidence_ambiguous"
+    PROPOSAL_AVAILABLE = "proposal_available"
+    PROPOSAL_REQUIRES_REVIEW = "proposal_requires_review"
+    REVERSAL_PENDING_CONFIRMATION = "reversal_pending_confirmation"
     UPDATE_AVAILABLE = "update_available"
 
 
@@ -56,6 +59,10 @@ class IntegrationStatus:
     adaptation_action: PlanAdaptationAction
     adaptation_source: PlanAdaptationSource
     app_status: IntegrationAppStatus
+    proposal_available: bool
+    proposal_requires_review: bool
+    activation_ready: bool
+    reversal_pending_confirmation: bool
     reason_codes: tuple[RecommendationDecisionReason, ...]
     summary: str
     policy_version: str

@@ -206,6 +206,14 @@ export interface ProfileIntelligenceRequest {
   dietary_preference_profile?: NutritionPreferenceProfile;
   training_context?: TrainingContext;
   include_plan_progression: boolean;
+  adaptation_history?: PlanAdaptationEvent[];
+  adaptation_source?: "progress_adaptation" | "profile_recalculation";
+  review_confirmation?: ProposalReviewConfirmation | null;
+}
+
+export interface ProposalReviewConfirmation {
+  effective_date: string;
+  proposed_target_kcal_per_day: number;
 }
 
 export interface BaselineEnergy {
@@ -535,6 +543,10 @@ export type RecommendationDecisionType =
   | "defer";
 export type RecommendationDecisionReason = string;
 export type AdaptiveEvidenceStatus = "stable" | "ambiguous" | "insufficient";
+export type DecisionActivationReadiness =
+  | "not_ready"
+  | "review_required"
+  | "ready";
 export interface RecommendationDecision {
   decision: RecommendationDecisionType;
   decision_available: boolean;
@@ -553,10 +565,17 @@ export interface RecommendationDecision {
   reason_codes: RecommendationDecisionReason[];
   adaptive_tdee_kcal_per_day: number | null;
   adaptive_evidence_status: AdaptiveEvidenceStatus;
+  activation_readiness: DecisionActivationReadiness;
   policy_version: string;
   assumptions: string[];
 }
-export type PlanAdaptationAction = "activate" | "hold" | "defer" | "suppress";
+export type PlanAdaptationAction =
+  | "activate"
+  | "hold"
+  | "defer"
+  | "suppress"
+  | "review_required"
+  | "reversal_pending";
 export interface PlanAdaptationEvent {
   effective_date: string;
   previous_active_target_kcal_per_day: number;
@@ -571,10 +590,13 @@ export interface PlanAdaptationEvent {
   new_weight_contributor_count: number;
   new_intake_contributor_count: number;
   policy_version: string;
+  proposed_delta_kcal_per_day: number;
 }
 export interface PlanAdaptationAssessment {
   action: PlanAdaptationAction;
   activation_available: boolean;
+  activation_ready: boolean;
+  review_required: boolean;
   user_attention_required: boolean;
   current_active_macro_plan: PersonalizedMacroPlan;
   proposed_macro_plan: PersonalizedMacroPlan | null;
@@ -600,7 +622,9 @@ export type RecommendationChangeType =
   | "calorie_decrease"
   | "hold"
   | "defer"
-  | "suppressed";
+  | "suppressed"
+  | "review_required"
+  | "reversal_pending";
 export interface MacroSummary {
   protein_g_per_day: number;
   carbohydrate_g_per_day: number;
@@ -667,7 +691,14 @@ export interface IntegrationStatus {
     | "more_data_needed"
     | "deferred_estimator_stabilizing"
     | "deferred_adaptive_evidence_ambiguous"
+    | "proposal_available"
+    | "proposal_requires_review"
+    | "reversal_pending_confirmation"
     | "update_available";
+  proposal_available: boolean;
+  proposal_requires_review: boolean;
+  activation_ready: boolean;
+  reversal_pending_confirmation: boolean;
   reason_codes: RecommendationDecisionReason[];
   summary: string;
   policy_version: string;

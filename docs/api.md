@@ -137,6 +137,21 @@ evidence may refine macro composition without changing calories, and it does not
 snapshots. See
 [profile-intelligence API](profile-intelligence-api.md) for the executable request example.
 
+The integrated decision path exposes CP29 categorical `adaptive_evidence_status` and reason codes,
+CP30 activation eligibility, CP32 `integration_status.app_status`, and CP33 `target_safety`. These
+are product-policy guardrails over observational evidence, not measured expenditure. The hostile
+12-week stress harness and frozen criteria are documented in
+[CP35 final validation](cp35-final-validation.md). Generated results are **in-model synthetic
+evaluation**, not real-world validation.
+
+For CP35A, `recommendation_decision.activation_readiness` distinguishes `not_ready`,
+`review_required`, and `ready`. A decrease can remain a numerical proposal while requiring review;
+`plan_adaptation.activation_ready` stays false and the active plan remains unchanged until the
+request includes `review_confirmation: { "effective_date": "YYYY-MM-DD",
+"proposed_target_kcal_per_day": number }` matching that response exactly. Reversal proposals use
+`reversal_pending` until later evaluations meet the documented new-evidence and consistency gates.
+The API remains stateless; clients retain and resend adaptation history and any explicit confirmation.
+
 Run the supplied non-identifying recommendation example with:
 
 ```bash

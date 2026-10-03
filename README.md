@@ -7,7 +7,9 @@ FitAdapt is a transparent fitness-intelligence engine that combines deterministi
 Adaptive TDEE is observational supporting evidence, not measured metabolism. Persistent non-energy
 weight drift can be indistinguishable from true energy-balance change using only dates, scale weight,
 and logged intake, so FitAdapt may deliberately hold or defer calorie changes. Calorie decreases use
-a stricter CP29 evidence gate; proposals are never automatically applied. All benchmark claims are
+a stricter CP29 evidence gate and remain review-required before activation; increases retain their
+existing readiness policy. Opposite-direction proposals require a stateless, new-evidence confirmation
+cycle. Proposals are never automatically applied. All benchmark claims are
 **in-model synthetic evaluation**, not real-world or clinical validation.
 
 ## What It Does
@@ -96,6 +98,7 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 ## Documentation
 
 - [Architecture](docs/architecture.md), [baseline ADR](docs/decisions/0001-v0.1-baseline-policy.md)
+- [CP35 final hostile validation protocol and results](docs/cp35-final-validation.md)
 - [Synthetic data](docs/synthetic-data.md), [trends](docs/trend-analysis.md), [adaptive TDEE](docs/adaptive-tdee.md)
 - [TDEE evaluation](docs/tdee-evaluation.md), [weight-change ML](docs/weight-change-ml.md), [interpretation](docs/model-interpretation.md)
 - [Calorie recommendations](docs/calorie-recommendations.md), [API](docs/api.md)
@@ -111,7 +114,6 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 
 ## Documentation
 
-- [Target safety](docs/target-safety.md)
 - [Adaptive TDEE](docs/adaptive-tdee.md)
 - [App integration](docs/app-integration.md)
 - [Target safety](docs/target-safety.md)
@@ -120,4 +122,4 @@ FitAdapt is decision support, not medical treatment. It has no clinical validati
 
 ## Roadmap
 
-Real-world evaluation, storage, authentication, client integration, and license selection remain release work. FitAdapt does not yet provide frontend dietary onboarding, individual food selection, recipes, meal generation, medical nutrition therapy, micronutrient analysis, training-day/rest-day targets, or budget/cuisine/cooking/schedule optimization.
+Real-world evaluation, storage, authentication, client integration, and license selection remain release work. The CP35 12-week synthetic simulation does not establish real-world accuracy. FitAdapt does not yet provide frontend dietary onboarding, individual food selection, recipes, meal generation, medical nutrition therapy, micronutrient analysis, training-day/rest-day targets, or budget/cuisine/cooking/schedule optimization.

@@ -50,6 +50,7 @@ const baseDecision: RecommendationDecision = {
   limiting_reason: "adherence_not_near_target",
   reason_codes: ["adherence_not_near_target"],
   adaptive_evidence_status: "insufficient",
+  activation_readiness: "not_ready",
   adaptive_tdee_kcal_per_day: null,
   policy_version: "recommendation_decision_v1",
   assumptions: [],
@@ -103,5 +104,34 @@ describe("recommendation decision presentation", () => {
     expect(screen.getByText("Current macros")).toBeInTheDocument();
     expect(screen.getByText("Proposed macros")).toBeInTheDocument();
     expect(screen.getByText(/proposal only/i)).toBeInTheDocument();
+  });
+
+  it("keeps an ambiguous decrease visible while requiring review", () => {
+    render(
+      <RecommendationDecisionCard
+        decision={{
+          ...baseDecision,
+          decision: "decrease",
+          numerical_change_proposed: true,
+          activation_readiness: "review_required",
+          current_calorie_target_kcal_per_day: 2400,
+          proposed_calorie_target_kcal_per_day: 2300,
+          calorie_delta_kcal_per_day: -100,
+          outcome_interpretability: "interpretable",
+          intake_adherence: "near_target",
+          reason_codes: ["decrease_requires_review"],
+        }}
+        currentMacroPlan={macroPlan}
+        proposedMacroPlan={{ ...macroPlan, calorie_target_kcal_per_day: 2300 }}
+      />,
+    );
+
+    expect(screen.getByText("Review required")).toBeInTheDocument();
+    expect(
+      screen.getByText(/cannot fully separate longer-term progress/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/active plan remains unchanged/i),
+    ).toBeInTheDocument();
   });
 });

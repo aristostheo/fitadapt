@@ -1,0 +1,1932 @@
+{
+  "protocol_version": "cp35_hostile_validation_v1",
+  "seed_set": "held_out",
+  "seed_description": "development:60000..60015; held_out:70000..70015",
+  "seeds": [
+    70000,
+    70001,
+    70002,
+    70003,
+    70004,
+    70005,
+    70006,
+    70007,
+    70008,
+    70009,
+    70010,
+    70011,
+    70012,
+    70013,
+    70014,
+    70015
+  ],
+  "evaluation_days": 84,
+  "checkpoint_days": [
+    28,
+    35,
+    42,
+    49,
+    56,
+    63,
+    70,
+    77,
+    84
+  ],
+  "criteria": [
+    {
+      "criterion_id": "ordinary_false_decrease",
+      "description": "Ordinary false CP29 decrease proposals",
+      "observed": 0.006944444444444444,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "ordinary_false_increase",
+      "description": "Ordinary false CP29 increase proposals",
+      "observed": 0.006944444444444444,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "opposite_direction",
+      "description": "Opposite CP30 activation on +/-300 TDEE cases",
+      "observed": 0,
+      "limit": 0.05,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "plus_minus_300_detection",
+      "description": "Correct CP30 activation by day 56 for each +/-300 case",
+      "observed": 1.0,
+      "limit": 0.6,
+      "comparator": "min",
+      "passed": true
+    },
+    {
+      "criterion_id": "mismatch_latency",
+      "description": "Median correct activation latency for +/-300 cases",
+      "observed": 27.0,
+      "limit": 56.0,
+      "comparator": "max_days",
+      "passed": true
+    },
+    {
+      "criterion_id": "oscillation",
+      "description": "Noisy stationary users with a direction reversal",
+      "observed": 0.5,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": false
+    },
+    {
+      "criterion_id": "stationary_activation_count",
+      "description": "Mean activations per 12 weeks in ordinary stationary cases",
+      "observed": 0.125,
+      "limit": 2.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "ambiguous_decrease_activation",
+      "description": "Decrease activations in declared ambiguity scenarios",
+      "observed": 0.0625,
+      "limit": 0.0,
+      "comparator": "max",
+      "passed": false
+    },
+    {
+      "criterion_id": "safety_violations",
+      "description": "Safety-bound or ineligible-target activation violations",
+      "observed": 0.0,
+      "limit": 0.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "missed_large_change",
+      "description": "Missed CP30 change for true +/-300 TDEE cases by day 84",
+      "observed": 0,
+      "limit": 0.4,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "indefinite_defer",
+      "description": "True +/-300 cases deferred at every checkpoint",
+      "observed": 0.0,
+      "limit": 0.2,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "transient_recovery",
+      "description": "Median status recovery after transient disturbance",
+      "observed": 9.0,
+      "limit": 28.0,
+      "comparator": "max_days",
+      "passed": true
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "stationary_clean",
+      "category": "stationary",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.9930555555555556,
+      "cp29_defer_rate": 0.006944444444444444,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.006944444444444444,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.9930555555555556
+        ],
+        [
+          "more_data_needed",
+          0.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.006944444444444444
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "scale_noise",
+      "category": "stationary",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 1.0,
+      "cp29_defer_rate": 0.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          1.0
+        ],
+        [
+          "more_data_needed",
+          0.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "intake_variation",
+      "category": "stationary",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.9652777777777778,
+      "cp29_defer_rate": 0.020833333333333332,
+      "cp29_increase_rate": 0.006944444444444444,
+      "cp29_decrease_rate": 0.006944444444444444,
+      "cp30_activate_rate": 0.013888888888888888,
+      "cp30_defer_rate": 0.020833333333333332,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.9652777777777778
+        ],
+        [
+          "more_data_needed",
+          0.013888888888888888
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.006944444444444444
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.013888888888888888
+        ]
+      ],
+      "false_increase_rate": 0.006944444444444444,
+      "false_decrease_rate": 0.006944444444444444,
+      "false_change_rate": 0.013888888888888888,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.125,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "autocorrelated_water",
+      "category": "water",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.3263888888888889,
+      "cp29_defer_rate": 0.4236111111111111,
+      "cp29_increase_rate": 0.25,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.1736111111111111,
+      "cp30_defer_rate": 0.5,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.3263888888888889
+        ],
+        [
+          "more_data_needed",
+          0.05555555555555555
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.4375
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.006944444444444444
+        ],
+        [
+          "update_available",
+          0.1736111111111111
+        ]
+      ],
+      "false_increase_rate": 0.25,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.25,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 1.5625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.5,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "logging_underreport_step",
+      "category": "logging_bias",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.21527777777777776,
+      "cp29_defer_rate": 0.7847222222222222,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.7847222222222222,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.2152777777777778
+        ],
+        [
+          "more_data_needed",
+          0.5347222222222222
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.25
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "logging_overreport_step",
+      "category": "logging_bias",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.21527777777777776,
+      "cp29_defer_rate": 0.7847222222222222,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.7847222222222222,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.2152777777777778
+        ],
+        [
+          "more_data_needed",
+          0.5763888888888888
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.20833333333333334
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "logging_bias_drift",
+      "category": "logging_bias",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.6458333333333333,
+      "cp29_defer_rate": 0.35416666666666663,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.35416666666666663,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.6458333333333334
+        ],
+        [
+          "more_data_needed",
+          0.2916666666666667
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0625
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "cut_adherence_drift",
+      "category": "adherence",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.5486111111111112,
+      "cp29_defer_rate": 0.3680555555555555,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.08333333333333333,
+      "cp30_activate_rate": 0.08333333333333333,
+      "cp30_defer_rate": 0.3680555555555555,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.5486111111111112
+        ],
+        [
+          "more_data_needed",
+          0.3333333333333333
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.034722222222222224
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.08333333333333333
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.08333333333333333,
+      "false_change_rate": 0.08333333333333333,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.75,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "gain_adherence_drift",
+      "category": "adherence",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.5833333333333334,
+      "cp29_defer_rate": 0.35416666666666663,
+      "cp29_increase_rate": 0.0625,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0625,
+      "cp30_defer_rate": 0.35416666666666663,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.5833333333333334
+        ],
+        [
+          "more_data_needed",
+          0.3055555555555556
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.04861111111111111
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0625
+        ]
+      ],
+      "false_increase_rate": 0.0625,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0625,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.5625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "inconsistent_adherence",
+      "category": "adherence",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.923611111111111,
+      "cp29_defer_rate": 0.027777777777777776,
+      "cp29_increase_rate": 0.034722222222222224,
+      "cp29_decrease_rate": 0.013888888888888888,
+      "cp30_activate_rate": 0.041666666666666664,
+      "cp30_defer_rate": 0.034722222222222224,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.9236111111111112
+        ],
+        [
+          "more_data_needed",
+          0.013888888888888888
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.020833333333333332
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.041666666666666664
+        ]
+      ],
+      "false_increase_rate": 0.034722222222222224,
+      "false_decrease_rate": 0.013888888888888888,
+      "false_change_rate": 0.048611111111111105,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.375,
+      "direction_reversal_rate": 0.0625,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "missing_weekends",
+      "category": "missing_data",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.9791666666666666,
+      "cp29_defer_rate": 0.006944444444444444,
+      "cp29_increase_rate": 0.006944444444444444,
+      "cp29_decrease_rate": 0.006944444444444444,
+      "cp30_activate_rate": 0.013888888888888888,
+      "cp30_defer_rate": 0.006944444444444444,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.9791666666666666
+        ],
+        [
+          "more_data_needed",
+          0.006944444444444444
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.013888888888888888
+        ]
+      ],
+      "false_increase_rate": 0.006944444444444444,
+      "false_decrease_rate": 0.006944444444444444,
+      "false_change_rate": 0.013888888888888888,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.125,
+      "direction_reversal_rate": 0.0625,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "missing_clustered_weights",
+      "category": "missing_data",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.75,
+      "cp29_defer_rate": 0.24305555555555555,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.006944444444444444,
+      "cp30_activate_rate": 0.006944444444444444,
+      "cp30_defer_rate": 0.24305555555555555,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.75
+        ],
+        [
+          "more_data_needed",
+          0.18055555555555555
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0625
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.006944444444444444
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.006944444444444444,
+      "false_change_rate": 0.006944444444444444,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "missing_after_high_intake",
+      "category": "missing_data",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0,
+      "cp29_defer_rate": 1.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 1.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0
+        ],
+        [
+          "more_data_needed",
+          1.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 1.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "missing_plan_transition",
+      "category": "missing_data",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 1.0,
+      "cp29_defer_rate": 0.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          1.0
+        ],
+        [
+          "more_data_needed",
+          0.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "sparse_regular",
+      "category": "missing_data",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0,
+      "cp29_defer_rate": 1.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 1.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0
+        ],
+        [
+          "more_data_needed",
+          1.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 1.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "water_rebound",
+      "category": "water",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.4097222222222222,
+      "cp29_defer_rate": 0.3125,
+      "cp29_increase_rate": 0.2222222222222222,
+      "cp29_decrease_rate": 0.05555555555555555,
+      "cp30_activate_rate": 0.16666666666666666,
+      "cp30_defer_rate": 0.4236111111111111,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.4097222222222222
+        ],
+        [
+          "more_data_needed",
+          0.2152777777777778
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.20833333333333334
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.16666666666666666
+        ]
+      ],
+      "false_increase_rate": 0.2222222222222222,
+      "false_decrease_rate": 0.05555555555555555,
+      "false_change_rate": 0.2777777777777778,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": 1.0,
+      "mean_activations_per_user_12_weeks": 1.5,
+      "direction_reversal_rate": 0.5,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "illness_like_disturbance",
+      "category": "water",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.3194444444444444,
+      "cp29_defer_rate": 0.3472222222222222,
+      "cp29_increase_rate": 0.3333333333333333,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.2222222222222222,
+      "cp30_defer_rate": 0.4583333333333333,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.3194444444444444
+        ],
+        [
+          "more_data_needed",
+          0.09722222222222222
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.3472222222222222
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.013888888888888888
+        ],
+        [
+          "update_available",
+          0.2222222222222222
+        ]
+      ],
+      "false_increase_rate": 0.3333333333333333,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.3333333333333333,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": 22.0,
+      "mean_activations_per_user_12_weeks": 2.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 1.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "sodium_carb_weight_spike",
+      "category": "water",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.7430555555555556,
+      "cp29_defer_rate": 0.125,
+      "cp29_increase_rate": 0.11805555555555555,
+      "cp29_decrease_rate": 0.013888888888888888,
+      "cp30_activate_rate": 0.11805555555555555,
+      "cp30_defer_rate": 0.125,
+      "cp30_suppress_rate": 0.013888888888888888,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.7430555555555556
+        ],
+        [
+          "more_data_needed",
+          0.020833333333333332
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.11805555555555555
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.11805555555555555
+        ]
+      ],
+      "false_increase_rate": 0.11805555555555555,
+      "false_decrease_rate": 0.013888888888888888,
+      "false_change_rate": 0.13194444444444445,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": 9.0,
+      "mean_activations_per_user_12_weeks": 1.0625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0625,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "persistent_water_drift",
+      "category": "ambiguity",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.611111111111111,
+      "cp29_defer_rate": 0.006944444444444444,
+      "cp29_increase_rate": 0.375,
+      "cp29_decrease_rate": 0.006944444444444444,
+      "cp30_activate_rate": 0.24305555555555555,
+      "cp30_defer_rate": 0.14583333333333331,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.6111111111111112
+        ],
+        [
+          "more_data_needed",
+          0.125
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.020833333333333332
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.24305555555555555
+        ]
+      ],
+      "false_increase_rate": 0.375,
+      "false_decrease_rate": 0.006944444444444444,
+      "false_change_rate": 0.3819444444444444,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 2.1875,
+      "direction_reversal_rate": 0.0625,
+      "repeated_same_direction_rate": 0.96875,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0625,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_minus_200",
+      "category": "true_tdee_change",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.5277777777777778,
+      "cp29_defer_rate": 0.15277777777777776,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.3194444444444444,
+      "cp30_activate_rate": 0.21527777777777776,
+      "cp30_defer_rate": 0.2569444444444444,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.5277777777777778
+        ],
+        [
+          "more_data_needed",
+          0.20833333333333334
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.04861111111111111
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.2152777777777778
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 20.0,
+      "median_cp30_activation_day": 20.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 1.9375,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.9375,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_minus_300",
+      "category": "true_tdee_change",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.2777777777777778,
+      "cp29_defer_rate": 0.3958333333333333,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.3263888888888889,
+      "cp30_activate_rate": 0.2222222222222222,
+      "cp30_defer_rate": 0.5,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.2777777777777778
+        ],
+        [
+          "more_data_needed",
+          0.3819444444444444
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.11805555555555555
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.2222222222222222
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 27.0,
+      "median_cp30_activation_day": 27.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 2.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 1.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_plus_200",
+      "category": "true_tdee_change",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.5902777777777778,
+      "cp29_defer_rate": 0.006944444444444444,
+      "cp29_increase_rate": 0.40277777777777773,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.22916666666666666,
+      "cp30_defer_rate": 0.18055555555555555,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.5902777777777778
+        ],
+        [
+          "more_data_needed",
+          0.1736111111111111
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.006944444444444444
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.22916666666666666
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 20.0,
+      "median_cp30_activation_day": 20.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 2.0625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 1.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_plus_300",
+      "category": "true_tdee_change",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.35416666666666663,
+      "cp29_defer_rate": 0.0,
+      "cp29_increase_rate": 0.6458333333333333,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.34027777777777773,
+      "cp30_defer_rate": 0.3055555555555555,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.3541666666666667
+        ],
+        [
+          "more_data_needed",
+          0.2361111111111111
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.06944444444444445
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.3402777777777778
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 13.0,
+      "median_cp30_activation_day": 13.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 3.0625,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 1.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "gradual_tdee_minus_300",
+      "category": "true_tdee_change",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0625,
+      "cp29_defer_rate": 0.6180555555555556,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.3194444444444444,
+      "cp30_activate_rate": 0.2222222222222222,
+      "cp30_defer_rate": 0.7152777777777778,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0625
+        ],
+        [
+          "more_data_needed",
+          0.5972222222222222
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.11805555555555555
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.2222222222222222
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 41.0,
+      "median_cp30_activation_day": 41.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 2.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 1.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_decline_with_water",
+      "category": "combined",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.11805555555555555,
+      "cp29_defer_rate": 0.8194444444444444,
+      "cp29_increase_rate": 0.048611111111111105,
+      "cp29_decrease_rate": 0.013888888888888888,
+      "cp30_activate_rate": 0.048611111111111105,
+      "cp30_defer_rate": 0.8263888888888888,
+      "cp30_suppress_rate": 0.006944444444444444,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.11805555555555555
+        ],
+        [
+          "more_data_needed",
+          0.125
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.7013888888888888
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.006944444444444444
+        ],
+        [
+          "update_available",
+          0.04861111111111111
+        ]
+      ],
+      "false_increase_rate": 0.048611111111111105,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.048611111111111105,
+      "correct_direction_rate": 0.0,
+      "opposite_direction_rate": 0.3125,
+      "missed_change_rate": 0.9375,
+      "median_cp29_proposal_day": 65.5,
+      "median_cp30_activation_day": 69.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.4375,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0625,
+      "indefinitely_inert_rate": 0.625,
+      "all_checkpoint_deferred_rate": 0.0625,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "tdee_decline_underreporting",
+      "category": "combined",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0,
+      "cp29_defer_rate": 1.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 1.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0
+        ],
+        [
+          "more_data_needed",
+          0.6875
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.3125
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 0.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 1.0,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 1.0,
+      "all_checkpoint_deferred_rate": 1.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "poor_adherence_with_water",
+      "category": "combined",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.22916666666666666,
+      "cp29_defer_rate": 0.5902777777777778,
+      "cp29_increase_rate": 0.18055555555555555,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.13194444444444445,
+      "cp30_defer_rate": 0.6388888888888888,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.22916666666666666
+        ],
+        [
+          "more_data_needed",
+          0.09722222222222222
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.5347222222222222
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.006944444444444444
+        ],
+        [
+          "update_available",
+          0.13194444444444445
+        ]
+      ],
+      "false_increase_rate": 0.18055555555555555,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.18055555555555555,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 1.1875,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.375,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "intake_regime_change_missing",
+      "category": "combined",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.2777777777777778,
+      "cp29_defer_rate": 0.7222222222222222,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.7222222222222222,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.2777777777777778
+        ],
+        [
+          "more_data_needed",
+          0.5694444444444444
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.1527777777777778
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "plateau_noise_partial_logs",
+      "category": "combined",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0,
+      "cp29_defer_rate": 1.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 1.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0
+        ],
+        [
+          "more_data_needed",
+          1.0
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 1.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "repeated_slow_progress_near_floor",
+      "category": "safety",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.20833333333333331,
+      "cp29_defer_rate": 0.6805555555555556,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.1111111111111111,
+      "cp30_activate_rate": 0.1111111111111111,
+      "cp30_defer_rate": 0.6805555555555556,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.20833333333333334
+        ],
+        [
+          "more_data_needed",
+          0.6180555555555556
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0625
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.1111111111111111
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 1.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 0.0,
+      "median_cp29_proposal_day": 41.0,
+      "median_cp30_activation_day": 41.0,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 1.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "repeated_proposals_near_bmi_band",
+      "category": "safety",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.0,
+      "cp29_defer_rate": 1.0,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 1.0,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.0
+        ],
+        [
+          "more_data_needed",
+          0.8958333333333334
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.10416666666666667
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": 0.0,
+      "opposite_direction_rate": 0.0,
+      "missed_change_rate": 1.0,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 1.0,
+      "all_checkpoint_deferred_rate": 1.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    },
+    {
+      "name": "profile_update_below_bmi_18_5",
+      "category": "safety",
+      "users": 16,
+      "checks": 144,
+      "cp29_hold_rate": 0.4375,
+      "cp29_defer_rate": 0.5625,
+      "cp29_increase_rate": 0.0,
+      "cp29_decrease_rate": 0.0,
+      "cp30_activate_rate": 0.0,
+      "cp30_defer_rate": 0.5625,
+      "cp30_suppress_rate": 0.0,
+      "integration_status_rates": [
+        [
+          "plan_remains_appropriate",
+          0.4375
+        ],
+        [
+          "more_data_needed",
+          0.5
+        ],
+        [
+          "deferred_estimator_stabilizing",
+          0.0625
+        ],
+        [
+          "deferred_adaptive_evidence_ambiguous",
+          0.0
+        ],
+        [
+          "update_available",
+          0.0
+        ]
+      ],
+      "false_increase_rate": 0.0,
+      "false_decrease_rate": 0.0,
+      "false_change_rate": 0.0,
+      "correct_direction_rate": null,
+      "opposite_direction_rate": null,
+      "missed_change_rate": null,
+      "median_cp29_proposal_day": null,
+      "median_cp30_activation_day": null,
+      "median_transient_recovery_days": null,
+      "mean_activations_per_user_12_weeks": 0.0,
+      "direction_reversal_rate": 0.0,
+      "repeated_same_direction_rate": 0.0,
+      "indefinitely_inert_rate": 0.0,
+      "all_checkpoint_deferred_rate": 0.0,
+      "ambiguity_decrease_activation_rate": 0.0,
+      "safety_violation_rate": 0.0
+    }
+  ],
+  "gate_tradeoffs": [
+    {
+      "scenario": "tdee_minus_200",
+      "users": 16,
+      "proposal_rate_28_day": 1.0,
+      "proposal_rate_42_day": 1.0,
+      "activation_rate_28_day": 1.0,
+      "activation_rate_42_day": 1.0,
+      "median_proposal_day_28_day": 20.0,
+      "median_proposal_day_42_day": 20.0,
+      "median_activation_day_28_day": 20.0,
+      "median_activation_day_42_day": 20.0,
+      "false_decreases_prevented": 0,
+      "plateau_days_28_day": 20.0,
+      "plateau_days_42_day": 20.0
+    },
+    {
+      "scenario": "tdee_minus_300",
+      "users": 16,
+      "proposal_rate_28_day": 1.0,
+      "proposal_rate_42_day": 1.0,
+      "activation_rate_28_day": 1.0,
+      "activation_rate_42_day": 1.0,
+      "median_proposal_day_28_day": 27.0,
+      "median_proposal_day_42_day": 27.0,
+      "median_activation_day_28_day": 27.0,
+      "median_activation_day_42_day": 27.0,
+      "false_decreases_prevented": 1,
+      "plateau_days_28_day": 27.0,
+      "plateau_days_42_day": 27.0
+    },
+    {
+      "scenario": "stationary_clean",
+      "users": 16,
+      "proposal_rate_28_day": 0.0,
+      "proposal_rate_42_day": 0.0,
+      "activation_rate_28_day": 0.0,
+      "activation_rate_42_day": 0.0,
+      "median_proposal_day_28_day": null,
+      "median_proposal_day_42_day": null,
+      "median_activation_day_28_day": null,
+      "median_activation_day_42_day": null,
+      "false_decreases_prevented": 0,
+      "plateau_days_28_day": null,
+      "plateau_days_42_day": null
+    },
+    {
+      "scenario": "autocorrelated_water",
+      "users": 16,
+      "proposal_rate_28_day": 0.0,
+      "proposal_rate_42_day": 0.0,
+      "activation_rate_28_day": 0.0,
+      "activation_rate_42_day": 0.0,
+      "median_proposal_day_28_day": null,
+      "median_proposal_day_42_day": null,
+      "median_activation_day_28_day": null,
+      "median_activation_day_42_day": null,
+      "false_decreases_prevented": 0,
+      "plateau_days_28_day": null,
+      "plateau_days_42_day": null
+    },
+    {
+      "scenario": "persistent_water_drift",
+      "users": 16,
+      "proposal_rate_28_day": 0.0625,
+      "proposal_rate_42_day": 0.0625,
+      "activation_rate_28_day": 0.0625,
+      "activation_rate_42_day": 0.0625,
+      "median_proposal_day_28_day": 76.0,
+      "median_proposal_day_42_day": 76.0,
+      "median_activation_day_28_day": 76.0,
+      "median_activation_day_42_day": 76.0,
+      "false_decreases_prevented": 0,
+      "plateau_days_28_day": 76.0,
+      "plateau_days_42_day": 76.0
+    }
+  ],
+  "overall_cp29_rates": [
+    [
+      "hold",
+      0.447265625
+    ],
+    [
+      "defer",
+      0.4286024305555556
+    ],
+    [
+      "increase",
+      0.083984375
+    ],
+    [
+      "decrease",
+      0.04014756944444445
+    ]
+  ],
+  "overall_cp30_rates": [
+    [
+      "activate",
+      0.08333333333333333
+    ],
+    [
+      "defer",
+      0.46875
+    ],
+    [
+      "suppress",
+      0.0006510416666666666
+    ]
+  ],
+  "overall_app_status_rates": [
+    [
+      "deferred_adaptive_evidence_ambiguous",
+      0.0010850694444444445
+    ],
+    [
+      "deferred_estimator_stabilizing",
+      0.12890625
+    ],
+    [
+      "more_data_needed",
+      0.3394097222222222
+    ],
+    [
+      "plan_remains_appropriate",
+      0.447265625
+    ],
+    [
+      "update_available",
+      0.08333333333333333
+    ]
+  ],
+  "external_audit": [
+    [
+      "oversized_cut_request",
+      "rejected_at_profile_boundary",
+      true
+    ],
+    [
+      "absurd_intake",
+      "rejected_at_observation_boundary",
+      true
+    ],
+    [
+      "low_bmi_below_18_5",
+      "ineligible",
+      true
+    ],
+    [
+      "near_underweight_bmi_band",
+      "constrained",
+      true
+    ],
+    [
+      "normal_bmi_aggressive_cut",
+      "constrained",
+      true
+    ]
+  ],
+  "notes": [
+    "All results are in-model synthetic evaluation; no external or clinical validity is implied.",
+    "Sixteen users per scenario make rates coarse and do not establish population performance.",
+    "An accepted CP30 activation event is replayed as caller-owned history at the next checkpoint.",
+    "The examples directory contains two demonstration rows, not real historical log data.",
+    "The 28-day comparison changes only the decrease evidence-span gate in this harness."
+  ]
+}

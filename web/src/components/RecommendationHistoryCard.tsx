@@ -12,6 +12,10 @@ function entryTitle(entry: RecommendationHistoryEntry): string {
   if (entry.change_type === "calorie_decrease") return "Calories decreased";
   if (entry.change_type === "hold") return "Plan held";
   if (entry.change_type === "defer") return "Adjustment deferred";
+  if (entry.change_type === "review_required")
+    return "Decrease requires review";
+  if (entry.change_type === "reversal_pending")
+    return "Reversal pending confirmation";
   return "Reversal suppressed";
 }
 

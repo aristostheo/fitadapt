@@ -17,6 +17,7 @@ from fitadapt.personalization.adaptation import (
     PlanAdaptationDecision,
     PlanAdaptationEvent,
     PlanAdaptationSource,
+    ProposalReviewConfirmation,
     evaluate_plan_adaptation,
 )
 from fitadapt.personalization.decisions import (
@@ -75,7 +76,7 @@ from fitadapt.recommendation.calories import (
     recommend_calorie_adjustment,
 )
 
-PROFILE_INTELLIGENCE_POLICY_VERSION = "profile_intelligence_v1"
+PROFILE_INTELLIGENCE_POLICY_VERSION = "profile_intelligence_v2"
 MAX_PROFILE_INTELLIGENCE_OBSERVATIONS = 1095
 PROFILE_INTELLIGENCE_ASSUMPTIONS = (
     "All sections are recomputed from the same supplied profile and observation history.",
@@ -133,6 +134,7 @@ def analyze_profile_intelligence(
     outcome_as_of_date: date | None = None,
     adaptation_history: Sequence[PlanAdaptationEvent] = (),
     adaptation_source: PlanAdaptationSource = PlanAdaptationSource.PROGRESS_ADAPTATION,
+    review_confirmation: ProposalReviewConfirmation | None = None,
 ) -> ProfileIntelligenceResult:
     """Compose current FitAdapt outputs without altering their individual policies."""
     _validate_inputs(
@@ -296,6 +298,7 @@ def analyze_profile_intelligence(
         decision_observations,
         plan_outcome,
         source=adaptation_source,
+        review_confirmation=review_confirmation,
     )
     recommendation_history = build_recommendation_history(
         effective_adaptation_history,
@@ -389,6 +392,12 @@ def _integration_status(
     reasons = decision.reason_codes
     if adaptation.activation_available:
         app_status = IntegrationAppStatus.UPDATE_AVAILABLE
+    elif adaptation.action.value == "review_required":
+        app_status = IntegrationAppStatus.PROPOSAL_REQUIRES_REVIEW
+    elif adaptation.action.value == "reversal_pending":
+        app_status = IntegrationAppStatus.REVERSAL_PENDING_CONFIRMATION
+    elif decision.numerical_change_proposed:
+        app_status = IntegrationAppStatus.PROPOSAL_AVAILABLE
     elif (
         adaptation.action.value == "defer"
         and RecommendationDecisionReason.ESTIMATOR_STABILIZING in reasons
@@ -407,17 +416,30 @@ def _integration_status(
     return IntegrationStatus(
         user_attention_required=adaptation.user_attention_required,
         plan_update_available=adaptation.activation_available,
-        more_data_needed=adaptation.action.value == "defer",
+        more_data_needed=adaptation.action.value in ("defer", "reversal_pending"),
         reversal_suppressed=adaptation.action.value == "suppress",
         current_plan_appropriate=adaptation.action.value == "hold",
         recommendation_decision=decision.decision,
         adaptation_action=adaptation.action,
         adaptation_source=source,
         app_status=app_status,
+        proposal_available=decision.numerical_change_proposed,
+        proposal_requires_review=adaptation.review_required,
+        activation_ready=adaptation.activation_ready,
+        reversal_pending_confirmation=(adaptation.action.value == "reversal_pending"),
         reason_codes=reasons,
         summary=(
             "A plan update is available for review."
             if adaptation.activation_available
+            else "A potential calorie decrease is available for explicit review; "
+            "the active plan is unchanged."
+            if app_status is IntegrationAppStatus.PROPOSAL_REQUIRES_REVIEW
+            else "Repeated opposite-direction evidence is required before a reversal "
+            "is activation-ready."
+            if app_status is IntegrationAppStatus.REVERSAL_PENDING_CONFIRMATION
+            else "A plan proposal exists, but cooldown or fresh-evidence requirements "
+            "are not yet met."
+            if app_status is IntegrationAppStatus.PROPOSAL_AVAILABLE
             else "Your recent weight and intake pattern is still stabilizing; "
             "the current plan is being kept."
             if app_status is IntegrationAppStatus.DEFERRED_ESTIMATOR_STABILIZING

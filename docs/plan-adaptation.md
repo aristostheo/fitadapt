@@ -33,6 +33,23 @@ Same-direction proposals can activate after the standard cooldown and fresh-evid
 Opposite-direction proposals are suppressed until both the reversal interval and stronger fresh
 weight/intake requirements are met.
 
+## CP35A Review and Reversal Confirmation
+
+CP29 decreases remain visible proposals but are marked `review_required`; without confirmation, CP30
+returns `review_required` (or `reversal_pending` when a reversal cycle is active) and preserves the
+current plan. The caller can submit `review_confirmation` with the exact current `effective_date` and
+`proposed_target_kcal_per_day`. A mismatch does not accept the proposal. This review-only gate does
+not apply to increases.
+
+The first eligible opposite-direction proposal starts `reversal_pending`. A later evaluation must
+retain the same direction and include at least 14 days after that first signal, 7 distinct observation
+dates, 4 weight contributors, and 7 intake contributors strictly after the signal, plus the existing
+reversal interval and fresh-evidence requirements. Two consistent pending evaluations are required.
+If the direction disappears or changes, the cycle clears and a future signal starts a new interval.
+This is derived from caller-owned history; no state is persisted, and overlapping rolling estimator
+windows are not treated as independent proof. A decrease still requires exact user review after the
+reversal evidence passes.
+
 ## History and isolation
 
 `PlanAdaptationEvent` is an immutable record containing effective date, previous/new active targets,
@@ -58,6 +75,10 @@ whether a reversal was suppressed. It can distinguish estimator stabilization fr
 adaptive evidence through structured status/reason fields. Activation is eligibility only; no notification, persistence,
 or active-plan mutation occurs. Checkpoint 31 or the main application may store accepted events and
 active-plan transitions.
+
+The structured integration status distinguishes an available proposal, a proposal requiring review,
+and a reversal pending confirmation. `activation_ready` remains false until CP30 allows activation;
+`proposal_available` does not imply readiness.
 
 The main app should treat `current_recommendation` as the authoritative active plan. Acceptance is a
 caller action: send the accepted activation event in `adaptation_history` on the next request so the

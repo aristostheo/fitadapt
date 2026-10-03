@@ -2,6 +2,19 @@
 
 ## 0.1.0
 
+CP35 adds a frozen hostile longitudinal validation harness for logging bias, adherence drift,
+structured missingness, water-like disturbances, TDEE shifts, combined failures, repeated adaptation,
+and safety interactions. Development and held-out cohorts are reported separately as **in-model
+synthetic evaluation**. No production policy threshold changed; frozen-criterion failures are
+reported rather than tuned away.
+
+CP35A hardens the release policy without changing the adaptive estimator: numerical decreases remain
+visible but require exact caller review before activation, and opposite-direction proposals enter a
+stateless confirmation cycle requiring consistent direction and genuinely new post-signal evidence.
+Structured API/app statuses and concise review/pending copy expose those states. Fresh development
+and held-out synthetic cohorts are reported separately; explicit-review counterfactuals are not
+automatic activation evidence.
+
 CP34B adds conservative adaptive-evidence integration: categorical ambiguity reasons, stable-only
 decrease proposals, CP30 propagation of estimator defer reasons, structured app-facing status values,
 and baseline-active planning until caller acceptance. Persistent weight drift remains an explicit

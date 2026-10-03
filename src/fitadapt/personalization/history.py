@@ -13,7 +13,7 @@ from fitadapt.personalization.adaptation import (
 from fitadapt.personalization.decisions import RecommendationDecisionType
 from fitadapt.personalization.macros import PersonalizedMacroPlan
 
-RECOMMENDATION_HISTORY_POLICY_VERSION = "recommendation_history_v1"
+RECOMMENDATION_HISTORY_POLICY_VERSION = "recommendation_history_v2"
 
 
 class RecommendationHistoryError(ValueError):
@@ -28,6 +28,8 @@ class RecommendationChangeType(StrEnum):
     HOLD = "hold"
     DEFER = "defer"
     SUPPRESSED = "suppressed"
+    REVIEW_REQUIRED = "review_required"
+    REVERSAL_PENDING = "reversal_pending"
 
 
 class RecommendationChangeReason(StrEnum):
@@ -37,6 +39,8 @@ class RecommendationChangeReason(StrEnum):
     PLAN_HELD = "plan_held"
     MORE_EVIDENCE_REQUIRED = "more_evidence_required"
     REVERSAL_SUPPRESSED = "reversal_suppressed"
+    USER_REVIEW_REQUIRED = "user_review_required"
+    REVERSAL_PENDING_CONFIRMATION = "reversal_pending_confirmation"
 
 
 @dataclass(frozen=True, slots=True)
@@ -225,6 +229,14 @@ def _entry(
         change_type = RecommendationChangeType.SUPPRESSED
         reason = RecommendationChangeReason.REVERSAL_SUPPRESSED
         summary = "A reversal was suppressed because your plan was adjusted recently."
+    elif event.action is PlanAdaptationAction.REVIEW_REQUIRED:
+        change_type = RecommendationChangeType.REVIEW_REQUIRED
+        reason = RecommendationChangeReason.USER_REVIEW_REQUIRED
+        summary = "A proposed decrease needs review; the active plan is unchanged."
+    elif event.action is PlanAdaptationAction.REVERSAL_PENDING:
+        change_type = RecommendationChangeType.REVERSAL_PENDING
+        reason = RecommendationChangeReason.REVERSAL_PENDING_CONFIRMATION
+        summary = "A possible reversal is pending another evaluation with new evidence."
     else:
         change_type = RecommendationChangeType.DEFER
         reason = RecommendationChangeReason.MORE_EVIDENCE_REQUIRED
@@ -237,6 +249,8 @@ def _entry(
         RecommendationChangeType.HOLD,
         RecommendationChangeType.DEFER,
         RecommendationChangeType.SUPPRESSED,
+        RecommendationChangeType.REVIEW_REQUIRED,
+        RecommendationChangeType.REVERSAL_PENDING,
     ):
         resulting_summary = _macro_summary(current_plan)
     return RecommendationHistoryEntry(

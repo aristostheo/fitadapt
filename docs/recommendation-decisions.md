@@ -65,6 +65,18 @@ changed.
 No probability or confidence score is invented. A hold/defer is an intentional safety behavior when
 the available inputs cannot distinguish persistent non-energy weight drift from a true deficit.
 
+## CP35A Decrease Review Readiness
+
+A numerically supported calorie decrease remains visible as a CP29 `decrease` proposal with its
+proposed target, but its `activation_readiness` is `review_required`. This conservative rule applies
+even when the observed estimator evidence looks stable: weight and logged intake alone cannot rule
+out hidden adherence/logging effects or persistent non-energy weight drift. CP29 therefore does not
+claim a decrease is automatically activation-ready. CP30 leaves the current plan unchanged until a
+caller submits an explicit review confirmation for the exact effective date and proposed target.
+
+This additional review condition applies to decreases only. Increases retain the existing evidence,
+safety, and readiness rules; ambiguous adaptive TDEE alone does not block a CP28-supported increase.
+
 ## Proposed plans
 
 The unified response keeps `latest_plan` as the active current plan. `recommendation_decision`

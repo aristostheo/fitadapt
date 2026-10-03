@@ -29,9 +29,11 @@ from fitadapt.personalization.adaptation import (
     PlanAdaptationEvent,
     PlanAdaptationReason,
     PlanAdaptationSource,
+    ProposalReviewConfirmation,
 )
 from fitadapt.personalization.decisions import (
     AdaptiveEvidenceStatus,
+    DecisionActivationReadiness,
     RecommendationDecision,
     RecommendationDecisionReason,
     RecommendationDecisionType,
@@ -407,6 +409,17 @@ class ProfileIntelligenceRequest(ApiModel):
     outcome_as_of_date: date | None = None
     adaptation_history: list["PlanAdaptationEventRequest"] = Field(default_factory=list)
     adaptation_source: PlanAdaptationSource = PlanAdaptationSource.PROGRESS_ADAPTATION
+    review_confirmation: "ProposalReviewConfirmationRequest | None" = None
+
+
+class ProposalReviewConfirmationRequest(NumericRequestModel):
+    numeric_fields = frozenset({"proposed_target_kcal_per_day"})
+
+    effective_date: date
+    proposed_target_kcal_per_day: float
+
+    def to_domain(self) -> ProposalReviewConfirmation:
+        return ProposalReviewConfirmation(**self.model_dump())
 
 
 class PlanAdaptationEventRequest(NumericRequestModel):
@@ -415,6 +428,7 @@ class PlanAdaptationEventRequest(NumericRequestModel):
             "previous_active_target_kcal_per_day",
             "new_active_target_kcal_per_day",
             "calorie_delta_kcal_per_day",
+            "proposed_delta_kcal_per_day",
         }
     )
 
@@ -431,6 +445,7 @@ class PlanAdaptationEventRequest(NumericRequestModel):
     new_weight_contributor_count: int = 0
     new_intake_contributor_count: int = 0
     policy_version: str
+    proposed_delta_kcal_per_day: float = 0.0
 
     def to_domain(self) -> PlanAdaptationEvent:
         return PlanAdaptationEvent(**self.model_dump())
@@ -781,6 +796,7 @@ class RecommendationDecisionResponse(ApiModel):
     reason_codes: tuple[RecommendationDecisionReason, ...]
     adaptive_tdee_kcal_per_day: float | None
     adaptive_evidence_status: AdaptiveEvidenceStatus
+    activation_readiness: DecisionActivationReadiness
     policy_version: str
     assumptions: tuple[str, ...]
 
@@ -799,11 +815,14 @@ class PlanAdaptationEventResponse(ApiModel):
     new_weight_contributor_count: int
     new_intake_contributor_count: int
     policy_version: str
+    proposed_delta_kcal_per_day: float
 
 
 class PlanAdaptationResponse(ApiModel):
     action: PlanAdaptationAction
     activation_available: bool
+    activation_ready: bool
+    review_required: bool
     user_attention_required: bool
     current_active_macro_plan: PersonalizedMacroPlanResponse
     proposed_macro_plan: PersonalizedMacroPlanResponse | None
@@ -884,6 +903,10 @@ class IntegrationStatusResponse(ApiModel):
     adaptation_action: PlanAdaptationAction
     adaptation_source: PlanAdaptationSource
     app_status: IntegrationAppStatus
+    proposal_available: bool
+    proposal_requires_review: bool
+    activation_ready: bool
+    reversal_pending_confirmation: bool
     reason_codes: tuple[RecommendationDecisionReason, ...]
     summary: str
     policy_version: str
@@ -1434,6 +1457,8 @@ def map_plan_adaptation(result: PlanAdaptationDecision) -> PlanAdaptationRespons
     return PlanAdaptationResponse(
         action=result.action,
         activation_available=result.activation_available,
+        activation_ready=result.activation_ready,
+        review_required=result.review_required,
         user_attention_required=result.user_attention_required,
         current_active_macro_plan=map_personalized_macro_plan(result.current_active_macro_plan),
         proposed_macro_plan=(

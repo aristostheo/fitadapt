@@ -26,6 +26,8 @@ intake, slope, contributor counts, calendar span, method version, and reason cod
 Stability is categorical rather than a fake confidence percentage:
 
 - `insufficient`: contributor, intake, or calendar-span requirements are not met.
+- `stabilizing`: an intake-regime or sub-window sensitivity guard is active; evidence is not yet
+  suitable for a decrease proposal.
 - `unstable`: median absolute slope residual dispersion exceeds the configured threshold.
 - `stable`: sufficient evidence with residual dispersion within the threshold.
 

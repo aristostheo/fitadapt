@@ -44,6 +44,12 @@ observations. FitAdapt returns CP28 outcome evidence, CP29 `recommendation_decis
 **Proposal:** when `recommendation_decision.numerical_change_proposed` is true, review
 `proposed_macro_plan` and `proposed_target_envelope`. This is not an active plan.
 
+For a decrease, `recommendation_decision.activation_readiness` is `review_required`. Keep the
+proposal visible and preserve the active plan. If the user explicitly accepts it, send
+`review_confirmation` containing the response's exact `effective_date` and
+`proposed_target_kcal_per_day`. Confirmation is bound to that evaluation and target; stale or
+different values do not count. This requirement is decrease-specific; do not impose it on increases.
+
 **Activation eligibility:** when `integration_status.plan_update_available` is true and
 `plan_adaptation.activation_available` is true, the app may present the update for acceptance.
 FitAdapt has not activated it.
@@ -65,9 +71,14 @@ Use `integration_status` without parsing prose:
 - `plan_update_available`: a next plan is eligible for review/acceptance.
 - `more_data_needed`: no activation should be offered yet.
 - `reversal_suppressed`: a contradictory reversal was blocked.
+- `proposal_available`: CP29 returned a numerical proposal.
+- `proposal_requires_review`: explicit decrease review is outstanding.
+- `activation_ready`: CP30 says activation eligibility is satisfied.
+- `reversal_pending_confirmation`: a consistent opposite-direction confirmation cycle is underway.
 - `current_plan_appropriate`: the current plan is the recommended state.
 - `app_status`: one of `plan_remains_appropriate`, `more_data_needed`,
-  `deferred_estimator_stabilizing`, `deferred_adaptive_evidence_ambiguous`, or `update_available`.
+  `deferred_estimator_stabilizing`, `deferred_adaptive_evidence_ambiguous`, `update_available`,
+  `proposal_available`, `proposal_requires_review`, or `reversal_pending_confirmation`.
 - `reason_codes`: structured CP29 adaptive-evidence and CP30 activation reasons.
 
 `recommendation_history.latest_change`, `actionable_event_available`, source, effective date, old/new
@@ -78,8 +89,8 @@ Inspect `target_safety` as well: `eligible` means no safety guardrail constraine
 `constrained` means a safer target was applied, and `ineligible` means FitAdapt will not generate an
 automated weight-loss target for the current body-size threshold.
 
-Adaptive TDEE responses include `stable`, `unstable`, or `insufficient` evidence status. Treat
-`stabilizing`, `unstable`, and `insufficient` estimates as context requiring more evidence, not
+Adaptive TDEE responses include `stable`, `stabilizing`, `unstable`, or `insufficient` evidence
+status. Treat `stabilizing`, `unstable`, and `insufficient` estimates as context requiring more evidence, not
 measured expenditure or an automatic plan change. With weight, logged intake, and dates alone, some
 persistent non-energy weight changes cannot be distinguished from true energy-balance change; FitAdapt
 may intentionally hold/defer in that case. Do not market adaptive TDEE as measured metabolism.

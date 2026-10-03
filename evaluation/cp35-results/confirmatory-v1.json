@@ -1,0 +1,2385 @@
+{
+  "protocol_version": "cp35b_confirmatory_v1",
+  "evaluation_type": "in-model synthetic evaluation",
+  "users_per_scenario": 100,
+  "scenario_seed_ranges": [
+    [
+      "stationary_clean",
+      200000,
+      200099
+    ],
+    [
+      "scale_noise",
+      200100,
+      200199
+    ],
+    [
+      "intake_variation",
+      200200,
+      200299
+    ],
+    [
+      "tdee_plus_300",
+      200300,
+      200399
+    ],
+    [
+      "tdee_minus_300",
+      200400,
+      200499
+    ],
+    [
+      "autocorrelated_water",
+      200500,
+      200599
+    ],
+    [
+      "water_rebound",
+      200600,
+      200699
+    ],
+    [
+      "illness_like_disturbance",
+      200700,
+      200799
+    ],
+    [
+      "sodium_carb_weight_spike",
+      200800,
+      200899
+    ],
+    [
+      "persistent_water_drift",
+      200900,
+      200999
+    ],
+    [
+      "poor_adherence_with_water",
+      201000,
+      201099
+    ],
+    [
+      "tdee_decline_underreporting",
+      201100,
+      201199
+    ],
+    [
+      "repeated_slow_progress_near_floor",
+      201200,
+      201299
+    ],
+    [
+      "repeated_proposals_near_bmi_band",
+      201300,
+      201399
+    ],
+    [
+      "profile_update_below_bmi_18_5",
+      201400,
+      201499
+    ]
+  ],
+  "evaluation_days": 84,
+  "checkpoint_days": [
+    28,
+    35,
+    42,
+    49,
+    56,
+    63,
+    70,
+    77,
+    84
+  ],
+  "frozen_criteria": [
+    {
+      "criterion_id": "ordinary_false_decrease",
+      "description": "Ordinary false CP29 decrease proposals",
+      "observed": 0.014444444444444444,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "ordinary_false_increase",
+      "description": "Ordinary false CP29 increase proposals",
+      "observed": 0.007777777777777777,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "ordinary_false_activation",
+      "description": "Ordinary false CP30 activations across stationary controls",
+      "observed": 0.007777777777777777,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "plus_minus_300_proposal_detection",
+      "description": "Correct CP29 proposal by day 56 for each clean +/-300 case",
+      "observed": 1.0,
+      "limit": 0.6,
+      "comparator": "min",
+      "passed": true
+    },
+    {
+      "criterion_id": "opposite_direction_activation",
+      "description": "Opposite activation-ready action on clean +/-300 changes",
+      "observed": 0,
+      "limit": 0.05,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "proposal_latency",
+      "description": "Median correct +/-300 proposal latency",
+      "observed": 13.0,
+      "limit": 56.0,
+      "comparator": "max_days",
+      "passed": true
+    },
+    {
+      "criterion_id": "activation_reversal",
+      "description": "Noisy/transient users with an automatic reversal activation",
+      "observed": 0.0,
+      "limit": 0.1,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "stationary_activation_count",
+      "description": "Mean activations per 12 weeks in ordinary stationary cases",
+      "observed": 0.07,
+      "limit": 2.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "ambiguous_automatic_decrease",
+      "description": "Automatic decrease activations in declared ambiguity scenarios",
+      "observed": 0.0,
+      "limit": 0.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "review_ready_decrease",
+      "description": "Activation-ready CP29 decreases (decreases require explicit review)",
+      "observed": 0.0,
+      "limit": 0.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "review_required_genuine_decrease",
+      "description": "Genuine -300 decrease proposals surfaced for explicit review",
+      "observed": 1.0,
+      "limit": 0.6,
+      "comparator": "min",
+      "passed": true
+    },
+    {
+      "criterion_id": "activation_ready_increase",
+      "description": "Positive 300 kcal/day change activation-ready by day 56",
+      "observed": 1.0,
+      "limit": 0.6,
+      "comparator": "min",
+      "passed": true
+    },
+    {
+      "criterion_id": "indefinite_inert_proposal",
+      "description": "Clean +/-300 cases with no directional proposal by day 84",
+      "observed": 0.0,
+      "limit": 0.2,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "safety_violations",
+      "description": "Safety-bound or ineligible-target activation violations",
+      "observed": 0.0,
+      "limit": 0.0,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "missed_large_change",
+      "description": "No CP29 proposal for true +/-300 TDEE cases by day 84",
+      "observed": 0,
+      "limit": 0.4,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "indefinite_defer",
+      "description": "True +/-300 cases deferred at every checkpoint",
+      "observed": 0.0,
+      "limit": 0.2,
+      "comparator": "max",
+      "passed": true
+    },
+    {
+      "criterion_id": "transient_recovery",
+      "description": "Median status recovery after transient disturbance",
+      "observed": 9.0,
+      "limit": 28.0,
+      "comparator": "max_days",
+      "passed": true
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario": "stationary_clean",
+      "category": "stationary",
+      "users": 100,
+      "seed_start": 200000,
+      "seed_end_inclusive": 200099,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 9,
+        "users": 100,
+        "rate": 0.09,
+        "wilson_95_lower": 0.04807254000256516,
+        "wilson_95_upper": 0.1622621285271631
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 10,
+        "checks": 900,
+        "rate": 0.011111111111111112
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 99,
+        "users": 100,
+        "rate": 0.99,
+        "wilson_95_lower": 0.9455138038212946,
+        "wilson_95_upper": 0.9982325679358593
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "stationary_clean",
+        "category": "stationary",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.9877777777777778,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.0011111111111111111,
+        "cp29_decrease_rate": 0.011111111111111112,
+        "cp30_activate_rate": 0.0011111111111111111,
+        "cp30_defer_rate": 0.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.011111111111111112,
+        "review_required_decrease_user_rate": 0.09,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0011111111111111111,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0011111111111111111,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0011111111111111111,
+        "reversal_pending_rate": 0.0011111111111111111,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.9877777777777778
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.01
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0011111111111111111
+          ],
+          [
+            "update_available",
+            0.0011111111111111111
+          ]
+        ],
+        "false_increase_rate": 0.0011111111111111111,
+        "false_decrease_rate": 0.011111111111111112,
+        "false_change_rate": 0.012222222222222221,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.01,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "scale_noise",
+      "category": "stationary",
+      "users": 100,
+      "seed_start": 200100,
+      "seed_end_inclusive": 200199,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 10,
+        "users": 100,
+        "rate": 0.1,
+        "wilson_95_lower": 0.0552291370606751,
+        "wilson_95_upper": 0.17436566150491345
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 13,
+        "checks": 900,
+        "rate": 0.014444444444444444
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 93,
+        "users": 100,
+        "rate": 0.93,
+        "wilson_95_lower": 0.8625048526092651,
+        "wilson_95_upper": 0.9656807389327273
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "scale_noise",
+        "category": "stationary",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.9777777777777777,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.007777777777777777,
+        "cp29_decrease_rate": 0.014444444444444444,
+        "cp30_activate_rate": 0.007777777777777777,
+        "cp30_defer_rate": 0.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.014444444444444444,
+        "review_required_decrease_user_rate": 0.1,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.007777777777777777,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.007777777777777777,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.007777777777777777,
+        "reversal_pending_rate": 0.007777777777777777,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.9777777777777777
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.006666666666666667
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0077777777777777776
+          ],
+          [
+            "update_available",
+            0.0077777777777777776
+          ]
+        ],
+        "false_increase_rate": 0.007777777777777777,
+        "false_decrease_rate": 0.014444444444444444,
+        "false_change_rate": 0.022222222222222223,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.07,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "intake_variation",
+      "category": "stationary",
+      "users": 100,
+      "seed_start": 200200,
+      "seed_end_inclusive": 200299,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 11,
+        "users": 100,
+        "rate": 0.11,
+        "wilson_95_lower": 0.06254196357064568,
+        "wilson_95_upper": 0.18631296503080313
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 12,
+        "checks": 900,
+        "rate": 0.013333333333333334
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 98,
+        "users": 100,
+        "rate": 0.98,
+        "wilson_95_lower": 0.929988209271456,
+        "wilson_95_upper": 0.9944980324498376
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "intake_variation",
+        "category": "stationary",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.9844444444444445,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.0022222222222222222,
+        "cp29_decrease_rate": 0.013333333333333332,
+        "cp30_activate_rate": 0.0022222222222222222,
+        "cp30_defer_rate": 0.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.013333333333333332,
+        "review_required_decrease_user_rate": 0.11,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0022222222222222222,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0022222222222222222,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0011111111111111111,
+        "reversal_pending_rate": 0.0011111111111111111,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.9844444444444445
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.012222222222222223
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0011111111111111111
+          ],
+          [
+            "update_available",
+            0.0022222222222222222
+          ]
+        ],
+        "false_increase_rate": 0.0022222222222222222,
+        "false_decrease_rate": 0.013333333333333332,
+        "false_change_rate": 0.015555555555555553,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.02,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "tdee_plus_300",
+      "category": "true_tdee_change",
+      "users": 100,
+      "seed_start": 200300,
+      "seed_end_inclusive": 200399,
+      "expected_direction": 1,
+      "pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "pre_onset_activation_events": 0,
+      "opposite_direction_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "opposite_direction_activation_events": 0,
+      "opposite_or_pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_by_day_56_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "correct_activation_latency": {
+        "users_with_activation": 100,
+        "median_days": 13.0,
+        "p25_days": 13.0,
+        "p75_days": 20.0
+      },
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 8,
+        "users": 100,
+        "rate": 0.08,
+        "wilson_95_lower": 0.041093461484380624,
+        "wilson_95_upper": 0.14998107700948735
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 8,
+        "checks": 900,
+        "rate": 0.008888888888888889
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "tdee_plus_300",
+        "category": "true_tdee_change",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.37666666666666665,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.6144444444444445,
+        "cp29_decrease_rate": 0.008888888888888889,
+        "cp30_activate_rate": 0.3422222222222222,
+        "cp30_defer_rate": 0.2722222222222222,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.008888888888888889,
+        "review_required_decrease_user_rate": 0.08,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.6144444444444445,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0,
+        "activation_ready_increase_by56_rate": 1.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.37666666666666665
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.2722222222222222
+          ],
+          [
+            "proposal_requires_review",
+            0.008888888888888889
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.3422222222222222
+          ]
+        ],
+        "false_increase_rate": 0.0,
+        "false_decrease_rate": 0.008888888888888889,
+        "false_change_rate": 0.008888888888888889,
+        "correct_direction_rate": 1.0,
+        "opposite_direction_rate": 0.0,
+        "missed_change_rate": 0.0,
+        "median_cp29_proposal_day": 13.0,
+        "median_cp30_activation_day": 13.0,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 3.08,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 1.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "tdee_minus_300",
+      "category": "true_tdee_change",
+      "users": 100,
+      "seed_start": 200400,
+      "seed_end_inclusive": 200499,
+      "expected_direction": -1,
+      "pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "pre_onset_activation_events": 0,
+      "opposite_direction_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "opposite_direction_activation_events": 0,
+      "opposite_or_pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_by_day_56_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_latency": {
+        "users_with_activation": 0,
+        "median_days": null,
+        "p25_days": null,
+        "p75_days": null
+      },
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 662,
+        "checks": 900,
+        "rate": 0.7355555555555555
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "tdee_minus_300",
+        "category": "true_tdee_change",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.2644444444444444,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.0,
+        "cp29_decrease_rate": 0.7355555555555555,
+        "cp30_activate_rate": 0.0,
+        "cp30_defer_rate": 0.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.7355555555555555,
+        "review_required_decrease_user_rate": 1.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.2644444444444444
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.7355555555555555
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.0
+          ]
+        ],
+        "false_increase_rate": 0.0,
+        "false_decrease_rate": 0.0044444444444444444,
+        "false_change_rate": 0.0044444444444444444,
+        "correct_direction_rate": 1.0,
+        "opposite_direction_rate": 0.0,
+        "missed_change_rate": 0.0,
+        "median_cp29_proposal_day": 13.0,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.0,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "autocorrelated_water",
+      "category": "water",
+      "users": 100,
+      "seed_start": 200500,
+      "seed_end_inclusive": 200599,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 99,
+        "users": 100,
+        "rate": 0.99,
+        "wilson_95_lower": 0.9455138038212946,
+        "wilson_95_upper": 0.9982325679358593
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 308,
+        "checks": 900,
+        "rate": 0.3422222222222222
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 4,
+        "users": 100,
+        "rate": 0.04,
+        "wilson_95_lower": 0.01566330399154762,
+        "wilson_95_upper": 0.0983707143588792
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "autocorrelated_water",
+        "category": "water",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.2822222222222222,
+        "cp29_defer_rate": 0.09222222222222222,
+        "cp29_increase_rate": 0.2833333333333333,
+        "cp29_decrease_rate": 0.3422222222222222,
+        "cp30_activate_rate": 0.18444444444444444,
+        "cp30_defer_rate": 0.19111111111111112,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.3422222222222222,
+        "review_required_decrease_user_rate": 0.99,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.2833333333333333,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.18444444444444444,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.2,
+        "reversal_pending_rate": 0.2,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.2822222222222222
+          ],
+          [
+            "more_data_needed",
+            0.015555555555555555
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.07555555555555556
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0011111111111111111
+          ],
+          [
+            "proposal_available",
+            0.09888888888888889
+          ],
+          [
+            "proposal_requires_review",
+            0.14222222222222222
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.2
+          ],
+          [
+            "update_available",
+            0.18444444444444444
+          ]
+        ],
+        "false_increase_rate": 0.2833333333333333,
+        "false_decrease_rate": 0.3422222222222222,
+        "false_change_rate": 0.6255555555555555,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 1.66,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.64,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "water_rebound",
+      "category": "water",
+      "users": 100,
+      "seed_start": 200600,
+      "seed_end_inclusive": 200699,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 352,
+        "checks": 900,
+        "rate": 0.39111111111111113
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "water_rebound",
+        "category": "water",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.38666666666666666,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.2222222222222222,
+        "cp29_decrease_rate": 0.3911111111111111,
+        "cp30_activate_rate": 0.11333333333333333,
+        "cp30_defer_rate": 0.10888888888888887,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.3911111111111111,
+        "review_required_decrease_user_rate": 1.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.2222222222222222,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.11333333333333333,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.38111111111111107,
+        "reversal_pending_rate": 0.38111111111111107,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.38666666666666666
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.10888888888888888
+          ],
+          [
+            "proposal_requires_review",
+            0.01
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.3811111111111111
+          ],
+          [
+            "update_available",
+            0.11333333333333333
+          ]
+        ],
+        "false_increase_rate": 0.2222222222222222,
+        "false_decrease_rate": 0.3911111111111111,
+        "false_change_rate": 0.6133333333333334,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": 1.0,
+        "mean_activations_per_user_12_weeks": 1.02,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.02,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "illness_like_disturbance",
+      "category": "water",
+      "users": 100,
+      "seed_start": 200700,
+      "seed_end_inclusive": 200799,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 193,
+        "checks": 900,
+        "rate": 0.21444444444444444
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "illness_like_disturbance",
+        "category": "water",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.3255555555555556,
+        "cp29_defer_rate": 0.12777777777777777,
+        "cp29_increase_rate": 0.3322222222222222,
+        "cp29_decrease_rate": 0.21444444444444444,
+        "cp30_activate_rate": 0.22111111111111112,
+        "cp30_defer_rate": 0.2388888888888889,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.21444444444444444,
+        "review_required_decrease_user_rate": 1.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.3322222222222222,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.22111111111111112,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.32555555555555554
+          ],
+          [
+            "more_data_needed",
+            0.04111111111111111
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.08666666666666667
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.1111111111111111
+          ],
+          [
+            "proposal_requires_review",
+            0.21444444444444444
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.22111111111111112
+          ]
+        ],
+        "false_increase_rate": 0.3322222222222222,
+        "false_decrease_rate": 0.21444444444444444,
+        "false_change_rate": 0.5466666666666666,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": 22.0,
+        "mean_activations_per_user_12_weeks": 1.99,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.99,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "sodium_carb_weight_spike",
+      "category": "water",
+      "users": 100,
+      "seed_start": 200800,
+      "seed_end_inclusive": 200899,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 113,
+        "checks": 900,
+        "rate": 0.12555555555555556
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "sodium_carb_weight_spike",
+        "category": "water",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.7577777777777777,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.11666666666666665,
+        "cp29_decrease_rate": 0.12555555555555556,
+        "cp30_activate_rate": 0.11333333333333333,
+        "cp30_defer_rate": 0.003333333333333333,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.12555555555555556,
+        "review_required_decrease_user_rate": 1.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.11666666666666665,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.11333333333333333,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.005555555555555556,
+        "reversal_pending_rate": 0.005555555555555556,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.7577777777777778
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0033333333333333335
+          ],
+          [
+            "proposal_requires_review",
+            0.12
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.005555555555555556
+          ],
+          [
+            "update_available",
+            0.11333333333333333
+          ]
+        ],
+        "false_increase_rate": 0.11666666666666665,
+        "false_decrease_rate": 0.12555555555555556,
+        "false_change_rate": 0.24222222222222223,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": 9.0,
+        "mean_activations_per_user_12_weeks": 1.02,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.02,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "persistent_water_drift",
+      "category": "ambiguity",
+      "users": 100,
+      "seed_start": 200900,
+      "seed_end_inclusive": 200999,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 6,
+        "users": 100,
+        "rate": 0.06,
+        "wilson_95_lower": 0.027786123963188192,
+        "wilson_95_upper": 0.1247681544589592
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 7,
+        "checks": 900,
+        "rate": 0.0077777777777777776
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "persistent_water_drift",
+        "category": "ambiguity",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.5677777777777778,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.4244444444444444,
+        "cp29_decrease_rate": 0.007777777777777777,
+        "cp30_activate_rate": 0.24222222222222223,
+        "cp30_defer_rate": 0.1822222222222222,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.007777777777777777,
+        "review_required_decrease_user_rate": 0.06,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.4244444444444444,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.24222222222222223,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.007777777777777777,
+        "reversal_pending_rate": 0.007777777777777777,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.5677777777777778
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.18222222222222223
+          ],
+          [
+            "proposal_requires_review",
+            0.0
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0077777777777777776
+          ],
+          [
+            "update_available",
+            0.24222222222222223
+          ]
+        ],
+        "false_increase_rate": 0.4244444444444444,
+        "false_decrease_rate": 0.007777777777777777,
+        "false_change_rate": 0.43222222222222223,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 2.18,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 1.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "poor_adherence_with_water",
+      "category": "combined",
+      "users": 100,
+      "seed_start": 201000,
+      "seed_end_inclusive": 201099,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 91,
+        "users": 100,
+        "rate": 0.91,
+        "wilson_95_lower": 0.837737871472837,
+        "wilson_95_upper": 0.9519274599974348
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 225,
+        "checks": 900,
+        "rate": 0.25
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 24,
+        "users": 100,
+        "rate": 0.24,
+        "wilson_95_lower": 0.16691325556948772,
+        "wilson_95_upper": 0.33232336349814473
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "poor_adherence_with_water",
+        "category": "combined",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.21333333333333332,
+        "cp29_defer_rate": 0.34888888888888886,
+        "cp29_increase_rate": 0.18777777777777774,
+        "cp29_decrease_rate": 0.25,
+        "cp30_activate_rate": 0.12,
+        "cp30_defer_rate": 0.41666666666666663,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.25,
+        "review_required_decrease_user_rate": 0.91,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.18777777777777774,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.12,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.09555555555555556,
+        "reversal_pending_rate": 0.09555555555555556,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.21333333333333335
+          ],
+          [
+            "more_data_needed",
+            0.08222222222222222
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.2633333333333333
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0033333333333333335
+          ],
+          [
+            "proposal_available",
+            0.06777777777777778
+          ],
+          [
+            "proposal_requires_review",
+            0.15444444444444444
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.09555555555555556
+          ],
+          [
+            "update_available",
+            0.12
+          ]
+        ],
+        "false_increase_rate": 0.18777777777777774,
+        "false_decrease_rate": 0.25,
+        "false_change_rate": 0.43777777777777777,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 1.08,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.32,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "tdee_decline_underreporting",
+      "category": "combined",
+      "users": 100,
+      "seed_start": 201100,
+      "seed_end_inclusive": 201199,
+      "expected_direction": -1,
+      "pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "pre_onset_activation_events": 0,
+      "opposite_direction_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "opposite_direction_activation_events": 0,
+      "opposite_or_pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_by_day_56_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_latency": {
+        "users_with_activation": 0,
+        "median_days": null,
+        "p25_days": null,
+        "p75_days": null
+      },
+      "ambiguous_automatic_decrease_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 1,
+        "users": 100,
+        "rate": 0.01,
+        "wilson_95_lower": 0.0017674320641406505,
+        "wilson_95_upper": 0.054486196178705315
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 1,
+        "checks": 900,
+        "rate": 0.0011111111111111111
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 99,
+        "users": 100,
+        "rate": 0.99,
+        "wilson_95_lower": 0.9455138038212946,
+        "wilson_95_upper": 0.9982325679358593
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "tdee_decline_underreporting",
+        "category": "combined",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.0,
+        "cp29_defer_rate": 0.9988888888888888,
+        "cp29_increase_rate": 0.0,
+        "cp29_decrease_rate": 0.0011111111111111111,
+        "cp30_activate_rate": 0.0,
+        "cp30_defer_rate": 0.9988888888888888,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.0011111111111111111,
+        "review_required_decrease_user_rate": 0.01,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.0
+          ],
+          [
+            "more_data_needed",
+            0.68
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.3188888888888889
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.0011111111111111111
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.0
+          ]
+        ],
+        "false_increase_rate": 0.0,
+        "false_decrease_rate": 0.0,
+        "false_change_rate": 0.0,
+        "correct_direction_rate": 0.0,
+        "opposite_direction_rate": 0.0,
+        "missed_change_rate": 0.99,
+        "median_cp29_proposal_day": 83.0,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.0,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.99,
+        "all_checkpoint_deferred_rate": 0.99,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "repeated_slow_progress_near_floor",
+      "category": "safety",
+      "users": 100,
+      "seed_start": 201200,
+      "seed_end_inclusive": 201299,
+      "expected_direction": -1,
+      "pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "pre_onset_activation_events": 0,
+      "opposite_direction_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "opposite_direction_activation_events": 0,
+      "opposite_or_pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_by_day_56_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_latency": {
+        "users_with_activation": 0,
+        "median_days": null,
+        "p25_days": null,
+        "p75_days": null
+      },
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 886,
+        "checks": 900,
+        "rate": 0.9844444444444445
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "repeated_slow_progress_near_floor",
+        "category": "safety",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.015555555555555553,
+        "cp29_defer_rate": 0.0,
+        "cp29_increase_rate": 0.0,
+        "cp29_decrease_rate": 0.9844444444444445,
+        "cp30_activate_rate": 0.0,
+        "cp30_defer_rate": 0.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.9844444444444445,
+        "review_required_decrease_user_rate": 1.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.015555555555555555
+          ],
+          [
+            "more_data_needed",
+            0.0
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.0
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.9844444444444445
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.0
+          ]
+        ],
+        "false_increase_rate": 0.0,
+        "false_decrease_rate": 0.0,
+        "false_change_rate": 0.0,
+        "correct_direction_rate": 1.0,
+        "opposite_direction_rate": 0.0,
+        "missed_change_rate": 0.0,
+        "median_cp29_proposal_day": 27.0,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.0,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "repeated_proposals_near_bmi_band",
+      "category": "safety",
+      "users": 100,
+      "seed_start": 201300,
+      "seed_end_inclusive": 201399,
+      "expected_direction": -1,
+      "pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "pre_onset_activation_events": 0,
+      "opposite_direction_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "opposite_direction_activation_events": 0,
+      "opposite_or_pre_onset_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_by_day_56_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "correct_activation_latency": {
+        "users_with_activation": 0,
+        "median_days": null,
+        "p25_days": null,
+        "p75_days": null
+      },
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 0,
+        "checks": 900,
+        "rate": 0.0
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 100,
+        "users": 100,
+        "rate": 1.0,
+        "wilson_95_lower": 0.9630065017930143,
+        "wilson_95_upper": 1.0
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "repeated_proposals_near_bmi_band",
+        "category": "safety",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.0,
+        "cp29_defer_rate": 1.0,
+        "cp29_increase_rate": 0.0,
+        "cp29_decrease_rate": 0.0,
+        "cp30_activate_rate": 0.0,
+        "cp30_defer_rate": 1.0,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.0,
+        "review_required_decrease_user_rate": 0.0,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.0,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.0,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.0
+          ],
+          [
+            "more_data_needed",
+            0.8877777777777778
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.11222222222222222
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.0
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.0
+          ]
+        ],
+        "false_increase_rate": 0.0,
+        "false_decrease_rate": 0.0,
+        "false_change_rate": 0.0,
+        "correct_direction_rate": 0.0,
+        "opposite_direction_rate": 0.0,
+        "missed_change_rate": 1.0,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.0,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 1.0,
+        "all_checkpoint_deferred_rate": 1.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    },
+    {
+      "scenario": "profile_update_below_bmi_18_5",
+      "category": "safety",
+      "users": 100,
+      "seed_start": 201400,
+      "seed_end_inclusive": 201499,
+      "expected_direction": null,
+      "pre_onset_activation_users": null,
+      "pre_onset_activation_events": null,
+      "opposite_direction_activation_users": null,
+      "opposite_direction_activation_events": null,
+      "opposite_or_pre_onset_activation_users": null,
+      "correct_activation_by_day_56_users": null,
+      "correct_activation_latency": null,
+      "ambiguous_automatic_decrease_activation_users": null,
+      "automatic_reversal_activation_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "review_required_decrease_users": {
+        "successes": 6,
+        "users": 100,
+        "rate": 0.06,
+        "wilson_95_lower": 0.027786123963188192,
+        "wilson_95_upper": 0.1247681544589592
+      },
+      "review_required_decrease_checkpoints": {
+        "successes": 6,
+        "checks": 900,
+        "rate": 0.006666666666666667
+      },
+      "no_activation_by_day_84_users": {
+        "successes": 97,
+        "users": 100,
+        "rate": 0.97,
+        "wilson_95_lower": 0.9154806357094724,
+        "wilson_95_upper": 0.9897454759759611
+      },
+      "all_checkpoints_cp29_deferred_users": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "users_with_safety_violations": {
+        "successes": 0,
+        "users": 100,
+        "rate": 0.0,
+        "wilson_95_lower": 0.0,
+        "wilson_95_upper": 0.03699349820698568
+      },
+      "safety_violation_count": 0,
+      "frozen_scenario_metrics": {
+        "name": "profile_update_below_bmi_18_5",
+        "category": "safety",
+        "users": 100,
+        "checks": 900,
+        "cp29_hold_rate": 0.4344444444444444,
+        "cp29_defer_rate": 0.5555555555555556,
+        "cp29_increase_rate": 0.003333333333333333,
+        "cp29_decrease_rate": 0.006666666666666666,
+        "cp30_activate_rate": 0.003333333333333333,
+        "cp30_defer_rate": 0.5555555555555556,
+        "cp30_suppress_rate": 0.0,
+        "review_required_decrease_proposal_rate": 0.006666666666666666,
+        "review_required_decrease_user_rate": 0.06,
+        "activation_ready_decrease_proposal_rate": 0.0,
+        "activation_ready_increase_proposal_rate": 0.003333333333333333,
+        "automatic_decrease_activation_rate": 0.0,
+        "false_activation_rate": 0.003333333333333333,
+        "activation_ready_increase_by56_rate": 0.0,
+        "reversal_proposal_rate": 0.0,
+        "reversal_pending_rate": 0.0,
+        "confirmed_reversal_rate": 0.0,
+        "review_accepted_decrease_activation_rate": 0.0,
+        "integration_status_rates": [
+          [
+            "plan_remains_appropriate",
+            0.43444444444444447
+          ],
+          [
+            "more_data_needed",
+            0.5077777777777778
+          ],
+          [
+            "deferred_estimator_stabilizing",
+            0.04777777777777778
+          ],
+          [
+            "deferred_adaptive_evidence_ambiguous",
+            0.0
+          ],
+          [
+            "proposal_available",
+            0.0
+          ],
+          [
+            "proposal_requires_review",
+            0.006666666666666667
+          ],
+          [
+            "reversal_pending_confirmation",
+            0.0
+          ],
+          [
+            "update_available",
+            0.0033333333333333335
+          ]
+        ],
+        "false_increase_rate": 0.003333333333333333,
+        "false_decrease_rate": 0.006666666666666666,
+        "false_change_rate": 0.01,
+        "correct_direction_rate": null,
+        "opposite_direction_rate": null,
+        "missed_change_rate": null,
+        "median_cp29_proposal_day": null,
+        "median_cp30_activation_day": null,
+        "median_transient_recovery_days": null,
+        "mean_activations_per_user_12_weeks": 0.03,
+        "direction_reversal_rate": 0.0,
+        "repeated_same_direction_rate": 0.0,
+        "indefinitely_inert_rate": 0.0,
+        "all_checkpoint_deferred_rate": 0.0,
+        "ambiguity_decrease_activation_rate": 0.0,
+        "safety_violation_rate": 0.0
+      }
+    }
+  ],
+  "ambiguous_automatic_decrease_activation_users": {
+    "successes": 0,
+    "users": 300,
+    "rate": 0.0,
+    "wilson_95_lower": 0.0,
+    "wilson_95_upper": 0.012642971224546034
+  },
+  "noisy_transient_automatic_reversal_activation_users": {
+    "successes": 0,
+    "users": 500,
+    "rate": 0.0,
+    "wilson_95_lower": 0.0,
+    "wilson_95_upper": 0.007624340461552241
+  },
+  "notes": [
+    "Estimator parameters, CP29 thresholds, CP30 rules, CP35A review policy, and frozen criteria are unchanged.",
+    "Every scenario uses 100 new users and a disjoint deterministic seed block; no prior CP35/CP35A seed is reused.",
+    "Main-cohort runs never supply review confirmation.",
+    "User-level proportion intervals are 95% Wilson score intervals. Repeated checkpoint rates are descriptive and have no independence-based interval.",
+    "An activation on or before change_day + 1 is classified as pre-onset for the frozen opposite-activation criterion; correct activation latency follows the CP35 definition.",
+    "No policy or threshold was tuned on this confirmatory cohort.",
+    "Synthetic outcomes do not establish real-world, clinical, or physiological validity."
+  ]
+}

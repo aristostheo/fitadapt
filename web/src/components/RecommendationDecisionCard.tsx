@@ -10,6 +10,9 @@ const decisionLabels = {
 } as const;
 
 function explanation(decision: RecommendationDecision): string {
+  if (decision.activation_readiness === "review_required") {
+    return "Your recent progress may support a lower calorie target, but FitAdapt cannot fully separate longer-term progress from hidden intake or weight effects. Review the proposed adjustment before changing your plan.";
+  }
   if (decision.reason_codes.includes("estimator_stabilizing")) {
     return "Your recent weight and intake pattern is still stabilizing, so FitAdapt is keeping your current plan for now.";
   }
@@ -70,9 +73,11 @@ export function RecommendationDecisionCard({
           <h2>{decisionLabels[decision.decision]}</h2>
         </div>
         <span className="status-badge">
-          {decision.attention_required
-            ? "Review proposed change"
-            : "Informational"}
+          {decision.activation_readiness === "review_required"
+            ? "Review required"
+            : decision.attention_required
+              ? "Review proposed change"
+              : "Informational"}
         </span>
       </div>
       <p>{explanation(decision)}</p>
@@ -112,6 +117,12 @@ export function RecommendationDecisionCard({
         <Notice tone="warning">
           The current plan remains active while more reliable evidence is
           collected.
+        </Notice>
+      )}
+      {decision.activation_readiness === "review_required" && (
+        <Notice tone="warning">
+          The proposed decrease is not activation-ready. The current active plan
+          remains unchanged until explicitly reviewed and accepted.
         </Notice>
       )}
       {decision.decision !== "defer" && decision.decision !== "hold" && (
