@@ -34,36 +34,34 @@ backward-compatible detailed calculation view. Do not treat `proposed_macro_plan
 ## End-to-End Request Cycle
 
 1. **Initial user:** send profile, training/dietary context, and any existing observations to
-  `POST /v1/profile-intelligence`. Use `current_recommendation` as the authoritative plan. With no
-  history, FitAdapt still returns a complete baseline response.
+   `POST /v1/profile-intelligence`. Use `current_recommendation` as the authoritative plan. With no
+   history, FitAdapt still returns a complete baseline response.
 2. **Daily use:** resend the profile, caller-owned `adaptation_history`, and updated dated
-  observations. FitAdapt recomputes trends, adaptive evidence, adherence/outcome, safety, and status.
+   observations. FitAdapt recomputes trends, adaptive evidence, adherence/outcome, safety, and status.
 3. **No change:** a `hold` or `defer` leaves `current_recommendation` unchanged. Keep the stored plan;
-  use `more_data_needed` and reason codes to decide whether to wait or collect better evidence.
+   use `more_data_needed` and reason codes to decide whether to wait or collect better evidence.
 4. **Proposed update:** if `recommendation_decision.numerical_change_proposed` is true, review the
-  `proposed_macro_plan` and `proposed_target_envelope`. These and `next_active_macro_plan` are not
-  active merely because FitAdapt returned them.
+   `proposed_macro_plan` and `proposed_target_envelope`. These and `next_active_macro_plan` are not
+   active merely because FitAdapt returned them.
 5. **Review-required decrease:** keep the proposal visible and leave the active plan unchanged. Only
-  after the user explicitly accepts that exact proposal, resend the response's exact date and target:
+   after the user explicitly accepts that exact proposal, resend the response's exact date and target:
 
-  ```json
-  {
-    "review_confirmation": {
-     "effective_date": "2026-01-28",
-     "proposed_target_kcal_per_day": 2300
-    }
+```json
+{
+  "review_confirmation": {
+    "effective_date": "2026-01-28",
+    "proposed_target_kcal_per_day": 2300
   }
-  ```
+}
+```
 
-  A stale date or different target does not confirm it. This decrease-specific requirement does not
-  apply to increases. CP30's other cooldown and evidence gates still apply.
-6. **Accepted update:** when CP30 returns activation eligibility and the user accepts, store the new
-  active plan and returned activation event in the app. Resend the event in caller-owned
-  `adaptation_history` so the next `current_recommendation` reconstructs the accepted target. FitAdapt
-  does not persist or activate the plan on the app's behalf.
-7. **Profile update:** send the changed profile with `adaptation_source: "profile_recalculation"`.
-  Do not reuse stale progress-adaptation events as current-profile activation state. The response
-  source identifies profile recalculation separately.
+A stale date or different target does not confirm it. This decrease-specific requirement does not
+apply to increases. CP30's other cooldown and evidence gates still apply. 6. **Accepted update:** when CP30 returns activation eligibility and the user accepts, store the new
+active plan and returned activation event in the app. Resend the event in caller-owned
+`adaptation_history` so the next `current_recommendation` reconstructs the accepted target. FitAdapt
+does not persist or activate the plan on the app's behalf. 7. **Profile update:** send the changed profile with `adaptation_source: "profile_recalculation"`.
+Do not reuse stale progress-adaptation events as current-profile activation state. The response
+source identifies profile recalculation separately.
 
 ## Status and notifications
 
