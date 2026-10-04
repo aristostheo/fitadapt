@@ -20,7 +20,12 @@ function isErrorPayload(value: unknown): value is { error: { code?: string; mess
 async function post<T>(path: string, body: object): Promise<T> {
   let response: Response
   try { response = await fetch(`${baseUrl}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) }
-  catch { throw new ApiError('network', 'Cannot reach the FitAdapt API. Start the local server and retry.') }
+  catch {
+    throw new ApiError(
+      'network',
+      `Cannot reach the FitAdapt API at ${baseUrl}. Check that the server is running at this URL and its port matches VITE_FITADAPT_API_URL, then retry.`,
+    )
+  }
   let data: unknown
   try { data = await response.json() } catch { throw new ApiError('unexpected', 'API returned an unreadable response.') }
   if (!response.ok) {

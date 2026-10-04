@@ -24,6 +24,10 @@ npm run dev
 `VITE_FITADAPT_API_URL` defaults to `http://127.0.0.1:8000`. Use `npm run lint`,
 `npm run test -- --run`, and `npm run build` for validation.
 
+If the API runs on another port, such as `8001`, set
+`VITE_FITADAPT_API_URL=http://127.0.0.1:8001` in the ignored `web/.env.local` file.
+Restart `npm run dev` after changing this file; Vite reads the URL when it starts.
+
 ## Profile Intelligence
 
 The primary action sends one `POST /v1/profile-intelligence` request. It includes the profile,

@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
-import { ApiError, getProfileIntelligence } from "./api";
+import { getProfileIntelligence } from "./api";
 import { createFictionalSample } from "./sample-history";
 import type {
   MacroCalorieSource,
@@ -889,9 +889,12 @@ describe("guided FitAdapt journey", () => {
       vi.unstubAllGlobals();
     }
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
-    await expect(getProfileIntelligence({} as never)).rejects.toBeInstanceOf(
-      ApiError,
-    );
+    await expect(getProfileIntelligence({} as never)).rejects.toMatchObject({
+      kind: "network",
+      message: expect.stringContaining(
+        import.meta.env.VITE_FITADAPT_API_URL || "http://127.0.0.1:8000",
+      ),
+    });
   });
 
   it("keeps custom strategy controls and blocks invalid custom values before the API call", async () => {
