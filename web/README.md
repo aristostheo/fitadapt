@@ -27,6 +27,8 @@ npm run dev
 If the API runs on another port, such as `8001`, set
 `VITE_FITADAPT_API_URL=http://127.0.0.1:8001` in the ignored `web/.env.local` file.
 Restart `npm run dev` after changing this file; Vite reads the URL when it starts.
+The development server uses port `5173` and fails rather than silently switching ports,
+because the API allows `localhost:5173` and `127.0.0.1:5173` by default.
 
 ## Profile Intelligence
 

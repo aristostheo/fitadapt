@@ -23,7 +23,7 @@ async function post<T>(path: string, body: object): Promise<T> {
   catch {
     throw new ApiError(
       'network',
-      `Cannot reach the FitAdapt API at ${baseUrl}. Check that the server is running at this URL and its port matches VITE_FITADAPT_API_URL, then retry.`,
+      `Cannot connect to the FitAdapt API at ${baseUrl}. Check that the server is running, its port matches VITE_FITADAPT_API_URL, and this browser origin is allowed by FITADAPT_CORS_ORIGINS, then retry.`,
     )
   }
   let data: unknown

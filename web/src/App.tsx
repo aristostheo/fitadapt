@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { ApiError, getProfileIntelligence } from "./api";
 import { AppShell } from "./components/AppShell";
+import { ActionBar } from './components/ui';
 import { Overview } from "./components/Overview";
 import {
   CANONICAL_OBSERVATION_FIELDS,
@@ -29,6 +30,8 @@ import type {
 } from "./types";
 import { dietaryProfileErrors, initialDietaryProfile } from "./utils/dietary";
 import { JOURNEY, type JourneyState, type JourneyStep } from "./utils/journey";
+import { observationFormErrors } from './utils/observation-form';
+import { profileFormErrors, trainingFormHasErrors, type ProfileDrafts, type TrainingDrafts } from "./utils/profile-form";
 import "./index.css";
 
 const emptyObservation: Observation = {
@@ -63,6 +66,8 @@ const initialTrainingContext: TrainingContext = {
 export default function App() {
   const [currentStep, setCurrentStep] = useState<JourneyStep>("overview");
   const [profile, setProfile] = useState<Profile>(initialProfile);
+  const [profileDrafts, setProfileDrafts] = useState<ProfileDrafts>({});
+  const [profileAttempted, setProfileAttempted] = useState(false);
   const [preferences, setPreferences] = useState<NutritionPreferences>({
     macro_strategy: "balanced",
   });
@@ -71,6 +76,7 @@ export default function App() {
   const [trainingContext, setTrainingContext] = useState<TrainingContext>(
     initialTrainingContext,
   );
+  const [trainingDrafts, setTrainingDrafts] = useState<TrainingDrafts>({});
   const [observations, setObservations] = useState<Observation[]>([]);
   const [draft, setDraft] = useState<Observation>(emptyObservation);
   const [editing, setEditing] = useState<string | null>(null);
@@ -111,6 +117,10 @@ export default function App() {
       left.observed_on.localeCompare(right.observed_on),
     );
   const dietaryErrors = dietaryProfileErrors(dietaryProfile);
+  const profileErrors = profileFormErrors(profile, profileDrafts);
+  const visibleProfileErrors = Object.fromEntries(
+    Object.entries(profileErrors).filter(([key]) => profileAttempted || key in profileDrafts),
+  ) as ProfileDrafts;
   const request = (): ProfileIntelligenceRequest => ({
     profile,
     observations,
@@ -127,13 +137,17 @@ export default function App() {
       key === "sex_for_mifflin_equation" ||
       key === "activity_level" ||
       key === "goal";
-    const next = {
-      ...profile,
-      [key]: selection ? value : Number(value),
-    } as Profile;
+    if (!selection) {
+      const display = key === 'age_years' && /^0+\d+$/.test(value) ? String(Number(value)) : value;
+      setProfileDrafts((current) => ({ ...current, [key]: display }));
+      if (display === '' || !Number.isFinite(Number(display))) { clearStale(); return; }
+      value = display;
+    }
+    const next = { ...profile, [key]: selection ? value : Number(value) } as Profile;
     if (key === "goal")
       next.requested_weekly_change_kg =
         value === "cut" ? -0.4 : value === "gain" ? 0.2 : 0;
+    if (key === 'goal') setProfileDrafts((current) => { const copy = { ...current }; delete copy.requested_weekly_change_kg; return copy; });
     setProfile(next);
     clearStale();
   };
@@ -165,8 +179,13 @@ export default function App() {
     next[key] =
       key === "observed_on" ? value : value === "" ? null : Number(value);
     setDraft(next as unknown as Observation);
+    setError("");
   };
   const saveObservation = () => {
+    if (Object.keys(observationFormErrors(draft)).length > 0) {
+      setError('Observation values need review.');
+      return;
+    }
     const measurement = CANONICAL_OBSERVATION_FIELDS.slice(1).some(
       (key) => draft[key] != null,
     );
@@ -177,8 +196,7 @@ export default function App() {
       return;
     }
     if (
-      !editing &&
-      observations.some((item) => item.observed_on === draft.observed_on)
+      observations.some((item) => item.observed_on === draft.observed_on && item.observed_on !== editing)
     ) {
       setError("Duplicate observation dates are not allowed.");
       return;
@@ -278,6 +296,11 @@ export default function App() {
   };
   const analyze = async (nextRequest = request(), destination: JourneyStep = "plan") => {
     if (loading) return;
+    if (Object.keys(profileFormErrors(nextRequest.profile, profileDrafts)).length > 0 || trainingFormHasErrors(nextRequest.training_context ?? trainingContext, trainingDrafts)) {
+      setProfileAttempted(true);
+      setCurrentStep('profile');
+      return;
+    }
     if (
       dietaryProfileErrors(nextRequest.dietary_preference_profile).length > 0
     ) {
@@ -292,10 +315,7 @@ export default function App() {
         (nextRequest.nutrition_preferences.custom_fat_percentage ?? 0) < 0.2 ||
         (nextRequest.nutrition_preferences.custom_fat_percentage ?? 0) > 0.4)
     ) {
-      setError(
-        "Custom protein must be 1.2–2.4 g/kg and fat must be 20–40% of calories.",
-      );
-      setCurrentStep("plan");
+      setCurrentStep("nutrition");
       return;
     }
     setLoading(true);
@@ -363,16 +383,23 @@ export default function App() {
         <>
           <ProfileStep
             profile={profile}
+            numericValues={profileDrafts}
+            errors={visibleProfileErrors}
             onChange={updateProfile}
-            onContinue={() => setCurrentStep("nutrition")}
           />
           <TrainingContextEditor
             context={trainingContext}
+            numericValues={trainingDrafts}
+            onNumericDraft={(drafts) => { setTrainingDrafts(drafts); clearStale(); }}
             onChange={(context) => {
               setTrainingContext(context);
               clearStale();
             }}
           />
+          <ActionBar><span>Next: choose how your calorie target is allocated.</span><button onClick={() => {
+            if (Object.keys(profileErrors).length > 0 || trainingFormHasErrors(trainingContext, trainingDrafts)) setProfileAttempted(true);
+            else setCurrentStep("nutrition");
+          }}>Continue to nutrition</button></ActionBar>
         </>
       )}
       {currentStep === "nutrition" && (
@@ -385,7 +412,9 @@ export default function App() {
           onDietaryProfile={updateDietaryProfile}
           onBack={() => setCurrentStep("profile")}
           onContinue={() => {
-            if (dietaryErrors.length === 0) setCurrentStep("history");
+            const customInvalid = preferences.macro_strategy === 'custom' &&
+              (preferences.custom_protein_g_per_kg == null || preferences.custom_protein_g_per_kg < 1.2 || preferences.custom_protein_g_per_kg > 2.4 || preferences.custom_fat_percentage == null || preferences.custom_fat_percentage < 0.2 || preferences.custom_fat_percentage > 0.4);
+            if (dietaryErrors.length === 0 && !customInvalid) setCurrentStep("history");
           }}
         />
       )}

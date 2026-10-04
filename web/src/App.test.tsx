@@ -597,6 +597,79 @@ describe("guided FitAdapt journey", () => {
     expect(screen.getByLabelText("Macro strategy")).toHaveValue("higher_fat");
   });
 
+  it("groups profile basics and keeps invalid age visible with an inline error", () => {
+    const fetchMock = mockApi();
+    render(<App />);
+    navigate("profile");
+    expect(screen.getByLabelText("Age").closest(".basics-grid")).toContainElement(screen.getByLabelText("Sex used for REE estimate"));
+    expect(screen.getByRole("group", { name: "Goal" })).toBeInTheDocument();
+    fill("Age", "17");
+    expect(screen.getByLabelText("Age")).toHaveValue(17);
+    expect(screen.getByLabelText("Age")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText("Enter an age from 18 to 80 years.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Continue to nutrition" }));
+    expect(screen.getByRole("heading", { name: "Build your profile" })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+    fill("Age", "24");
+    expect(screen.getByLabelText("Age")).toHaveValue(24);
+    expect(screen.getByLabelText("Age")).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("retains training context and serializes revealed active rows without invented steps", async () => {
+    const fetchMock = mockApi();
+    render(<App />);
+    navigate("profile");
+    fireEvent.click(screen.getByRole("radio", { name: "Endurance" }));
+    fill("Cardio days per week", "3");
+    fill("Cardio minutes per week", "90");
+    fill("Cardio intensity", "moderate");
+    navigate("nutrition");
+    navigate("profile");
+    expect(screen.getByRole("radio", { name: "Endurance" })).toBeChecked();
+    expect(screen.getByLabelText("Cardio minutes per week")).toHaveValue(90);
+    expect(screen.getByLabelText("Typical daily steps")).toHaveValue(null);
+    navigate("plan");
+    fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
+    await screen.findByText("Current plan");
+    const body = JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body));
+    expect(body.training_context).toMatchObject({ primary_training_focus: "endurance", cardio_days_per_week: 3, cardio_minutes_per_week: 90, cardio_intensity: "moderate", typical_daily_steps: null, sport_days_per_week: 0, sport_minutes_per_week: 0, sport_intensity: null });
+  });
+
+  it("quick-selects a food category without changing its detailed enum control", () => {
+    render(<App />);
+    navigate("nutrition");
+    fireEvent.click(screen.getByRole("radio", { name: /Let me choose foods/ }));
+    const chip = screen.getByRole("button", { name: "Toggle Poultry preference" });
+    fireEvent.click(chip);
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText("Poultry preference")).toHaveValue("like");
+    fill("Poultry preference", "dislike");
+    expect(screen.getByLabelText("Poultry preference")).toHaveValue("dislike");
+    fireEvent.click(chip);
+    expect(screen.getByLabelText("Poultry preference")).toHaveValue("");
+  });
+
+  it("keeps invalid observation values in the logger and rejects date collisions during edit", () => {
+    render(<App />);
+    navigate("history");
+    fill("Date", "2026-01-01");
+    fill("Steps", "-1");
+    expect(screen.getByLabelText("Steps")).toHaveValue(-1);
+    expect(screen.getByLabelText("Steps")).toHaveAttribute("aria-invalid", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Add observation" }));
+    expect(screen.getByText("Observation values need review.")).toBeInTheDocument();
+    fill("Steps", "0");
+    fireEvent.click(screen.getByRole("button", { name: "Add observation" }));
+    fill("Date", "2026-01-02");
+    fill("Steps", "10");
+    fireEvent.click(screen.getByRole("button", { name: "Add observation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit 2026-01-02" }));
+    fill("Date", "2026-01-01");
+    fireEvent.click(screen.getByRole("button", { name: "Save observation" }));
+    expect(screen.getByText("Duplicate observation dates are not allowed.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Date")).toHaveValue("2026-01-01");
+  });
+
   it("preserves observation state, zero values, editing, deletion, and history errors", () => {
     render(<App />);
     navigate("history");
@@ -788,6 +861,22 @@ describe("guided FitAdapt journey", () => {
     expect(screen.queryByText("Current plan")).not.toBeInTheDocument();
   });
 
+  it("clears an analysis after a training edit and blocks incomplete active training before the API", async () => {
+    const fetchMock = mockApi();
+    render(<App />);
+    navigate("plan");
+    fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
+    await screen.findByText("Current plan");
+    navigate("profile");
+    fill("Cardio days per week", "2");
+    navigate("plan");
+    expect(screen.queryByText("Current plan")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
+    expect(screen.getByRole("heading", { name: "Build your profile" })).toBeInTheDocument();
+    expect(screen.getByText("Enter your weekly minutes.")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("prevents duplicate analysis while loading", async () => {
     let resolveResponse: ((value: unknown) => void) | undefined;
     const pending = new Promise((resolve) => {
@@ -861,9 +950,9 @@ describe("guided FitAdapt journey", () => {
     expect(
       screen.getByLabelText("Sex used for REE estimate"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("Desired weekly change (kg)"),
-    ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Desired weekly change (kg)")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: "Lose" }));
+    expect(screen.getByLabelText("Desired weekly change (kg)")).toBeInTheDocument();
     expect(screen.getByLabelText("Activity level")).toBeInTheDocument();
   });
 
@@ -908,7 +997,8 @@ describe("guided FitAdapt journey", () => {
     fill("Protein grams per kilogram", "3");
     navigate("plan");
     fireEvent.click(screen.getByRole("button", { name: "Analyze my profile" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Custom protein");
+    expect(screen.getByRole("heading", { name: "Shape your nutrition plan" })).toBeInTheDocument();
+    expect(screen.getByText("Use 1.2–2.4 g/kg.")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
