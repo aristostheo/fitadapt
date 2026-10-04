@@ -12,7 +12,7 @@ export function FieldGroup({ legend, children }: { legend: string; children: Rea
   return <fieldset className="field-group"><legend>{legend}</legend><div className="field-grid">{children}</div></fieldset>
 }
 
-export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'success' | 'warning' | 'danger' }) {
+export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'purple' }) {
   return <span className={`status-badge ${tone}`}>{children}</span>
 }
 

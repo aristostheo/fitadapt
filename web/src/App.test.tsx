@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { ApiError, getProfileIntelligence } from "./api";
 import { createFictionalSample } from "./sample-history";
@@ -9,6 +9,7 @@ import type {
   PersonalizedMacroPlan,
   PersonalizedPlanSnapshot,
   ProfileIntelligenceResponse,
+  RecommendationHistoryEntry,
 } from "./types";
 
 const fill = (label: string, value: string) =>
@@ -301,23 +302,265 @@ function mockApi(value = response()) {
   return fetchMock;
 }
 
+function reviewResponse(): ProfileIntelligenceResponse {
+  const value = response();
+  const activeMacro = { ...macroPlan("baseline"), calorie_target_kcal_per_day: 2300, protein_g_per_day: 150 };
+  value.current_recommendation = {
+    calorie_target_kcal_per_day: 2300,
+    macro_plan: activeMacro,
+    target_envelope: null,
+    effective_date: "2026-01-14",
+    source: "baseline",
+    is_active: true,
+    is_authoritative: true,
+  };
+  value.recommendation_decision = {
+    decision: "decrease",
+    decision_available: true,
+    attention_required: true,
+    current_calorie_target_kcal_per_day: 2300,
+    proposed_calorie_target_kcal_per_day: 2200,
+    calorie_delta_kcal_per_day: -100,
+    numerical_change_proposed: true,
+    goal: "maintain",
+    requested_weekly_change_kg: 0,
+    outcome_interpretability: "interpretable",
+    intake_adherence: "near_target",
+    weight_trend_status: "available",
+    goal_progress: "outside_maintenance_range",
+    limiting_reason: "decrease_requires_review",
+    reason_codes: ["decrease_requires_review"],
+    adaptive_tdee_kcal_per_day: 2450,
+    adaptive_evidence_status: "stable",
+    activation_readiness: "review_required",
+    policy_version: "decision_v1",
+    assumptions: [],
+  };
+  value.plan_adaptation = {
+    action: "review_required",
+    activation_available: false,
+    activation_ready: false,
+    review_required: true,
+    user_attention_required: true,
+    current_active_macro_plan: activeMacro,
+    proposed_macro_plan: { ...activeMacro, calorie_target_kcal_per_day: 2200 },
+    next_active_macro_plan: activeMacro,
+    current_active_target_kcal_per_day: 2300,
+    proposed_target_kcal_per_day: 2200,
+    next_active_target_kcal_per_day: 2300,
+    calorie_delta_kcal_per_day: -100,
+    effective_date: "2026-01-14",
+    recommendation_decision: "decrease",
+    reason_codes: ["decrease_requires_review"],
+    new_observation_count: 14,
+    new_weight_contributor_count: 14,
+    new_intake_contributor_count: 14,
+    adaptation_history: [],
+    policy_version: "adaptation_v1",
+    assumptions: [],
+  };
+  value.integration_status = {
+    user_attention_required: true,
+    plan_update_available: false,
+    more_data_needed: false,
+    reversal_suppressed: false,
+    current_plan_appropriate: true,
+    recommendation_decision: "decrease",
+    adaptation_action: "review_required",
+    adaptation_source: "progress_adaptation",
+    app_status: "proposal_requires_review",
+    proposal_available: true,
+    proposal_requires_review: true,
+    activation_ready: false,
+    reversal_pending_confirmation: false,
+    reason_codes: ["decrease_requires_review"],
+    summary: "The active plan remains unchanged pending review.",
+    policy_version: "integration_v1",
+  };
+  value.adaptive_tdee.stability = "stabilizing";
+  return value;
+}
+
 describe("guided FitAdapt journey", () => {
+  beforeEach(() => {
+    const store = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => { store.set(key, value); },
+      removeItem: (key: string) => { store.delete(key); },
+    });
+  });
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
-  it("renders five accessible stages and supports click and keyboard navigation", () => {
+  it("shows an honest dashboard entry with no fabricated result and a persistent theme toggle", () => {
     render(<App />);
+    expect(screen.getByRole("heading", { name: /Adaptive diet intelligence, without the black box/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No analysis yet" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Current active plan")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Switch to dark mode" }));
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(window.localStorage.getItem("fitadapt-theme")).toBe("dark");
+    expect(screen.getByRole("button", { name: "Switch to light mode" })).toBeInTheDocument();
+    cleanup();
+    render(<App />);
+    expect(screen.getByRole("button", { name: "Switch to light mode" })).toBeInTheDocument();
+  });
+
+  it("loads fictional evidence from the overview and renders API-calculated results", async () => {
+    const fetchMock = mockApi();
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Explore with fictional data" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    const body = JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body));
+    expect(body.observations).toHaveLength(28);
+    expect(within(screen.getByLabelText("Current active plan")).getByText("2,450 kcal/day")).toBeInTheDocument();
+  });
+
+  it("keeps an authoritative active plan distinct from a review-required decrease proposal", async () => {
+    mockApi(reviewResponse());
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    const active = screen.getByLabelText("Current active plan");
+    const proposal = screen.getByLabelText("Proposed plan status");
+    expect(within(active).getByText("2,300 kcal/day")).toBeInTheDocument();
+    expect(within(active).getByText("150 g/day")).toBeInTheDocument();
+    expect(within(proposal).getByText("2,200 kcal/day")).toBeInTheDocument();
+    expect(within(proposal).getByText("-100 kcal/day proposed change")).toBeInTheDocument();
+    expect(within(proposal).getByText("Review required")).toBeInTheDocument();
+    expect(within(proposal).getByText(/short-term weight effects and intake bias/)).toBeInTheDocument();
+    expect(within(proposal).getByText(/Next active plan:/).closest("p")).toHaveTextContent("2,300 kcal/day");
+    fireEvent.click(within(proposal).getByRole("button", { name: "Inspect plan details" }));
+    expect(screen.getByRole("heading", { name: "Your current plan" })).toBeInTheDocument();
+    expect(screen.getByText("Target ranges are unavailable for this plan response.")).toBeInTheDocument();
+  });
+
+  it("humanizes stabilizing, insufficient, defer, and safety-constrained states", async () => {
+    const value = reviewResponse();
+    value.recommendation_decision!.decision = "defer";
+    value.recommendation_decision!.numerical_change_proposed = false;
+    value.integration_status!.app_status = "deferred_estimator_stabilizing";
+    value.integration_status!.summary = "More evidence is needed before another plan change.";
+    value.adaptive_tdee.adaptive_tdee_kcal_per_day = null;
+    value.adaptive_tdee.stability = "stabilizing";
+    value.target_safety = {
+      status: "constrained", bmi: 22, minimum_bmi_for_weight_loss: 20,
+      baseline_tdee_kcal_per_day: 2400, requested_target_kcal_per_day: 1600,
+      effective_target_kcal_per_day: 1800, applied_calorie_floor_kcal_per_day: 1800,
+      maximum_permitted_deficit_kcal_per_day: 600, requested_deficit_kcal_per_day: 800,
+      effective_deficit_kcal_per_day: 600, effective_weekly_change_kg: -0.4,
+      requested_weekly_change_kg: -0.5, goal: "cut", reason_codes: ["floor_applied"],
+      policy_version: "target_safety_v1", assumptions: [],
+    };
+    mockApi(value);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    expect(screen.getByText("Stabilizing")).toBeInTheDocument();
+    expect(screen.getByText(/FitAdapt is collecting more evidence/)).toBeInTheDocument();
+    expect(screen.getByText("Unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Adjustment deferred")).toBeInTheDocument();
+    expect(screen.getByText("Safety constrained")).toBeInTheDocument();
+    expect(screen.queryByText("floor_applied")).not.toBeInTheDocument();
+  });
+
+  it("separates activation-ready status from the still-current active target", async () => {
+    const value = reviewResponse();
+    value.recommendation_decision!.activation_readiness = "ready";
+    value.plan_adaptation!.action = "activate";
+    value.plan_adaptation!.activation_ready = true;
+    value.plan_adaptation!.review_required = false;
+    value.plan_adaptation!.next_active_target_kcal_per_day = 2200;
+    value.integration_status!.app_status = "update_available";
+    value.integration_status!.proposal_requires_review = false;
+    mockApi(value);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    expect(screen.getAllByText("Activation ready").length).toBeGreaterThan(0);
+    expect(within(screen.getByLabelText("Current active plan")).getByText("2,300 kcal/day")).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Proposed plan status")).getByText(/Next active plan:/).closest("p")).toHaveTextContent("2,200 kcal/day");
+    expect(screen.getByText(/awaiting caller acceptance/)).toBeInTheDocument();
+  });
+
+  it("shows an ineligible safety state without exposing raw reason codes", async () => {
+    const value = reviewResponse();
+    value.target_safety = {
+      status: "ineligible", bmi: 17, minimum_bmi_for_weight_loss: 20,
+      baseline_tdee_kcal_per_day: 2400, requested_target_kcal_per_day: 1600,
+      effective_target_kcal_per_day: null, applied_calorie_floor_kcal_per_day: null,
+      maximum_permitted_deficit_kcal_per_day: null, requested_deficit_kcal_per_day: 800,
+      effective_deficit_kcal_per_day: null, effective_weekly_change_kg: null,
+      requested_weekly_change_kg: -0.5, goal: "cut", reason_codes: ["bmi_ineligible"],
+      policy_version: "target_safety_v1", assumptions: [],
+    };
+    mockApi(value);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    expect(screen.getByText("Safety ineligible")).toBeInTheDocument();
+    expect(screen.queryByText("bmi_ineligible")).not.toBeInTheDocument();
+  });
+
+  it("labels recommendation-history evaluations as non-activating", async () => {
+    const value = response();
+    const entry: RecommendationHistoryEntry = {
+      effective_date: "2026-01-14", source: "progress_adaptation", action: "hold",
+      change_type: "hold", is_plan_change: false, is_evaluation_only: true,
+      is_current_active_plan: false, previous_calorie_target_kcal_per_day: 2450,
+      resulting_or_proposed_calorie_target_kcal_per_day: 2450,
+      calorie_delta_kcal_per_day: 0, previous_macro_summary: null,
+      resulting_or_proposed_macro_summary: null, recommendation_decision: "hold",
+      evidence_as_of_date: "2026-01-14", observation_window_days: 14,
+      high_level_reason: "Progress remains on track", reason_codes: ["on_track"],
+      user_summary: "The plan was evaluated and kept unchanged.", policy_versions: [], assumptions: [],
+    };
+    value.recommendation_history = {
+      entries: [entry], latest_change: entry, has_new_recommendation_event: true,
+      actionable_event_available: false, current_active_target_kcal_per_day: 2450,
+      policy_version: "history_v1", assumptions: [],
+    };
+    mockApi(value);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    await screen.findByRole("heading", { name: "Your plan, in context." });
+    expect(screen.getByText("The plan was evaluated and kept unchanged.")).toBeInTheDocument();
+    expect(screen.getByText(/Evaluation only; active plan unchanged/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "View progress" }));
+    expect(screen.getByText(/Evaluation only · active plan unchanged/)).toBeInTheDocument();
+  });
+
+  it("discards an in-flight response after a profile edit", async () => {
+    let resolveResponse: ((value: unknown) => void) | undefined;
+    const pending = new Promise((resolve) => { resolveResponse = resolve; });
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending));
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Analyze profile" }));
+    navigate("profile");
+    fill("Age", "42");
+    await act(async () => {
+      resolveResponse?.({ ok: true, status: 200, json: async () => response() });
+      await pending;
+    });
+    navigate("overview");
+    expect(await screen.findByRole("heading", { name: "No analysis yet" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Your plan, in context." })).not.toBeInTheDocument();
+  });
+
+  it("opens on the overview and supports click and keyboard navigation", () => {
+    render(<App />);
+    expect(document.getElementById("journey-overview")).toHaveAttribute("aria-current", "step");
     const profile = document.getElementById("journey-profile");
-    expect(profile).toHaveAttribute("aria-current", "step");
     expect(
-      ["profile", "nutrition", "history", "plan", "progress"].map((id) =>
+      ["overview", "profile", "nutrition", "history", "plan", "progress"].map((id) =>
         document.getElementById(`journey-${id}`),
       ),
     ).not.toContain(null);
-
+    navigate("profile");
     fireEvent.keyDown(profile as HTMLButtonElement, { key: "ArrowRight" });
     expect(document.getElementById("journey-nutrition")).toHaveAttribute(
       "aria-current",
@@ -342,6 +585,7 @@ describe("guided FitAdapt journey", () => {
 
   it("retains profile and nutrition values while moving between stages", () => {
     render(<App />);
+    navigate("profile");
     fill("Age", "041");
     fill("Weight (kg)", "91.4");
     navigate("nutrition");
@@ -387,6 +631,7 @@ describe("guided FitAdapt journey", () => {
 
   it("loads deterministic fictional history around the active profile and clears it", () => {
     render(<App />);
+    navigate("profile");
     fill("Weight (kg)", "91");
     fireEvent.click(screen.getByRole("button", { name: "Load demo" }));
     expect(document.getElementById("journey-history")).toHaveAttribute(
@@ -581,6 +826,7 @@ describe("guided FitAdapt journey", () => {
       });
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
+    navigate("profile");
     fill("Age", "44");
     navigate("nutrition");
     fireEvent.click(screen.getByRole("radio", { name: /^Vegan/ }));
@@ -604,10 +850,11 @@ describe("guided FitAdapt journey", () => {
 
   it("retains session-only privacy and explicit accessible labels and headings", () => {
     render(<App />);
-    expect(screen.getByText("Session only")).toBeInTheDocument();
+    expect(screen.getByText("Private by design")).toBeInTheDocument();
     expect(
-      screen.getByText(/Nothing is saved remotely by this client/),
+      screen.getByText(/This demo does not save your profile/),
     ).toBeInTheDocument();
+    navigate("profile");
     expect(
       screen.getByRole("heading", { level: 1, name: "Build your profile" }),
     ).toBeInTheDocument();
@@ -712,6 +959,7 @@ describe("guided FitAdapt journey", () => {
 
   it("moves through forward actions without losing form values", () => {
     render(<App />);
+    navigate("profile");
     fill("Height (cm)", "176");
     fireEvent.click(
       screen.getByRole("button", { name: "Continue to nutrition" }),
@@ -1052,7 +1300,7 @@ describe("guided FitAdapt journey", () => {
     await screen.findByText("Current plan");
     expect(
       screen.getByText(
-        /baseline\/safety target remains current until a CP29 proposal is accepted/,
+        /baseline\/safety target remains current until a proposed change is reviewed and accepted/,
       ),
     ).toBeInTheDocument();
   });

@@ -7,6 +7,9 @@ import {
 } from "../components/Results";
 import { ActionBar, Notice, SectionCard, StepHeader } from "../components/ui";
 import { TrainingAssessmentCard } from "../components/TrainingAssessmentCard";
+import { RecommendationDecisionCard } from "../components/RecommendationDecisionCard";
+import { PlanAdaptationCard } from "../components/PlanAdaptationCard";
+import { TargetSafetyCard } from "../components/TargetSafetyCard";
 import type { ProfileIntelligenceResponse } from "../types";
 
 export function PlanStep({
@@ -86,6 +89,9 @@ export function PlanStep({
       {result && (
         <div className="result-stack">
           <CurrentPlan plan={result.latest_plan} result={result} />
+          <TargetSafetyCard assessment={result.target_safety} />
+          {result.recommendation_decision && <RecommendationDecisionCard decision={result.recommendation_decision} currentMacroPlan={result.current_recommendation?.macro_plan ?? result.latest_plan.macro_plan} proposedMacroPlan={result.proposed_macro_plan ?? null} />}
+          {result.plan_adaptation && <PlanAdaptationCard assessment={result.plan_adaptation} />}
           <RecommendationPanel result={result} />
           <DietaryAssessmentCard assessment={result.dietary_assessment} />
           <LifecycleStatus result={result} />

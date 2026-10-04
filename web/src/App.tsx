@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ApiError, getProfileIntelligence } from "./api";
 import { AppShell } from "./components/AppShell";
+import { Overview } from "./components/Overview";
 import {
   CANONICAL_OBSERVATION_FIELDS,
   CSV_TEMPLATE,
@@ -60,7 +61,7 @@ const initialTrainingContext: TrainingContext = {
 };
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState<JourneyStep>("profile");
+  const [currentStep, setCurrentStep] = useState<JourneyStep>("overview");
   const [profile, setProfile] = useState<Profile>(initialProfile);
   const [preferences, setPreferences] = useState<NutritionPreferences>({
     macro_strategy: "balanced",
@@ -96,10 +97,14 @@ export default function App() {
   const [allowValidOnly, setAllowValidOnly] = useState(false);
   const [importSummary, setImportSummary] = useState("");
   const [demoLoaded, setDemoLoaded] = useState(false);
+  const requestEpoch = useRef(0);
 
   const clearStale = () => {
+    requestEpoch.current += 1;
     setResults(null);
     setError("");
+    setLastRequest(null);
+    setLoading(false);
   };
   const sorted = (items: Observation[]) =>
     [...items].sort((left, right) =>
@@ -271,7 +276,7 @@ export default function App() {
     setDemoLoaded(true);
     clearStale();
   };
-  const analyze = async (nextRequest = request()) => {
+  const analyze = async (nextRequest = request(), destination: JourneyStep = "plan") => {
     if (loading) return;
     if (
       dietaryProfileErrors(nextRequest.dietary_preference_profile).length > 0
@@ -294,19 +299,22 @@ export default function App() {
       return;
     }
     setLoading(true);
+    const epoch = ++requestEpoch.current;
     setError("");
     setLastRequest(nextRequest);
-    setCurrentStep("plan");
+    setCurrentStep(destination);
     try {
-      setResults(await getProfileIntelligence(nextRequest));
+      const next = await getProfileIntelligence(nextRequest);
+      if (requestEpoch.current === epoch) setResults(next);
     } catch (caught) {
-      setError(
-        caught instanceof ApiError
-          ? caught.message
-          : "Cannot reach the FitAdapt API.",
-      );
+      if (requestEpoch.current === epoch)
+        setError(
+          caught instanceof ApiError
+            ? caught.message
+            : "Cannot reach the FitAdapt API.",
+        );
     } finally {
-      setLoading(false);
+      if (requestEpoch.current === epoch) setLoading(false);
     }
   };
   const stateFor = (step: JourneyStep): JourneyState => {
@@ -332,6 +340,25 @@ export default function App() {
         setCurrentStep("history");
       }}
     >
+      {currentStep === "overview" && (
+        <Overview
+          result={results}
+          profile={profile}
+          observationCount={observations.length}
+          loading={loading}
+          error={error}
+          onProfile={() => setCurrentStep("profile")}
+          onHistory={() => {
+            const sample = createFictionalSample(profile);
+            loadDemo();
+            void analyze({ ...request(), observations: sample }, "overview");
+          }}
+          onAnalyze={() => void analyze(request(), "overview")}
+          onRetry={() => lastRequest && void analyze(lastRequest, "overview")}
+          onPlan={() => setCurrentStep("plan")}
+          onProgress={() => setCurrentStep("progress")}
+        />
+      )}
       {currentStep === "profile" && (
         <>
           <ProfileStep

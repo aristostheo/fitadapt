@@ -74,7 +74,7 @@ export function ProgressStep({
             <article className="result-card">
               <p className="eyebrow">Plan status</p>
               <h2>
-                {result.integration_status.app_status.replaceAll("_", " ")}
+                {result.integration_status.app_status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase())}
               </h2>
               <p>{result.integration_status.summary}</p>
             </article>

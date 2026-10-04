@@ -138,7 +138,10 @@ export function CurrentPlan({
   plan: PersonalizedPlanSnapshot;
   result: ProfileIntelligenceResponse;
 }) {
-  const envelope = plan.target_envelope;
+  const active = result.current_recommendation;
+  const envelope = active ? active.target_envelope : plan.target_envelope;
+  const activeCalories = active?.calorie_target_kcal_per_day ?? plan.selected_calorie_target_kcal_per_day;
+  const activeMacros = active?.macro_plan ?? plan.macro_plan;
   const fallback =
     result.lifecycle.stage === "personalized" &&
     plan.calorie_basis === "baseline";
@@ -147,9 +150,9 @@ export function CurrentPlan({
       <div className="plan-heading">
         <div>
           <p className="eyebrow">Current plan</p>
-          <p className="plan-label">What to do now</p>
+          <p className="plan-label">Active recommendation</p>
           <h2>
-            {whole(plan.selected_calorie_target_kcal_per_day, "kcal/day")}
+            {whole(activeCalories, "kcal/day")}
           </h2>
           {envelope && (
             <p className="range-summary">
@@ -157,7 +160,7 @@ export function CurrentPlan({
               <strong>{targetRange(envelope.calorie_adherence_range)}</strong>
             </p>
           )}
-          <p>As of {plan.as_of_date || "your profile setup"}</p>
+          <p>Effective {active?.effective_date ?? plan.as_of_date ?? "from profile setup"} · {active?.source?.replaceAll("_", " ") ?? plan.calorie_basis} source</p>
         </div>
         <StatusBadge
           tone={plan.calorie_basis === "personalized" ? "success" : "neutral"}
@@ -167,9 +170,9 @@ export function CurrentPlan({
       </div>
       {fallback && (
         <Notice tone="warning">
-          Personalized evidence is supporting context. The baseline/safety
-          target remains current until a CP29 proposal is accepted through the
-          CP30 activation flow.
+          Personalized evidence is available, but the baseline/safety target
+          remains current until a proposed change is reviewed and accepted.
+          No plan updates automatically.
         </Notice>
       )}
       {envelope ? (
@@ -180,31 +183,22 @@ export function CurrentPlan({
           >
             <MetricCard
               label="Selected protein"
-              value={whole(
-                envelope.protein_preferred_range.selected_value,
-                "g/day",
-              )}
+              value={whole(activeMacros.protein_g_per_day, "g/day")}
               detail={`Preferred range: ${targetRange(envelope.protein_preferred_range)}`}
             />
             <MetricCard
               label="Selected fat"
-              value={whole(
-                envelope.fat_preferred_range.selected_value,
-                "g/day",
-              )}
+              value={whole(activeMacros.fat_g_per_day, "g/day")}
               detail={`Preferred range: ${targetRange(envelope.fat_preferred_range)}`}
             />
             <MetricCard
               label="Selected carbohydrates"
-              value={whole(
-                envelope.carbohydrate_flexible_range.selected_value,
-                "g/day",
-              )}
+              value={whole(activeMacros.carbohydrate_g_per_day, "g/day")}
               detail={`Flexible range: ${targetRange(envelope.carbohydrate_flexible_range)}`}
             />
             <MetricCard
               label="Strategy"
-              value={strategyLabels[envelope.macro_strategy]}
+              value={strategyLabels[activeMacros.strategy]}
               detail="Selected macro approach"
             />
           </div>
@@ -215,14 +209,14 @@ export function CurrentPlan({
             combinations of every endpoint may not reconcile exactly to the
             calorie target.
           </p>
-          {plan.macro_plan.training_adjustment_applied && (
+          {activeMacros.training_adjustment_applied && (
             <Notice>
               Training demand refined the protein and carbohydrate mix within
               the same calorie target. Calories were not increased because of
               workouts.
             </Notice>
           )}
-          {plan.macro_plan.training_adjustment_available === false && (
+          {activeMacros.training_adjustment_available === false && (
             <p className="supporting-copy">
               Training evidence was insufficient, so the standard macro policy
               is being used.
@@ -244,7 +238,7 @@ export function CurrentPlan({
           Target ranges are unavailable for this plan response.
         </Notice>
       )}
-      {plan.change_from_previous_snapshot_kcal_per_day != null && (
+      {!active && plan.change_from_previous_snapshot_kcal_per_day != null && (
         <p>
           Change from previous plan:{" "}
           {whole(plan.change_from_previous_snapshot_kcal_per_day, "kcal/day")}
@@ -299,7 +293,7 @@ export function RecommendationPanel({
             : "The current plan is being kept while FitAdapt gathers enough interpretable evidence.";
   return (
     <article className="result-card">
-      <p className="eyebrow">CP29 recommendation decision</p>
+        <p className="eyebrow">Recommendation decision</p>
       <h2>{labels[decision.decision]}</h2>
       <p className="primary-reason">{explanation}</p>
       <div className="evidence-grid">
@@ -625,7 +619,7 @@ export function TrendChart({
   return (
     <article className="chart-card">
       <h2>{title}</h2>
-      <p className="chart-key">Coral: recorded value · teal: trailing mean</p>
+      <p className="chart-key">Coral: recorded value · violet: trailing mean</p>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={points}>
           <XAxis dataKey="observed_on" hide />
@@ -639,7 +633,7 @@ export function TrendChart({
             type="linear"
             connectNulls={false}
             dataKey={String(raw)}
-            stroke="#dc6849"
+            stroke="var(--chart-raw)"
             dot={false}
             name={`Recorded (${unit})`}
           />
@@ -647,7 +641,7 @@ export function TrendChart({
             type="linear"
             connectNulls={false}
             dataKey={String(trend)}
-            stroke="#0f5960"
+            stroke="var(--chart-trend)"
             dot={false}
             name={`Trailing mean (${unit})`}
           />
@@ -693,7 +687,7 @@ export function PlanProgression({
                 <Tooltip />
                 <Line
                   dataKey="selected_calorie_target_kcal_per_day"
-                  stroke="#dc6849"
+                  stroke="var(--chart-raw)"
                   dot={false}
                 />
               </LineChart>

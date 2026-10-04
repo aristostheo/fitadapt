@@ -37,7 +37,8 @@ export function TrainingAssessmentCard({
       </div>
       <p>
         This assessment describes training demand and performance context. It
-        has not changed your current plan or estimated energy needs.
+        does not increase calories or estimated energy needs. Training-aware
+        macro policy may refine the mix within the existing calorie target.
       </p>
       {assessment.assessment_available ? (
         <div className="metric-grid">
@@ -82,8 +83,8 @@ export function TrainingAssessmentCard({
       )}
       <p className="supporting-copy">
         Energy needs still come from baseline and adaptive TDEE. Training-aware
-        macro adjustments are future policy work; no workout calories are
-        estimated.
+        macro policy can refine the macro mix at the existing calorie target;
+        no workout calories are estimated.
       </p>
       <details>
         <summary>Technical training details</summary>

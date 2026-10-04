@@ -66,17 +66,17 @@ export function RecommendationHistoryCard({
           plan.
         </Notice>
       )}
-      <ol className="action-list">
+      <ol className="recommendation-timeline">
         {history.entries
           .slice()
           .reverse()
           .map((entry) => (
             <li key={`${entry.effective_date}-${entry.change_type}`}>
-              <strong>
-                {entry.effective_date} · {entryTitle(entry)}
-              </strong>
-              <span>{entry.user_summary}</span>
-              {entry.is_current_active_plan && <span>Current active plan</span>}
+              <time dateTime={entry.effective_date}>{entry.effective_date}</time>
+              <div><strong>{entryTitle(entry)}</strong>
+              <p>{entry.user_summary}</p>
+              <small>{entry.source.replaceAll("_", " ")} · {entry.is_plan_change ? `${whole(entry.previous_calorie_target_kcal_per_day, "kcal/day")} → ${whole(entry.resulting_or_proposed_calorie_target_kcal_per_day, "kcal/day")} · Active plan changed` : "Evaluation only · active plan unchanged"}</small>
+              {entry.is_current_active_plan && <span className="status-badge success">Current active plan</span>}</div>
             </li>
           ))}
       </ol>

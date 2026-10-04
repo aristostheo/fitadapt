@@ -32,7 +32,7 @@ function explanation(decision: RecommendationDecision): string {
     if (decision.adaptive_evidence_status === "stable") {
       return "Your recent progress and intake data consistently support reviewing your calorie target.";
     }
-    return "Your CP28 progress and adherence evidence supports reviewing an increase. Adaptive TDEE is uncertain and was not used as proof of changed expenditure.";
+    return "Your progress and adherence evidence supports reviewing an increase. Adaptive TDEE is uncertain and was not used as proof of changed expenditure.";
   }
   return "Your recent progress is slower than expected despite intake being close to target. FitAdapt proposes reducing your calorie target.";
 }
