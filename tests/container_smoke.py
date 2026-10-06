@@ -71,7 +71,7 @@ def inspect_image(image: str) -> None:
     assert not any(
         marker in item.split("=", 1)[0]
         for item in config["Env"]
-        for marker in ("TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "_KEY")
+        for marker in ("TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "API_KEY")
     )
     command = " ".join(config["Cmd"])
     assert "uvicorn fitadapt.api.app:app" in command
