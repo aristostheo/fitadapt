@@ -8,7 +8,7 @@ import secrets
 import subprocess
 import time
 import traceback
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 CANONICAL = "/v1/profile-intelligence"
@@ -188,7 +188,7 @@ def smoke_container(image: str) -> None:
             try:
                 if request(base, "/health")[0] == 200:
                     break
-            except (URLError, TimeoutError):
+            except OSError:
                 time.sleep(0.5)
         else:
             raise AssertionError("Container health endpoint did not become ready.")
@@ -224,10 +224,7 @@ if __name__ == "__main__":
         main()
     except Exception as error:
         frames = traceback.extract_tb(error.__traceback__)
-        frame = next(
-            (item for item in reversed(frames) if item.filename.endswith("container_smoke.py")),
-            frames[-1],
-        )
+        frame = frames[-2] if frames[-1].name == "request" and len(frames) > 1 else frames[-1]
         print(
             f"::error file=tests/container_smoke.py,line={frame.lineno}::"
             f"Container smoke {type(error).__name__}: {error}"
