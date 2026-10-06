@@ -3,9 +3,11 @@
 import argparse
 import json
 import os
+import re
 import secrets
 import subprocess
 import time
+import traceback
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -54,7 +56,9 @@ def docker(*args: str) -> str:
     """Keep command arguments, which may contain the temporary token, out of failures."""
     result = subprocess.run(["docker", *args], capture_output=True, text=True, check=False)
     if result.returncode:
-        raise RuntimeError(f"Docker command failed with status {result.returncode}.")
+        inner_line = re.search(r'File "<string>", line (\d+)', result.stderr)
+        location = f" (filesystem check line {inner_line.group(1)})" if inner_line else ""
+        raise RuntimeError(f"Docker {args[0]} failed with status {result.returncode}{location}.")
     return result.stdout + result.stderr if args[0] == "logs" else result.stdout
 
 
@@ -216,4 +220,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        frames = traceback.extract_tb(error.__traceback__)
+        frame = next(
+            (item for item in reversed(frames) if item.filename.endswith("container_smoke.py")),
+            frames[-1],
+        )
+        print(
+            f"::error file=tests/container_smoke.py,line={frame.lineno}::"
+            f"Container smoke {type(error).__name__}: {error}"
+        )
+        raise SystemExit(1) from None
