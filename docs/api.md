@@ -44,6 +44,19 @@ The local standalone client is allowed from `http://localhost:5173` and `http://
 | `POST` | `/v1/training/demand`              | Informational questionnaire and observed training-demand assessment.             |
 | `POST` | `/v1/personalization/status`       | Recomputed evidence stage and next data-logging requirements.                    |
 | `POST` | `/v1/profile-intelligence`         | Complete stateless baseline, evidence, recommendation, and latest-plan response. |
+| `POST` | `/v1/integrations/somata/profile-intelligence` | Same response for Somata's authenticated server bridge. |
+
+The Somata route requires `Authorization: Bearer <token>` and the server-side
+`FITADAPT_BRIDGE_TOKEN` environment variable. It returns `503` when the token is not configured
+and `401` for a missing or invalid token. The original profile-intelligence route and its
+calculations are unchanged. Somata must call the protected route from its Firebase Function;
+the token must never be included in a mobile build.
+
+The production container sets `FITADAPT_SOMATA_ONLY=1`: `/health`, the Somata bridge, and
+`/v1/profile-intelligence` remain available. Both intelligence routes require the same bridge
+credential and reject JSON bodies larger than 128 KiB with 413. Other API and documentation
+routes return 404. The container disables HTTP access logs. Local development without that
+setting retains the existing public API.
 
 All `POST` routes use explicit JSON schemas. Unknown fields, numeric booleans, `NaN`, and infinity
 are rejected at the transport boundary. ISO dates use `YYYY-MM-DD`; omitted optional measurements

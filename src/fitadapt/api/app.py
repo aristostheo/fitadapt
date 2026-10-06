@@ -1,10 +1,12 @@
 """Stateless FastAPI adapter over FitAdapt's existing domain functions."""
 
+import hmac
 import os
 from importlib.metadata import PackageNotFoundError, version
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from fitadapt.adaptive.tdee import estimate_adaptive_tdee
 from fitadapt.analysis.trends import analyze_observation_trends
@@ -70,6 +72,9 @@ ERROR_RESPONSES = {
 }
 
 DEFAULT_CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
+PROFILE_INTELLIGENCE_PATH = "/v1/profile-intelligence"
+SOMATA_BRIDGE_PATH = "/v1/integrations/somata/profile-intelligence"
+MAX_SOMATA_REQUEST_BYTES = 128 * 1024
 
 
 def cors_origins(value: str | None = None) -> tuple[str, ...]:
@@ -87,6 +92,7 @@ def cors_origins(value: str | None = None) -> tuple[str, ...]:
 
 def create_app() -> FastAPI:
     """Create a fresh, state-free FitAdapt HTTP application."""
+    somata_only = os.environ.get("FITADAPT_SOMATA_ONLY") == "1"
     app = FastAPI(
         title="FitAdapt API",
         version=_package_version(),
@@ -100,6 +106,50 @@ def create_app() -> FastAPI:
         allow_headers=("Content-Type",),
     )
     install_error_handlers(app)
+
+    @app.middleware("http")
+    async def authorize_somata_bridge(request: Request, call_next):
+        intelligence_paths = (PROFILE_INTELLIGENCE_PATH, SOMATA_BRIDGE_PATH)
+        if somata_only and request.url.path not in ("/health", *intelligence_paths):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+        if request.url.path == SOMATA_BRIDGE_PATH or (
+            somata_only and request.url.path == PROFILE_INTELLIGENCE_PATH
+        ):
+            expected = os.environ.get("FITADAPT_BRIDGE_TOKEN")
+            if not expected:
+                return JSONResponse(
+                    status_code=503,
+                    content={
+                        "error": {
+                            "code": "service_unavailable",
+                            "message": "Somata bridge is not configured.",
+                        }
+                    },
+                )
+            authorization = request.headers.get("authorization", "")
+            supplied = authorization.removeprefix("Bearer ")
+            if not authorization.startswith("Bearer ") or not hmac.compare_digest(
+                supplied, expected
+            ):
+                return JSONResponse(
+                    status_code=401,
+                    content={
+                        "error": {
+                            "code": "unauthenticated",
+                            "message": "Invalid service credential.",
+                        }
+                    },
+                )
+            if request.method == "POST":
+                content_length = request.headers.get("content-length")
+                if content_length is not None and content_length.isdecimal():
+                    if int(content_length) > MAX_SOMATA_REQUEST_BYTES:
+                        return JSONResponse(
+                            status_code=413, content={"detail": "Request too large."}
+                        )
+                if len(await request.body()) > MAX_SOMATA_REQUEST_BYTES:
+                    return JSONResponse(status_code=413, content={"detail": "Request too large."})
+        return await call_next(request)
 
     @app.get(
         "/health",
@@ -273,6 +323,17 @@ def create_app() -> FastAPI:
                 ),
             )
         )
+
+    @app.post(
+        SOMATA_BRIDGE_PATH,
+        response_model=ProfileIntelligenceResponse,
+        responses=ERROR_RESPONSES,
+    )
+    def somata_profile_intelligence(
+        request: ProfileIntelligenceRequest,
+    ) -> ProfileIntelligenceResponse:
+        """Private transport for Somata; calculations stay identical to the public API."""
+        return profile_intelligence(request)
 
     return app
 
